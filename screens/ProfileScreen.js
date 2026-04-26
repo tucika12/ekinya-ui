@@ -11,7 +11,7 @@ const menuItems = [
   { label: 'Becerilerim', icon: 'star-outline', screen: null },
   { label: 'Çalışma geçmişim', icon: 'calendar-outline', screen: null },
   { label: 'Cüzdan', icon: 'wallet-outline', screen: 'Wallet' },
-  { label: 'Bildirimler', icon: 'notifications-outline', screen: null },
+  { label: 'Bildirimler', icon: 'notifications-outline', screen: 'Notifications' },
   { label: 'Yardım & Destek', icon: 'help-circle-outline', screen: null },
   { label: 'Ayarlar', icon: 'settings-outline', screen: 'Settings' },
 ];
@@ -124,5 +124,5 @@ const styles = StyleSheet.create({
   menuIconWrap: { width: 36, height: 36, borderRadius: 18, backgroundColor: COLORS.limeSoft, alignItems: 'center', justifyContent: 'center' },
   menuLabel: { flex: 1, fontSize: FS.md, fontWeight: FW.medium, color: COLORS.text },
   logoutBtn: { alignItems: 'center', padding: SPACING.lg },
-  logoutText: { fontSize: FS.md, fontWeight: FW.semibold, color: COLORS.error },
+  logoutText: { fontSize: FS.md, fontWeight: FW.semibold, color: COLORS.error }
 });

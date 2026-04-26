@@ -1,11 +1,11 @@
 import React from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   Pressable,
-  SafeAreaView,
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -29,9 +29,6 @@ export default function WelcomeScreen({ navigation }) {
             </View>
             <Text style={styles.brandName}>tarımeşleş</Text>
           </View>
-          <Pressable onPress={() => navigation.navigate('Login')}>
-            <Text style={styles.loginLink}>Giriş</Text>
-          </Pressable>
         </View>
 
         {/* ── PILL BADGE ── */}
@@ -154,15 +151,15 @@ function FeatureCard({ icon, title, sub }) {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: COLORS.bg,
+    backgroundColor: COLORS.bg
   },
   scroll: {
-    flex: 1,
+    flex: 1
   },
   content: {
     paddingHorizontal: SPACING.lg,
     paddingTop: SPACING.md,
-    paddingBottom: SPACING.xl,
+    paddingBottom: SPACING.xl
   },
 
   // ── ÜST BAR ──
@@ -170,12 +167,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: SPACING.lg,
+    marginBottom: SPACING.lg
   },
   logoRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: SPACING.sm,
+    gap: SPACING.sm
   },
   logoCircle: {
     width: 36,
@@ -183,17 +180,17 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     backgroundColor: COLORS.dark,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   brandName: {
     fontSize: FS.lg,
     fontWeight: FW.semibold,
-    color: COLORS.text,
+    color: COLORS.text
   },
   loginLink: {
     fontSize: FS.md,
     fontWeight: FW.medium,
-    color: COLORS.text,
+    color: COLORS.text
   },
 
   // ── PILL BADGE ──
@@ -208,31 +205,31 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.sm,
     marginBottom: SPACING.lg,
-    gap: SPACING.sm,
+    gap: SPACING.sm
   },
   greenDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: COLORS.success,
+    backgroundColor: COLORS.success
   },
   badgeText: {
     fontSize: FS.sm,
-    color: COLORS.text,
+    color: COLORS.text
   },
 
   // ── HERO BAŞLIK ──
   headline: {
-    marginBottom: SPACING.md,
+    marginBottom: SPACING.md
   },
   headlineBold: {
     fontSize: FS.display,
     fontWeight: FW.bold,
     color: COLORS.text,
-    lineHeight: 40,
+    lineHeight: 40
   },
   headlineItalic: {
-    fontStyle: 'italic',
+    fontStyle: 'italic'
   },
 
   // ── AÇIKLAMA ──
@@ -240,7 +237,7 @@ const styles = StyleSheet.create({
     fontSize: FS.md,
     color: COLORS.textSub,
     lineHeight: 22,
-    marginBottom: SPACING.lg,
+    marginBottom: SPACING.lg
   },
 
   // ── KOYU CTA KARTI ──
@@ -248,19 +245,19 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.dark,
     borderRadius: RADIUS.lg,
     padding: SPACING.lg,
-    marginBottom: SPACING.md,
+    marginBottom: SPACING.md
   },
   ctaTopRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: SPACING.sm,
+    marginBottom: SPACING.sm
   },
   ctaSmallLabel: {
     fontSize: FS.xs,
     fontWeight: FW.bold,
     color: COLORS.lime,
-    letterSpacing: 1.5,
+    letterSpacing: 1.5
   },
   ctaIconCircle: {
     width: 40,
@@ -268,13 +265,13 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.pill,
     backgroundColor: COLORS.lime,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   ctaTitle: {
     fontSize: FS.xxl,
     fontWeight: FW.bold,
     color: COLORS.textOnDark,
-    marginBottom: SPACING.md,
+    marginBottom: SPACING.md
   },
 
   // Role butonları
@@ -286,7 +283,7 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.md,
     paddingHorizontal: SPACING.md,
     marginBottom: SPACING.sm,
-    gap: SPACING.sm,
+    gap: SPACING.sm
   },
   roleIconCircle: {
     width: 40,
@@ -294,23 +291,23 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.pill,
     backgroundColor: COLORS.dark,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   roleTextBlock: {
-    flex: 1,
+    flex: 1
   },
   roleBtnTitle: {
     fontSize: FS.md,
     fontWeight: FW.bold,
-    color: COLORS.dark,
+    color: COLORS.dark
   },
   roleBtnSub: {
     fontSize: FS.xs,
     color: COLORS.darkDeep,
-    marginTop: 2,
+    marginTop: 2
   },
   arrowIcon: {
-    transform: [{ rotate: '45deg' }],
+    transform: [{ rotate: '45deg' }]
   },
 
   // Ghost buton
@@ -324,19 +321,19 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.md,
     paddingHorizontal: SPACING.md,
     marginTop: SPACING.xs,
-    gap: SPACING.xs,
+    gap: SPACING.xs
   },
   ghostBtnText: {
     fontSize: FS.sm,
     fontWeight: FW.medium,
-    color: COLORS.lime,
+    color: COLORS.lime
   },
 
   // ── 3 FEATURE KART ──
   featRow: {
     flexDirection: 'row',
     gap: SPACING.sm,
-    marginBottom: SPACING.lg,
+    marginBottom: SPACING.lg
   },
   featCard: {
     flex: 1,
@@ -345,7 +342,7 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
     borderRadius: RADIUS.lg,
     padding: SPACING.md,
-    alignItems: 'center',
+    alignItems: 'center'
   },
   featIconCircle: {
     width: 36,
@@ -354,18 +351,18 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.limeSoft,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: SPACING.sm,
+    marginBottom: SPACING.sm
   },
   featTitle: {
     fontSize: FS.sm,
     fontWeight: FW.bold,
-    color: COLORS.text,
+    color: COLORS.text
   },
   featSub: {
     fontSize: FS.xs,
     color: COLORS.textSub,
     marginTop: 2,
-    textAlign: 'center',
+    textAlign: 'center'
   },
 
   // ── ALT LİNK ──
@@ -373,11 +370,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: FS.sm,
     color: COLORS.textSub,
-    marginTop: SPACING.sm,
+    marginTop: SPACING.sm
   },
   bottomLink: {
     color: COLORS.lime,
     fontWeight: FW.semibold,
-    textDecorationLine: 'underline',
-  },
+    textDecorationLine: 'underline'
+  }
 });

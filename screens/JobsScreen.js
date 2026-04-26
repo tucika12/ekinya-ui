@@ -27,7 +27,9 @@ export default function JobsScreen({ navigation }) {
       {/* ── ÜST BAR ── */}
       <View style={styles.topBar}>
         <Text style={styles.pageTitle}>İlanlar</Text>
-        <Pressable><Ionicons name="options-outline" size={24} color={COLORS.text} /></Pressable>
+        <Pressable onPress={() => navigation?.navigate('Filter')}>
+          <Ionicons name="options-outline" size={24} color={COLORS.text} />
+        </Pressable>
       </View>
 
       {/* ── ARAMA ── */}
@@ -132,5 +134,5 @@ const styles = StyleSheet.create({
   jobMeta: { fontSize: FS.xs, color: COLORS.textMuted, marginTop: 2 },
   jobFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderTopWidth: 1, borderTopColor: COLORS.border, padding: SPACING.sm + 4, paddingHorizontal: SPACING.md },
   jobWageFooter: { fontSize: FS.md, fontWeight: FW.bold, color: COLORS.lime },
-  jobWorkers: { fontSize: FS.xs, color: COLORS.textSub },
+  jobWorkers: { fontSize: FS.xs, color: COLORS.textSub }
 });

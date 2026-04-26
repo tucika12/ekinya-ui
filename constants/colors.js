@@ -2,8 +2,8 @@ export const COLORS = {
   // Backgrounds
   bg: '#F5F1E8',           // Cream sayfa arka planı
   surface: '#FFFFFF',       // Beyaz kart
-  dark: '#0F1F0F',          // Koyu yeşil-siyah CTA
-  darkDeep: '#0A150A',
+  dark: '#001c0e',          // Koyu yeşil-siyah CTA
+  darkDeep: '#000f07',
 
   // Brand
   lime: '#C5F542',          // Neon lime (ana CTA)

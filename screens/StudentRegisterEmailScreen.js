@@ -1,3 +1,4 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 // Ekran: Öğrenci Kayıt — Adım 2/3 · E-posta Doğrulama
 import React, { useState } from 'react';
 import {
@@ -5,7 +6,7 @@ import {
   Text,
   StyleSheet,
   Pressable,
-  SafeAreaView,
+
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { COLORS } from '../constants/colors';
@@ -100,7 +101,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: SPACING.lg,
     paddingTop: SPACING.lg,
-    paddingBottom: SPACING.xl,
+    paddingBottom: SPACING.xl
   },
 
   // Başlık
@@ -108,24 +109,24 @@ const styles = StyleSheet.create({
   pageTitle: {
     fontSize: FS.title,
     fontWeight: FW.bold,
-    color: COLORS.text,
+    color: COLORS.text
   },
   pageSubtitle: {
     fontSize: FS.sm,
     color: COLORS.textSub,
-    marginTop: 2,
+    marginTop: 2
   },
 
   // Progress
   progressBar: {
     flexDirection: 'row',
     gap: SPACING.sm,
-    marginBottom: SPACING.xl,
+    marginBottom: SPACING.xl
   },
   progressSeg: {
     flex: 1,
     height: 5,
-    borderRadius: RADIUS.pill,
+    borderRadius: RADIUS.pill
   },
   progressDone: { backgroundColor: COLORS.dark },
   progressEmpty: { backgroundColor: COLORS.border },
@@ -140,7 +141,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
     shadowRadius: 12,
-    elevation: 3,
+    elevation: 3
   },
 
   iconCircle: {
@@ -150,7 +151,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.limeSoft,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: SPACING.lg,
+    marginBottom: SPACING.lg
   },
 
   cardTitle: {
@@ -158,18 +159,18 @@ const styles = StyleSheet.create({
     fontWeight: FW.bold,
     color: COLORS.text,
     marginBottom: SPACING.sm,
-    textAlign: 'center',
+    textAlign: 'center'
   },
   cardDesc: {
     fontSize: FS.sm,
     color: COLORS.textSub,
     lineHeight: 22,
     textAlign: 'center',
-    marginBottom: SPACING.lg,
+    marginBottom: SPACING.lg
   },
   emailHighlight: {
     fontWeight: FW.semibold,
-    color: COLORS.text,
+    color: COLORS.text
   },
 
   // Doğruladım butonu
@@ -182,12 +183,12 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.pill,
     paddingVertical: SPACING.md,
     width: '100%',
-    marginBottom: SPACING.md,
+    marginBottom: SPACING.md
   },
   confirmBtnText: {
     fontSize: FS.md,
     fontWeight: FW.semibold,
-    color: COLORS.textOnDark,
+    color: COLORS.textOnDark
   },
 
   // Tekrar gönder
@@ -195,11 +196,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.xs,
-    paddingVertical: SPACING.sm,
+    paddingVertical: SPACING.sm
   },
   resendText: {
     fontSize: FS.sm,
-    color: COLORS.textSub,
+    color: COLORS.textSub
   },
 
   // Alt link
@@ -207,11 +208,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: FS.sm,
     color: COLORS.textSub,
-    marginTop: SPACING.xl,
+    marginTop: SPACING.xl
   },
   bottomLink: {
     fontWeight: FW.bold,
     color: COLORS.text,
-    textDecorationLine: 'underline',
-  },
+    textDecorationLine: 'underline'
+  }
 });

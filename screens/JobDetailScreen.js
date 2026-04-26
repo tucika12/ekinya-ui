@@ -1,158 +1,339 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import {
+  View, Text, StyleSheet, ScrollView,
+  Pressable
+} from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { COLORS } from '../constants/colors';
 import { SPACING, RADIUS } from '../constants/spacing';
 import { FS, FW } from '../constants/typography';
 
+const HERO_BG = '#001c0e';
+
+const DEFAULT_JOB = {
+  category:    'Meyve Toplama',
+  emoji:       '🍑',
+  title:       'Şeftali Hasadı İşçisi',
+  farm:        'Bursa Şeftali Bahçesi',
+  rating:      4.5,
+  reviewCount: 355,
+  location:    'Bursa',
+  wage:        '₺850/gün',
+  dates:       '15.07 — 30.07',
+  amenities: [
+    { icon: 'wifi',                      label: 'Wi-Fi',   lib: 'ion' },
+    { icon: 'restaurant',                label: 'Yemek',   lib: 'ion' },
+    { icon: 'bus-outline',               label: 'Ulaşım',  lib: 'ion' },
+    { icon: 'shield-checkmark-outline',  label: 'Ekipman', lib: 'ion' },
+  ],
+  description:
+    'İznik bölgesinde şeftali hasadı için işçi aranıyor. Konaklama ve öğle yemeği dahil. Deneyim şart değil. Çalışma saatleri esnektir: sabah erken başlayabilirsin. Günlük servis ve öğle yemeği sağlanmaktadır. Güvenli çalışma ortamı garantidir.'
+};
+
 export default function JobDetailScreen({ navigation, route }) {
-  const job = route?.params?.job || {
-    title: 'Zeytin Toplama · Hasat',
-    farm: 'Kaya Çiftliği',
-    wage: '₺600',
-    total: '₺6.000',
-    days: '10 gün',
-    distance: '2.3 km',
-    workers: '7',
-    rating: '4.8',
-    dates: '15-25 Mayıs',
-    desc: 'Aydın Nazilli bölgesinde zeytinlik bahçesinde hasat çalışması. Konaklama ve yemek dahildir. Deneyimsizler de başvurabilir. Günlük çalışma süresi 8 saattir.',
-    skills: ['Fiziksel dayanıklılık', 'Takım çalışması', 'Sorumluluk'],
-  };
+  const job = { ...DEFAULT_JOB, ...(route?.params?.job ?? {}) };
 
   const [liked, setLiked] = useState(false);
 
   return (
-    <View style={styles.screen}>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={styles.safe}>
+      {/* ── ÜST BAR ── */}
+      <View style={styles.topBar}>
+        <Pressable style={styles.backBtn} onPress={() => navigation?.goBack()}>
+          <Ionicons name="arrow-back" size={20} color={COLORS.text} />
+        </Pressable>
+        <Text style={styles.pageTitle}>İlan Detayı</Text>
+        <View style={{ width: 40 }} />
+      </View>
 
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.content}
+      >
         {/* ── HERO ── */}
-        <View style={styles.hero}>
-          <Pressable style={styles.backBtn} onPress={() => navigation?.goBack?.()}>
-            <Ionicons name="chevron-back" size={22} color={COLORS.textOnDark} />
-          </Pressable>
-          <View style={styles.activePill}>
-            <Text style={styles.activePillText}>AKTİF</Text>
+        <View style={styles.heroCard}>
+          {/* Kategori pill */}
+          <View style={styles.categoryPill}>
+            <Text style={styles.categoryText}>{job.category}</Text>
           </View>
+
+          {/* Emoji / görsel */}
+          <Text style={styles.heroEmoji}>{job.emoji}</Text>
+
+          {/* Favori butonu */}
+          <Pressable
+            style={styles.heartBtn}
+            onPress={() => setLiked(l => !l)}
+          >
+            <Ionicons
+              name={liked ? 'heart' : 'heart-outline'}
+              size={20}
+              color={liked ? COLORS.error : COLORS.text}
+            />
+          </Pressable>
         </View>
 
-        {/* ── İÇERİK SHEET ── */}
-        <View style={styles.sheet}>
-
-          {/* Başlık */}
-          <View style={styles.titleRow}>
-            <Text style={styles.jobTitle}>{job.title}</Text>
-            <Pressable onPress={() => setLiked(l => !l)}>
-              <Ionicons name={liked ? 'heart' : 'heart-outline'} size={24} color={liked ? COLORS.error : COLORS.textMuted} />
-            </Pressable>
+        {/* ── BAŞLIK ── */}
+        <View style={styles.titleRow}>
+          <Text style={styles.jobTitle}>{job.title}</Text>
+          <View style={styles.ratingWrap}>
+            <Ionicons name="star" size={14} color="#F59E0B" />
+            <Text style={styles.ratingText}>
+              {job.rating} ({job.reviewCount})
+            </Text>
           </View>
-          <View style={styles.farmRow}>
-            <Text style={styles.farmName}>{job.farm}</Text>
-            <Ionicons name="checkmark-circle" size={14} color={COLORS.success} style={{ marginLeft: 4 }} />
-          </View>
-
-          {/* Bilgi çipleri */}
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsRow}>
-            {[`📍 ${job.distance}`, `📅 ${job.days}`, `👥 ${job.workers} ihtiyaç`, `⭐ ${job.rating}`].map(c => (
-              <View key={c} style={styles.chip}><Text style={styles.chipText}>{c}</Text></View>
-            ))}
-          </ScrollView>
-
-          {/* Ücret kartı */}
-          <View style={styles.wageCard}>
-            <View style={styles.wageCardTop}>
-              <Text style={styles.wageLabel}>GÜNLÜK ÜCRET</Text>
-              <View style={styles.escrowPill}><Text style={styles.escrowText}>🔒 Escrow</Text></View>
-            </View>
-            <Text style={styles.wageAmount}>{job.wage}</Text>
-            <Text style={styles.wageTotal}>Toplam ~{job.total} · {job.days}</Text>
-          </View>
-
-          {/* Açıklama */}
-          <Text style={styles.sectionTitle}>İş hakkında</Text>
-          <Text style={styles.desc}>{job.desc}</Text>
-
-          {/* Beceriler */}
-          <Text style={styles.sectionTitle}>Aranan beceriler</Text>
-          <View style={styles.skillsRow}>
-            {job.skills.map(s => (
-              <View key={s} style={styles.skillChip}><Text style={styles.skillText}>{s}</Text></View>
-            ))}
-          </View>
-
-          {/* Çiftçi kartı */}
-          <Pressable style={styles.farmerCard}>
-            <View style={styles.farmerAvatar}>
-              <Text style={styles.farmerInitials}>MK</Text>
-            </View>
-            <View style={styles.farmerInfo}>
-              <Text style={styles.farmerName}>{job.farm.split(' ')[0]} Kaya</Text>
-              <Text style={styles.farmerMeta}>⭐ 4.8 · 24 iş tamamladı</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={18} color={COLORS.textMuted} />
-          </Pressable>
-
-          {/* Harita placeholder */}
-          <View style={styles.mapPlaceholder}>
-            <Ionicons name="location" size={28} color={COLORS.textSub} />
-            <Text style={styles.mapText}>Aydın, Nazilli</Text>
-          </View>
-
-          <View style={{ height: 100 }} />
         </View>
+        <Text style={styles.farmName}>{job.farm}</Text>
+
+        {/* ── 3 BİLGİ KARTI ── */}
+        <View style={styles.infoRow}>
+          <InfoCard
+            icon={<Ionicons name="location-outline" size={20} color={COLORS.dark} />}
+            value={job.location}
+            label="Konum"
+            highlight={false}
+          />
+          <InfoCard
+            icon={null}
+            value={job.wage}
+            label="Ücret"
+            highlight
+          />
+          <InfoCard
+            icon={<Ionicons name="calendar-outline" size={20} color={COLORS.dark} />}
+            value={job.dates}
+            label="Tarih"
+            highlight={false}
+          />
+        </View>
+
+        {/* ── İMKÂNLAR ── */}
+        <Text style={styles.sectionTitle}>İmkânlar</Text>
+        <View style={styles.amenitiesRow}>
+          {job.amenities.map(a => (
+            <View key={a.label} style={styles.amenityCard}>
+              <Ionicons name={a.icon} size={22} color={COLORS.dark} />
+              <Text style={styles.amenityLabel}>{a.label}</Text>
+            </View>
+          ))}
+        </View>
+
+        {/* ── AÇIKLAMA ── */}
+        <Text style={styles.sectionTitle}>Açıklama</Text>
+        <Text style={styles.description}>{job.description}</Text>
+
+        {/* Alttaki buton için boşluk */}
+        <View style={{ height: 100 }} />
       </ScrollView>
 
       {/* ── ALT BAR ── */}
       <View style={styles.bottomBar}>
-        <Pressable style={styles.msgBtn}>
-          <Text style={styles.msgBtnText}>Mesaj</Text>
+        <Pressable style={styles.chatBtn}>
+          <Ionicons name="chatbubble-outline" size={22} color={COLORS.dark} />
         </Pressable>
-        <Pressable style={styles.applyBtn}>
-          <Text style={styles.applyBtnText}>Başvur</Text>
+        <Pressable
+          style={styles.applyBtn}
+          onPress={() => navigation?.navigate('ApplyJob', { job })}
+        >
+          <Text style={styles.applyText}>Başvur</Text>
         </Pressable>
       </View>
+    </SafeAreaView>
+  );
+}
+
+function InfoCard({ icon, value, label, highlight }) {
+  return (
+    <View style={[styles.infoCard, highlight && styles.infoCardHighlight]}>
+      {icon}
+      <Text style={[styles.infoValue, highlight && styles.infoValueHighlight]}>
+        {value}
+      </Text>
+      <Text style={[styles.infoLabel, highlight && styles.infoLabelHighlight]}>
+        {label}
+      </Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: COLORS.bg },
-  content: { paddingBottom: 0 },
-  hero: { height: 200, backgroundColor: COLORS.limeSoft, justifyContent: 'space-between', flexDirection: 'row', alignItems: 'flex-start', padding: SPACING.md, paddingTop: 56 },
-  backBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#0F1F0FAA', alignItems: 'center', justifyContent: 'center' },
-  activePill: { backgroundColor: COLORS.lime, borderRadius: RADIUS.pill, paddingHorizontal: SPACING.sm, paddingVertical: 5 },
-  activePillText: { fontSize: FS.xs, fontWeight: FW.bold, color: COLORS.dark },
-  sheet: { backgroundColor: COLORS.bg, borderRadius: 24, marginTop: -20, paddingHorizontal: SPACING.lg, paddingTop: SPACING.lg },
-  titleRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: SPACING.xs },
-  jobTitle: { fontSize: FS.title, fontWeight: FW.bold, color: COLORS.text, flex: 1, lineHeight: 34 },
-  farmRow: { flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.md },
-  farmName: { fontSize: FS.sm, fontWeight: FW.semibold, color: COLORS.textSub },
-  chipsRow: { gap: SPACING.sm, marginBottom: SPACING.md },
-  chip: { backgroundColor: COLORS.surface, borderWidth: 1, borderColor: COLORS.border, borderRadius: RADIUS.pill, paddingHorizontal: SPACING.sm, paddingVertical: SPACING.sm },
-  chipText: { fontSize: FS.xs, color: COLORS.text },
-  wageCard: { backgroundColor: COLORS.dark, borderRadius: RADIUS.xl, padding: SPACING.lg, marginBottom: SPACING.lg },
-  wageCardTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  wageLabel: { fontSize: FS.xs, fontWeight: FW.bold, color: COLORS.lime, letterSpacing: 1.5 },
-  escrowPill: { backgroundColor: '#1a3a1a', borderRadius: RADIUS.pill, paddingHorizontal: SPACING.sm, paddingVertical: 4 },
-  escrowText: { fontSize: FS.xs, color: COLORS.lime },
-  wageAmount: { fontSize: FS.display, fontWeight: FW.bold, color: COLORS.textOnDark, marginTop: SPACING.xs },
-  wageTotal: { fontSize: FS.sm, color: COLORS.textMuted, marginTop: 4 },
-  sectionTitle: { fontSize: FS.lg, fontWeight: FW.bold, color: COLORS.text, marginBottom: SPACING.sm, marginTop: SPACING.md },
-  desc: { fontSize: FS.md, color: COLORS.textSub, lineHeight: 22 },
-  skillsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.sm },
-  skillChip: { backgroundColor: COLORS.surface, borderWidth: 1, borderColor: COLORS.border, borderRadius: RADIUS.pill, paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm },
-  skillText: { fontSize: FS.xs, color: COLORS.text },
-  farmerCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.surface, borderRadius: RADIUS.xl, borderWidth: 1, borderColor: COLORS.border, padding: SPACING.md, marginTop: SPACING.md, gap: SPACING.sm },
-  farmerAvatar: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#E8E8E8', alignItems: 'center', justifyContent: 'center' },
-  farmerInitials: { fontWeight: FW.bold, fontSize: FS.md, color: COLORS.textSub },
-  farmerInfo: { flex: 1 },
-  farmerName: { fontWeight: FW.semibold, fontSize: FS.md, color: COLORS.text },
-  farmerMeta: { fontSize: FS.xs, color: COLORS.textSub },
-  mapPlaceholder: { height: 160, backgroundColor: '#E8E8E8', borderRadius: RADIUS.xl, alignItems: 'center', justifyContent: 'center', marginTop: SPACING.md, gap: SPACING.xs },
-  mapText: { fontSize: FS.md, fontWeight: FW.semibold, color: COLORS.textSub },
-  bottomBar: { position: 'absolute', bottom: 0, left: 0, right: 0, flexDirection: 'row', gap: SPACING.sm, backgroundColor: COLORS.surface, borderTopWidth: 1, borderTopColor: COLORS.border, padding: SPACING.md, paddingBottom: 32 },
-  msgBtn: { flex: 1, borderWidth: 1.5, borderColor: COLORS.dark, borderRadius: RADIUS.pill, paddingVertical: SPACING.md, alignItems: 'center' },
-  msgBtnText: { fontSize: FS.md, fontWeight: FW.semibold, color: COLORS.dark },
-  applyBtn: { flex: 2, backgroundColor: COLORS.lime, borderRadius: RADIUS.pill, paddingVertical: SPACING.md, alignItems: 'center' },
-  applyBtnText: { fontSize: FS.md, fontWeight: FW.bold, color: COLORS.dark },
+  safe: { flex: 1, backgroundColor: COLORS.bg },
+
+  // ── ÜST BAR ──
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm
+  },
+  backBtn: {
+    width: 40, height: 40, borderRadius: 20,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1, borderColor: COLORS.border,
+    alignItems: 'center', justifyContent: 'center'
+  },
+  pageTitle: {
+    fontSize: FS.lg, fontWeight: FW.bold, color: COLORS.text
+  },
+
+  // ── İÇERİK ──
+  content: { paddingHorizontal: SPACING.md },
+
+  // ── HERO ──
+  heroCard: {
+    backgroundColor: HERO_BG,
+    borderRadius: RADIUS.xl,
+    height: 260,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: SPACING.md,
+    overflow: 'hidden',
+    position: 'relative'
+  },
+  categoryPill: {
+    position: 'absolute',
+    top: SPACING.md,
+    left: SPACING.md,
+    backgroundColor: COLORS.lime,
+    borderRadius: RADIUS.pill,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.xs + 2
+  },
+  categoryText: {
+    fontSize: FS.sm, fontWeight: FW.semibold, color: COLORS.dark
+  },
+  heroEmoji: {
+    fontSize: 96
+  },
+  heartBtn: {
+    position: 'absolute',
+    bottom: SPACING.md,
+    right: SPACING.md,
+    width: 44, height: 44, borderRadius: 22,
+    backgroundColor: COLORS.surface,
+    alignItems: 'center', justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 3
+  },
+
+  // ── BAŞLIK ──
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    marginBottom: SPACING.xs
+  },
+  jobTitle: {
+    fontSize: FS.xxl, fontWeight: FW.bold,
+    color: COLORS.text, flex: 1, lineHeight: 30
+  },
+  ratingWrap: {
+    flexDirection: 'row', alignItems: 'center',
+    gap: 4, marginLeft: SPACING.sm, marginTop: 4
+  },
+  ratingText: {
+    fontSize: FS.sm, fontWeight: FW.medium, color: COLORS.textSub
+  },
+  farmName: {
+    fontSize: FS.md, color: COLORS.textSub,
+    marginBottom: SPACING.md
+  },
+
+  // ── 3 BİLGİ KARTI ──
+  infoRow: {
+    flexDirection: 'row', gap: SPACING.sm,
+    marginBottom: SPACING.lg
+  },
+  infoCard: {
+    flex: 1,
+    backgroundColor: COLORS.surface,
+    borderRadius: RADIUS.lg,
+    padding: SPACING.sm + 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    minHeight: 80
+  },
+  infoCardHighlight: {
+    backgroundColor: COLORS.limeSoft,
+    borderColor: COLORS.lime
+  },
+  infoValue: {
+    fontSize: FS.md, fontWeight: FW.bold,
+    color: COLORS.text, textAlign: 'center'
+  },
+  infoValueHighlight: {
+    fontSize: FS.lg, color: COLORS.dark
+  },
+  infoLabel: {
+    fontSize: FS.xs, color: COLORS.textMuted, textAlign: 'center'
+  },
+  infoLabelHighlight: {
+    color: COLORS.dark
+  },
+
+  // ── İMKÂNLAR ──
+  sectionTitle: {
+    fontSize: FS.lg, fontWeight: FW.bold,
+    color: COLORS.text, marginBottom: SPACING.sm
+  },
+  amenitiesRow: {
+    flexDirection: 'row', gap: SPACING.sm,
+    marginBottom: SPACING.lg
+  },
+  amenityCard: {
+    flex: 1,
+    backgroundColor: COLORS.surface,
+    borderRadius: RADIUS.lg,
+    paddingVertical: SPACING.md,
+    alignItems: 'center',
+    gap: SPACING.xs,
+    borderWidth: 1,
+    borderColor: COLORS.border
+  },
+  amenityLabel: {
+    fontSize: FS.xs, fontWeight: FW.medium,
+    color: COLORS.textSub, textAlign: 'center'
+  },
+
+  // ── AÇIKLAMA ──
+  description: {
+    fontSize: FS.md, color: COLORS.textSub,
+    lineHeight: 24
+  },
+
+  // ── ALT BAR ──
+  bottomBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
+    backgroundColor: COLORS.surface,
+    borderTopWidth: 1, borderTopColor: COLORS.border,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.md,
+    paddingBottom: SPACING.lg
+  },
+  chatBtn: {
+    width: 50, height: 50, borderRadius: 25,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1.5, borderColor: COLORS.border,
+    alignItems: 'center', justifyContent: 'center'
+  },
+  applyBtn: {
+    flex: 1, backgroundColor: COLORS.dark,
+    borderRadius: RADIUS.pill,
+    paddingVertical: SPACING.md + 2,
+    alignItems: 'center'
+  },
+  applyText: {
+    fontSize: FS.md, fontWeight: FW.bold, color: COLORS.textOnDark
+  }
 });

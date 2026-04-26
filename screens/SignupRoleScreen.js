@@ -1,10 +1,11 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   Pressable,
-  SafeAreaView,
+
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -97,13 +98,13 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: SPACING.lg,
     paddingTop: SPACING.md,
-    paddingBottom: SPACING.xl,
+    paddingBottom: SPACING.xl
   },
 
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'space-between'
   },
   backCircle: {
     width: 40,
@@ -111,40 +112,40 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.pill,
     backgroundColor: COLORS.surface,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   stepText: {
     fontSize: FS.sm,
-    color: COLORS.textMuted,
+    color: COLORS.textMuted
   },
 
   titleBlock: {
-    marginTop: 32,
+    marginTop: 32
   },
   title: {
     fontSize: FS.title,
     fontWeight: FW.bold,
-    color: COLORS.text,
+    color: COLORS.text
   },
   subtitle: {
     fontSize: FS.md,
     color: COLORS.textSub,
-    marginTop: 4,
+    marginTop: 4
   },
 
   cards: {
     marginTop: 32,
-    gap: 16,
+    gap: 16
   },
   card: {
     backgroundColor: COLORS.surface,
     borderWidth: 2,
     borderColor: COLORS.border,
     borderRadius: RADIUS.xl,
-    padding: 24,
+    padding: 24
   },
   cardSelected: {
-    borderColor: COLORS.lime,
+    borderColor: COLORS.lime
   },
   cardIconCircle: {
     width: 60,
@@ -152,19 +153,19 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.pill,
     backgroundColor: COLORS.lime,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   cardTitle: {
     fontSize: FS.xl,
     fontWeight: FW.bold,
     color: COLORS.text,
-    marginTop: 12,
+    marginTop: 12
   },
   cardDesc: {
     fontSize: FS.sm,
     color: COLORS.textSub,
     marginTop: 6,
-    lineHeight: 20,
+    lineHeight: 20
   },
   cardPill: {
     marginTop: 12,
@@ -172,12 +173,12 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.limeSoft,
     borderRadius: RADIUS.pill,
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 6
   },
   cardPillText: {
     fontSize: FS.xs,
     fontWeight: FW.semibold,
-    color: COLORS.dark,
+    color: COLORS.dark
   },
 
   continueBtn: {
@@ -186,12 +187,12 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.pill,
     paddingVertical: 16,
     alignItems: 'center',
-    width: '100%',
+    width: '100%'
   },
   continueBtnDisabled: { opacity: 0.4 },
   continueBtnText: {
     fontSize: FS.md,
     fontWeight: FW.semibold,
-    color: COLORS.textOnDark,
-  },
+    color: COLORS.textOnDark
+  }
 });

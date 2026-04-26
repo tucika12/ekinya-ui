@@ -1,3 +1,4 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
 import {
   View,
@@ -6,9 +7,8 @@ import {
   ScrollView,
   TextInput,
   Pressable,
-  SafeAreaView,
   KeyboardAvoidingView,
-  Platform,
+  Platform
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { COLORS } from '../constants/colors';
@@ -16,6 +16,7 @@ import { SPACING, RADIUS } from '../constants/spacing';
 import { FS, FW } from '../constants/typography';
 
 const INPUT_BG = '#ECF0FF';
+const inputBg = (val) => (val ? INPUT_BG : COLORS.surface);
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -33,10 +34,6 @@ export default function LoginScreen({ navigation }) {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          <Pressable style={styles.backCircle} onPress={() => navigation.goBack()}>
-            <Ionicons name="chevron-back" size={20} color={COLORS.text} />
-          </Pressable>
-
           <View style={styles.titleBlock}>
             <Text style={styles.title}>Tekrar hoş geldin 👋</Text>
             <Text style={styles.subtitle}>Giriş yap ve devam et</Text>
@@ -44,7 +41,7 @@ export default function LoginScreen({ navigation }) {
 
           <View style={styles.form}>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { backgroundColor: inputBg(email) }]}
               placeholder="E-posta"
               placeholderTextColor={COLORS.textMuted}
               value={email}
@@ -53,9 +50,9 @@ export default function LoginScreen({ navigation }) {
               autoCapitalize="none"
             />
 
-            <View style={styles.passwordWrap}>
+            <View style={[styles.passwordWrap, { backgroundColor: inputBg(password) }]}>
               <TextInput
-                style={[styles.input, { flex: 1 }]}
+                style={[styles.input, { flex: 1, backgroundColor: 'transparent' }]}
                 placeholder="Şifre"
                 placeholderTextColor={COLORS.textMuted}
                 value={password}
@@ -80,7 +77,10 @@ export default function LoginScreen({ navigation }) {
           </View>
 
           <View style={styles.buttons}>
-            <Pressable style={styles.loginBtn}>
+            <Pressable
+              style={styles.loginBtn}
+              onPress={() => navigation.navigate('MainTabs')}
+            >
               <Text style={styles.loginBtnText}>Giriş yap</Text>
             </Pressable>
 
@@ -111,91 +111,79 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: COLORS.bg },
   content: {
     paddingHorizontal: SPACING.lg,
-    paddingTop: SPACING.md,
-    paddingBottom: SPACING.xl,
-  },
-
-  backCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: RADIUS.pill,
-    backgroundColor: COLORS.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
+    paddingTop: SPACING.xl,
+    paddingBottom: SPACING.xl
   },
 
   titleBlock: {
-    marginTop: 32,
+    marginBottom: 32
   },
   title: {
     fontSize: FS.title,
     fontWeight: FW.bold,
-    color: COLORS.text,
+    color: COLORS.text
   },
   subtitle: {
     fontSize: FS.md,
     color: COLORS.textSub,
-    marginTop: 4,
+    marginTop: 4
   },
 
   form: {
-    marginTop: 32,
-    gap: 16,
+    gap: 16
   },
   input: {
-    backgroundColor: INPUT_BG,
     borderRadius: RADIUS.xl,
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: FS.md,
-    color: COLORS.text,
+    color: COLORS.text
   },
   passwordWrap: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: INPUT_BG,
     borderRadius: RADIUS.xl,
-    paddingRight: SPACING.sm,
+    paddingRight: SPACING.sm
   },
   eyeBtn: { padding: SPACING.sm },
   forgotWrap: { alignSelf: 'flex-end' },
   forgotText: {
     fontSize: FS.sm,
-    color: COLORS.textSub,
+    color: COLORS.textSub
   },
 
   buttons: {
     marginTop: 24,
-    gap: 12,
+    gap: 12
   },
   loginBtn: {
     backgroundColor: COLORS.dark,
     borderRadius: RADIUS.pill,
     paddingVertical: 16,
     alignItems: 'center',
-    width: '100%',
+    width: '100%'
   },
   loginBtnText: {
     fontSize: FS.md,
     fontWeight: FW.semibold,
-    color: COLORS.textOnDark,
+    color: COLORS.textOnDark
   },
 
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: SPACING.sm,
+    gap: SPACING.sm
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: COLORS.border,
+    backgroundColor: COLORS.border
   },
   dividerText: {
     fontSize: FS.sm,
     color: COLORS.textMuted,
     backgroundColor: COLORS.bg,
-    paddingHorizontal: 12,
+    paddingHorizontal: 12
   },
 
   signupBtn: {
@@ -203,12 +191,12 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.pill,
     paddingVertical: 16,
     alignItems: 'center',
-    width: '100%',
+    width: '100%'
   },
   signupBtnText: {
     fontSize: FS.md,
     fontWeight: FW.semibold,
-    color: COLORS.dark,
+    color: COLORS.dark
   },
 
   terms: {
@@ -216,6 +204,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: FS.xs,
     color: COLORS.textMuted,
-    lineHeight: 18,
-  },
+    lineHeight: 18
+  }
 });

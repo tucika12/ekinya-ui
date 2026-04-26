@@ -12,10 +12,10 @@ const mockJobs = [
 ];
 
 const quickLinks = [
-  { label: 'Belgelerim', icon: 'document-text-outline' },
-  { label: 'Başvurularım', icon: 'briefcase-outline' },
-  { label: 'QR kodum', icon: 'qr-code-outline' },
-  { label: 'Cüzdan', icon: 'wallet-outline' },
+  { label: 'Belgelerim', icon: 'document-text-outline', screen: null },
+  { label: 'Başvurularım', icon: 'briefcase-outline', screen: 'MyApplications' },
+  { label: 'QR kodum', icon: 'qr-code-outline', screen: 'QRCode' },
+  { label: 'Cüzdan', icon: 'wallet-outline', screen: 'Wallet' },
 ];
 
 export default function HomeStudentScreen({ navigation }) {
@@ -33,7 +33,7 @@ export default function HomeStudentScreen({ navigation }) {
             <Text style={styles.name}>Ayşe Yılmaz</Text>
           </View>
         </View>
-        <Pressable style={styles.bellWrap}>
+        <Pressable style={styles.bellWrap} onPress={() => navigation?.navigate?.('Notifications')}>
           <Ionicons name="notifications-outline" size={24} color={COLORS.text} />
           <View style={styles.notifDot} />
         </Pressable>
@@ -72,7 +72,11 @@ export default function HomeStudentScreen({ navigation }) {
         <Text style={styles.quickTitle}>Hızlı bağlantılar</Text>
         <View style={styles.quickGrid}>
           {quickLinks.map(item => (
-            <Pressable key={item.label} style={styles.quickCard}>
+            <Pressable
+              key={item.label}
+              style={styles.quickCard}
+              onPress={() => item.screen && navigation?.navigate?.(item.screen)}
+            >
               <View style={styles.quickIconWrap}>
                 <Ionicons name={item.icon} size={20} color={COLORS.dark} />
               </View>
@@ -150,5 +154,5 @@ const styles = StyleSheet.create({
   quickGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.sm },
   quickCard: { width: '47%', backgroundColor: COLORS.surface, borderRadius: RADIUS.xl, borderWidth: 1, borderColor: COLORS.border, padding: SPACING.md },
   quickIconWrap: { width: 36, height: 36, borderRadius: 18, backgroundColor: COLORS.limeSoft, alignItems: 'center', justifyContent: 'center' },
-  quickLabel: { fontSize: FS.sm, fontWeight: FW.semibold, color: COLORS.text, marginTop: SPACING.sm },
+  quickLabel: { fontSize: FS.sm, fontWeight: FW.semibold, color: COLORS.text, marginTop: SPACING.sm }
 });

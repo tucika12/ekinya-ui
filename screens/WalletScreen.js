@@ -66,7 +66,7 @@ export default function WalletScreen({ navigation }) {
       </View>
       <View style={styles.txList}>
         {transactions.map(tx => (
-          <View key={tx.id} style={styles.txRow}>
+          <Pressable key={tx.id} style={styles.txRow} onPress={() => navigation?.navigate('PaymentDetail', { payment: tx })}>
             <View style={[styles.txIconWrap, { backgroundColor: tx.type === 'in' ? COLORS.limeSoft : '#FFEBEE' }]}>
               <Ionicons
                 name={tx.type === 'in' ? 'arrow-down' : 'arrow-up'}
@@ -81,7 +81,7 @@ export default function WalletScreen({ navigation }) {
             <Text style={[styles.txAmount, { color: tx.type === 'in' ? COLORS.success : COLORS.error }]}>
               {tx.amount}
             </Text>
-          </View>
+          </Pressable>
         ))}
       </View>
 
@@ -141,5 +141,5 @@ const styles = StyleSheet.create({
   escrowAmount: { fontSize: FS.sm, fontWeight: FW.bold, color: COLORS.dark },
   escrowPill: { backgroundColor: COLORS.lime, borderRadius: RADIUS.pill, paddingHorizontal: SPACING.sm, paddingVertical: 4 },
   escrowPillWarn: { backgroundColor: '#FFE5C0' },
-  escrowStatus: { fontSize: FS.xs, fontWeight: FW.semibold, color: COLORS.dark },
+  escrowStatus: { fontSize: FS.xs, fontWeight: FW.semibold, color: COLORS.dark }
 });

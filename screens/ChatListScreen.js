@@ -101,5 +101,5 @@ const styles = StyleSheet.create({
   threadBottomRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   threadMsg: { fontSize: FS.sm, color: COLORS.textSub, flex: 1 },
   unreadBadge: { minWidth: 20, height: 20, borderRadius: 10, backgroundColor: COLORS.lime, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4, marginLeft: SPACING.sm },
-  unreadCount: { fontSize: FS.xs, fontWeight: FW.bold, color: COLORS.dark },
+  unreadCount: { fontSize: FS.xs, fontWeight: FW.bold, color: COLORS.dark }
 });

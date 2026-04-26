@@ -33,7 +33,7 @@ export default function HomeFarmerScreen({ navigation }) {
             <Text style={styles.farmName}>Kaya Çiftliği</Text>
           </View>
         </View>
-        <Pressable style={styles.bellWrap}>
+        <Pressable style={styles.bellWrap} onPress={() => navigation?.navigate?.('Notifications')}>
           <Ionicons name="notifications-outline" size={24} color={COLORS.text} />
           <View style={styles.notifDot} />
         </Pressable>
@@ -71,7 +71,7 @@ export default function HomeFarmerScreen({ navigation }) {
       {/* ── İLANLARIM ── */}
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>İlanlarım</Text>
-        <Text style={styles.sectionAll}>Tümü →</Text>
+        <Pressable onPress={() => navigation?.navigate?.('FarmerMyJobs')}><Text style={styles.sectionAll}>Tümü →</Text></Pressable>
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.hScroll}>
         {mockListings.map(job => (
@@ -171,5 +171,5 @@ const styles = StyleSheet.create({
   applicantTime: { fontSize: FS.xs, color: COLORS.textMuted, marginTop: 2 },
   applicantActions: { flexDirection: 'row', gap: SPACING.sm },
   acceptBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#E8F5DD', alignItems: 'center', justifyContent: 'center' },
-  rejectBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFEBEE', alignItems: 'center', justifyContent: 'center' },
+  rejectBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFEBEE', alignItems: 'center', justifyContent: 'center' }
 });

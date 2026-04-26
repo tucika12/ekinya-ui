@@ -1,17 +1,21 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React from 'react';
 import {
   View,
   Text,
   StyleSheet,
   Pressable,
-  SafeAreaView,
+
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { COLORS } from '../constants/colors';
 import { SPACING, RADIUS } from '../constants/spacing';
 import { FS, FW } from '../constants/typography';
 
-export default function SignupSuccessScreen({ navigation }) {
+export default function SignupSuccessScreen({ navigation, route }) {
+  const role = route?.params?.role ?? 'student';
+  const destination = role === 'farmer' ? 'FarmerTabs' : 'MainTabs';
+
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
@@ -26,7 +30,7 @@ export default function SignupSuccessScreen({ navigation }) {
 
         <Pressable
           style={styles.btn}
-          onPress={() => navigation.navigate('MainTabs')}
+          onPress={() => navigation.navigate(destination)}
         >
           <Text style={styles.btnText}>Hadi başlayalım</Text>
         </Pressable>
@@ -41,7 +45,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    padding: 24
   },
 
   checkCircle: {
@@ -50,7 +54,7 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.pill,
     backgroundColor: COLORS.lime,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
 
   title: {
@@ -58,14 +62,14 @@ const styles = StyleSheet.create({
     fontWeight: FW.bold,
     color: COLORS.text,
     marginTop: 32,
-    textAlign: 'center',
+    textAlign: 'center'
   },
   desc: {
     fontSize: FS.md,
     color: COLORS.textSub,
     textAlign: 'center',
     marginTop: 12,
-    lineHeight: 22,
+    lineHeight: 22
   },
 
   btn: {
@@ -74,11 +78,11 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.pill,
     paddingVertical: 16,
     alignItems: 'center',
-    width: '100%',
+    width: '100%'
   },
   btnText: {
     fontSize: FS.md,
     fontWeight: FW.semibold,
-    color: COLORS.textOnDark,
-  },
+    color: COLORS.textOnDark
+  }
 });

@@ -1,11 +1,11 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   Pressable,
-  SafeAreaView,
-  ScrollView,
+  ScrollView
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { COLORS } from '../constants/colors';
@@ -23,7 +23,7 @@ export default function FarmerRegisterDocumentScreen({ navigation }) {
 
   const handleSubmit = () => {
     if (!docSelected) return;
-    navigation.navigate('SignupSuccess');
+    navigation.navigate('SignupSuccess', { role: 'farmer' });
   };
 
   return (
@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: SPACING.lg,
     paddingTop: SPACING.lg,
-    paddingBottom: SPACING.xl,
+    paddingBottom: SPACING.xl
   },
 
   titleBlock: { marginBottom: SPACING.md },
@@ -135,12 +135,12 @@ const styles = StyleSheet.create({
   progressBar: {
     flexDirection: 'row',
     gap: SPACING.sm,
-    marginBottom: SPACING.xl,
+    marginBottom: SPACING.xl
   },
   progressSeg: {
     flex: 1,
     height: 5,
-    borderRadius: RADIUS.pill,
+    borderRadius: RADIUS.pill
   },
   progressDone: { backgroundColor: COLORS.dark },
 
@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
     borderColor: '#FFE5C0',
     borderRadius: RADIUS.lg,
     padding: SPACING.md,
-    marginBottom: SPACING.md,
+    marginBottom: SPACING.md
   },
   whyIconWrap: { marginTop: 2 },
   whyContent: { flex: 1 },
@@ -161,12 +161,12 @@ const styles = StyleSheet.create({
     fontSize: FS.md,
     fontWeight: FW.bold,
     color: COLORS.text,
-    marginBottom: 4,
+    marginBottom: 4
   },
   whyDesc: {
     fontSize: FS.sm,
     color: COLORS.textSub,
-    lineHeight: 20,
+    lineHeight: 20
   },
 
   docTypesCard: {
@@ -175,18 +175,18 @@ const styles = StyleSheet.create({
     padding: SPACING.md,
     marginBottom: SPACING.md,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: COLORS.border
   },
   docTypesHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.sm,
-    marginBottom: SPACING.sm,
+    marginBottom: SPACING.sm
   },
   docTypesTitle: {
     fontSize: FS.md,
     fontWeight: FW.bold,
-    color: COLORS.text,
+    color: COLORS.text
   },
   bulletList: { gap: SPACING.xs },
   bulletItem: { flexDirection: 'row', gap: SPACING.sm, alignItems: 'flex-start' },
@@ -203,16 +203,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: SPACING.sm,
     marginBottom: SPACING.lg,
-    backgroundColor: COLORS.surface,
+    backgroundColor: COLORS.surface
   },
   uploadTitle: {
     fontSize: FS.md,
     fontWeight: FW.bold,
-    color: COLORS.text,
+    color: COLORS.text
   },
   uploadSub: {
     fontSize: FS.xs,
-    color: COLORS.textMuted,
+    color: COLORS.textMuted
   },
 
   docSelectedBox: {
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.limeSoft,
     borderRadius: RADIUS.lg,
     padding: SPACING.md,
-    marginBottom: SPACING.lg,
+    marginBottom: SPACING.lg
   },
   docSelectedIconWrap: {
     width: 44,
@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.md,
     backgroundColor: COLORS.surface,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   docSelectedInfo: { flex: 1 },
   docSelectedName: { fontSize: FS.sm, fontWeight: FW.semibold, color: COLORS.text },
@@ -241,23 +241,23 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.pill,
     paddingVertical: SPACING.md,
     alignItems: 'center',
-    marginBottom: SPACING.md,
+    marginBottom: SPACING.md
   },
   submitBtnDisabled: {
-    backgroundColor: '#8a9a8a',
+    backgroundColor: '#8a9a8a'
   },
   submitBtnText: {
     fontSize: FS.md,
     fontWeight: FW.semibold,
-    color: COLORS.textOnDark,
+    color: COLORS.textOnDark
   },
 
   skipBtn: {
     alignItems: 'center',
-    paddingVertical: SPACING.sm,
+    paddingVertical: SPACING.sm
   },
   skipText: {
     fontSize: FS.sm,
-    color: COLORS.textMuted,
-  },
+    color: COLORS.textMuted
+  }
 });

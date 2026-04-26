@@ -1,11 +1,11 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React from 'react';
 import {
   View,
   Text,
   StyleSheet,
   Pressable,
-  SafeAreaView,
-  ScrollView,
+  ScrollView
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { COLORS } from '../constants/colors';
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    marginBottom: 20,
+    marginBottom: 20
   },
   backCircle: {
     width: 40,
@@ -122,19 +122,19 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 4,
-    elevation: 2,
+    elevation: 2
   },
   headerTitle: {
     fontSize: FS.title,
     fontWeight: FW.bold,
-    color: COLORS.text,
+    color: COLORS.text
   },
 
   cameraArea: {
-    backgroundColor: '#0F2A14',
+    backgroundColor: '#001c0e',
     borderRadius: 20,
     padding: 16,
-    marginBottom: 16,
+    marginBottom: 16
   },
   cameraInner: {
     flex: 1,
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     overflow: 'hidden',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   scanLine: {
     position: 'absolute',
@@ -154,24 +154,24 @@ const styles = StyleSheet.create({
     right: 0,
     height: 2,
     backgroundColor: COLORS.lime,
-    opacity: 0.8,
+    opacity: 0.8
   },
   qrTarget: {
     width: 64,
     height: 64,
-    position: 'relative',
+    position: 'relative'
   },
   corner: {
     position: 'absolute',
     width: 16,
     height: 3,
-    backgroundColor: COLORS.textMuted,
+    backgroundColor: COLORS.textMuted
   },
   cornerV: {
     position: 'absolute',
     width: 3,
     height: 16,
-    backgroundColor: COLORS.textMuted,
+    backgroundColor: COLORS.textMuted
   },
   cornerTL: { top: 0, left: 0 },
   cornerVTL: { top: 0, left: 0 },
@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
     right: 0,
     fontSize: FS.sm,
     color: COLORS.lime + '99',
-    textAlign: 'center',
+    textAlign: 'center'
   },
 
   scanBtn: {
@@ -197,13 +197,13 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     marginBottom: 20,
     alignItems: 'center',
-    width: '100%',
+    width: '100%'
   },
   scanBtnText: {
     fontSize: FS.lg,
     fontWeight: FW.bold,
     color: COLORS.dark,
-    textAlign: 'center',
+    textAlign: 'center'
   },
 
   attendanceCard: {
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.xl,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: COLORS.border
   },
   attendanceHeader: {
     padding: 16,
@@ -219,16 +219,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: COLORS.border
   },
   attendanceTitle: {
     fontWeight: FW.bold,
     fontSize: FS.md,
-    color: COLORS.text,
+    color: COLORS.text
   },
   attendanceCount: {
     fontSize: FS.sm,
-    color: COLORS.textSub,
+    color: COLORS.textSub
   },
 
   workerRow: {
@@ -236,11 +236,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 12
   },
   workerRowBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: COLORS.border
   },
   workerAvatar: {
     width: 40,
@@ -248,39 +248,39 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.pill,
     backgroundColor: '#E8E8E8',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   workerInitials: {
     fontWeight: FW.bold,
     fontSize: FS.sm,
-    color: COLORS.textSub,
+    color: COLORS.textSub
   },
   workerInfo: { flex: 1 },
   workerName: {
     fontWeight: FW.semibold,
     fontSize: FS.md,
-    color: COLORS.text,
+    color: COLORS.text
   },
   workerTimes: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    marginTop: 2,
+    marginTop: 2
   },
   workerTime: {
     fontSize: FS.xs,
-    color: COLORS.textSub,
+    color: COLORS.textSub
   },
 
   checkoutPill: {
     backgroundColor: '#FFF0E0',
     borderRadius: RADIUS.pill,
     paddingHorizontal: 14,
-    paddingVertical: 6,
+    paddingVertical: 6
   },
   checkoutPillText: {
     fontSize: FS.sm,
     fontWeight: FW.semibold,
-    color: COLORS.warning,
-  },
+    color: COLORS.warning
+  }
 });

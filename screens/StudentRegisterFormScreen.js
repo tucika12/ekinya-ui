@@ -1,3 +1,4 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 // Ekran: Öğrenci Kayıt — Adım 1/3 · BİLGİLER
 import React, { useState } from 'react';
 import {
@@ -7,9 +8,8 @@ import {
   ScrollView,
   TextInput,
   Pressable,
-  SafeAreaView,
   KeyboardAvoidingView,
-  Platform,
+  Platform
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { COLORS } from '../constants/colors';
@@ -25,7 +25,7 @@ export default function StudentRegisterFormScreen({ navigation }) {
     sifre: '',
     universite: '',
     bolum: '',
-    sehir: '',
+    sehir: ''
   });
   const [showPassword, setShowPassword] = useState(false);
 
@@ -90,7 +90,7 @@ export default function StudentRegisterFormScreen({ navigation }) {
             {/* AD SOYAD */}
             <FormField label="AD SOYAD">
               <TextInput
-                style={styles.input}
+                style={[styles.input, { backgroundColor: inputBg(form.adSoyad) }]}
                 placeholder="İrem Toprak"
                 placeholderTextColor={COLORS.textMuted}
                 value={form.adSoyad}
@@ -104,7 +104,7 @@ export default function StudentRegisterFormScreen({ navigation }) {
               <View style={{ flex: 1.4 }}>
                 <FormField label="TELEFON">
                   <TextInput
-                    style={styles.input}
+                    style={[styles.input, { backgroundColor: inputBg(form.telefon) }]}
                     placeholder="5051129169"
                     placeholderTextColor={COLORS.textMuted}
                     value={form.telefon}
@@ -116,7 +116,7 @@ export default function StudentRegisterFormScreen({ navigation }) {
               <View style={{ flex: 1 }}>
                 <FormField label="YAŞ">
                   <TextInput
-                    style={styles.input}
+                    style={[styles.input, { backgroundColor: inputBg(form.yas) }]}
                     placeholder="20"
                     placeholderTextColor={COLORS.textMuted}
                     value={form.yas}
@@ -130,7 +130,7 @@ export default function StudentRegisterFormScreen({ navigation }) {
             {/* E-POSTA */}
             <FormField label="E-POSTA">
               <TextInput
-                style={styles.input}
+                style={[styles.input, { backgroundColor: inputBg(form.eposta) }]}
                 placeholder="eposta@gmail.com"
                 placeholderTextColor={COLORS.textMuted}
                 value={form.eposta}
@@ -142,9 +142,9 @@ export default function StudentRegisterFormScreen({ navigation }) {
 
             {/* ŞİFRE */}
             <FormField label="ŞİFRE">
-              <View style={styles.inputRow}>
+              <View style={[styles.inputRow, { backgroundColor: inputBg(form.sifre) }]}>
                 <TextInput
-                  style={[styles.input, { flex: 1 }]}
+                  style={[styles.input, { flex: 1, backgroundColor: 'transparent' }]}
                   placeholder="••••••••••"
                   placeholderTextColor={COLORS.textMuted}
                   value={form.sifre}
@@ -170,7 +170,7 @@ export default function StudentRegisterFormScreen({ navigation }) {
             {/* ÜNİVERSİTE */}
             <FormField label="ÜNİVERSİTE">
               <TextInput
-                style={styles.input}
+                style={[styles.input, { backgroundColor: inputBg(form.universite) }]}
                 placeholder="ankara üniversitesi"
                 placeholderTextColor={COLORS.textMuted}
                 value={form.universite}
@@ -184,7 +184,7 @@ export default function StudentRegisterFormScreen({ navigation }) {
               <View style={{ flex: 1 }}>
                 <FormField label="BÖLÜM">
                   <TextInput
-                    style={styles.input}
+                    style={[styles.input, { backgroundColor: inputBg(form.bolum) }]}
                     placeholder="ziraat"
                     placeholderTextColor={COLORS.textMuted}
                     value={form.bolum}
@@ -196,7 +196,7 @@ export default function StudentRegisterFormScreen({ navigation }) {
               <View style={{ flex: 1 }}>
                 <FormField label="ŞEHİR">
                   <TextInput
-                    style={styles.input}
+                    style={[styles.input, { backgroundColor: inputBg(form.sehir) }]}
                     placeholder="ankara"
                     placeholderTextColor={COLORS.textMuted}
                     value={form.sehir}
@@ -244,6 +244,7 @@ function FormField({ label, children }) {
 }
 
 const INPUT_BG = '#ECF0FF';
+const inputBg = (val) => (val ? INPUT_BG : '#FFFFFF');
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: COLORS.bg },
@@ -255,7 +256,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.xs,
-    marginBottom: SPACING.lg,
+    marginBottom: SPACING.lg
   },
   backText: { fontSize: FS.md, color: COLORS.text, fontWeight: FW.medium },
 
@@ -264,13 +265,13 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.dark,
     borderRadius: RADIUS.xl,
     padding: SPACING.lg,
-    marginBottom: SPACING.lg,
+    marginBottom: SPACING.lg
   },
   headerTop: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.md,
-    marginBottom: SPACING.md,
+    marginBottom: SPACING.md
   },
   headerIconCircle: {
     width: 52,
@@ -278,7 +279,7 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.pill,
     backgroundColor: COLORS.lime,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   headerMeta: { flex: 1 },
   headerLabel: {
@@ -286,34 +287,34 @@ const styles = StyleSheet.create({
     fontWeight: FW.bold,
     color: COLORS.lime,
     letterSpacing: 1.2,
-    marginBottom: 2,
+    marginBottom: 2
   },
   headerTitle: {
     fontSize: FS.xxl,
     fontWeight: FW.bold,
-    color: COLORS.textOnDark,
+    color: COLORS.textOnDark
   },
   progressBar: {
     flexDirection: 'row',
     gap: SPACING.sm,
-    marginBottom: SPACING.sm,
+    marginBottom: SPACING.sm
   },
   progressSeg: {
     flex: 1,
     height: 4,
-    borderRadius: RADIUS.pill,
+    borderRadius: RADIUS.pill
   },
   progressActive: { backgroundColor: COLORS.lime },
   progressInactive: { backgroundColor: '#2a3a2a' },
   tabRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-between'
   },
   tabLabel: {
     fontSize: FS.xs,
     fontWeight: FW.semibold,
     color: '#4a6a4a',
-    letterSpacing: 1,
+    letterSpacing: 1
   },
   tabActive: { color: COLORS.lime },
 
@@ -326,7 +327,7 @@ const styles = StyleSheet.create({
     fontWeight: FW.semibold,
     color: COLORS.textSub,
     letterSpacing: 0.8,
-    marginBottom: 2,
+    marginBottom: 2
   },
   input: {
     backgroundColor: INPUT_BG,
@@ -334,14 +335,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.md,
     paddingVertical: 14,
     fontSize: FS.md,
-    color: COLORS.text,
+    color: COLORS.text
   },
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: INPUT_BG,
     borderRadius: RADIUS.xl,
-    paddingRight: SPACING.sm,
+    paddingRight: SPACING.sm
   },
   eyeBtn: { padding: SPACING.sm },
 
@@ -350,7 +351,7 @@ const styles = StyleSheet.create({
     fontWeight: FW.semibold,
     color: COLORS.textSub,
     letterSpacing: 1,
-    marginTop: SPACING.sm,
+    marginTop: SPACING.sm
   },
 
   // Info kutusu
@@ -361,7 +362,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#EDF7ED',
     borderRadius: RADIUS.lg,
     padding: SPACING.md,
-    marginTop: SPACING.sm,
+    marginTop: SPACING.sm
   },
   infoText: { flex: 1, fontSize: FS.sm, color: COLORS.textSub, lineHeight: 20 },
   infoBold: { fontWeight: FW.bold, color: COLORS.text },
@@ -375,12 +376,12 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.dark,
     borderRadius: RADIUS.pill,
     paddingVertical: SPACING.md,
-    marginTop: SPACING.lg,
+    marginTop: SPACING.lg
   },
   continueBtnDisabled: { opacity: 0.4 },
   continueBtnText: {
     fontSize: FS.md,
     fontWeight: FW.semibold,
-    color: COLORS.textOnDark,
-  },
+    color: COLORS.textOnDark
+  }
 });

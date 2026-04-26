@@ -3,41 +3,39 @@ import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-import HomeStudentScreen from '../screens/HomeStudentScreen';
-import JobsScreen        from '../screens/JobsScreen';
-import QRScannerScreen   from '../screens/QRScannerScreen';
-import ChatListScreen    from '../screens/ChatListScreen';
-import ProfileScreen     from '../screens/ProfileScreen';
+import HomeFarmerScreen    from '../screens/HomeFarmerScreen';
+import FarmerMyJobsScreen  from '../screens/FarmerMyJobsScreen';
+import QRScannerScreen     from '../screens/QRScannerScreen';
+import ChatListScreen      from '../screens/ChatListScreen';
+import ProfileScreen       from '../screens/ProfileScreen';
 
 const TABS = [
-  { key: 'home',    label: 'Ana Sayfa', icon: 'home-outline',        iconActive: 'home' },
-  { key: 'jobs',    label: 'İlanlar',   icon: 'list-outline',         iconActive: 'list' },
-  { key: 'qr',      label: '',          icon: 'qr-code',              iconActive: 'qr-code',  isQR: true },
-  { key: 'chat',    label: 'Sohbet',    icon: 'chatbubble-outline',   iconActive: 'chatbubble' },
-  { key: 'profile', label: 'Profil',    icon: 'person-outline',       iconActive: 'person' },
+  { key: 'home',    label: 'Ana Sayfa', icon: 'home-outline',      iconActive: 'home' },
+  { key: 'jobs',    label: 'İlanlarım', icon: 'list-outline',       iconActive: 'list' },
+  { key: 'qr',      label: '',          icon: 'qr-code',            iconActive: 'qr-code', isQR: true },
+  { key: 'chat',    label: 'Sohbet',    icon: 'chatbubble-outline', iconActive: 'chatbubble' },
+  { key: 'profile', label: 'Profil',    icon: 'person-outline',     iconActive: 'person' },
 ];
 
 const SCREENS = {
-  home:    HomeStudentScreen,
-  jobs:    JobsScreen,
+  home:    HomeFarmerScreen,
+  jobs:    FarmerMyJobsScreen,
   qr:      QRScannerScreen,
   chat:    ChatListScreen,
   profile: ProfileScreen,
 };
 
-export default function BottomTabNavigator({ navigation }) {
+export default function FarmerBottomTabNavigator({ navigation }) {
   const [activeTab, setActiveTab] = useState('home');
 
   const ActiveScreen = SCREENS[activeTab];
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      {/* ── AKTİF EKRAN ── */}
       <View style={styles.screenWrap}>
         <ActiveScreen navigation={navigation} tabNavigation={{ setActiveTab }} />
       </View>
 
-      {/* ── ALT TAB BAR ── */}
       <View style={styles.tabBar}>
         {TABS.map(tab => {
           const isActive = activeTab === tab.key;
@@ -77,13 +75,8 @@ export default function BottomTabNavigator({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F5F1E8',
-  },
-  screenWrap: {
-    flex: 1,
-  },
+  container: { flex: 1, backgroundColor: '#F5F1E8' },
+  screenWrap: { flex: 1 },
   tabBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -94,21 +87,9 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
     paddingHorizontal: 8,
   },
-  tabItem: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: 8,
-    gap: 4,
-  },
-  tabLabel: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#999999',
-  },
-  tabLabelActive: {
-    color: '#001c0e',
-  },
+  tabItem: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 8, gap: 4 },
+  tabLabel: { fontSize: 11, fontWeight: '600', color: '#999999' },
+  tabLabelActive: { color: '#001c0e' },
   qrBtn: {
     width: 56,
     height: 56,

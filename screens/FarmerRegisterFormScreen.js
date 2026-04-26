@@ -1,3 +1,4 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
 import {
   View,
@@ -6,9 +7,8 @@ import {
   ScrollView,
   TextInput,
   Pressable,
-  SafeAreaView,
   KeyboardAvoidingView,
-  Platform,
+  Platform
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -27,7 +27,7 @@ export default function FarmerRegisterFormScreen({ navigation }) {
     sifre: '',
     ciftlikAdi: '',
     sehir: '',
-    ilce: '',
+    ilce: ''
   });
   const [showPassword, setShowPassword] = useState(false);
 
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.xs,
-    marginBottom: SPACING.lg,
+    marginBottom: SPACING.lg
   },
   backText: { fontSize: FS.md, color: COLORS.text, fontWeight: FW.medium },
 
@@ -245,13 +245,13 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.dark,
     borderRadius: RADIUS.xl,
     padding: SPACING.lg,
-    marginBottom: SPACING.lg,
+    marginBottom: SPACING.lg
   },
   headerTop: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.md,
-    marginBottom: SPACING.md,
+    marginBottom: SPACING.md
   },
   headerIconCircle: {
     width: 52,
@@ -259,7 +259,7 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.pill,
     backgroundColor: COLORS.lime,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   headerMeta: { flex: 1 },
   headerLabel: {
@@ -267,34 +267,34 @@ const styles = StyleSheet.create({
     fontWeight: FW.bold,
     color: COLORS.lime,
     letterSpacing: 1.2,
-    marginBottom: 2,
+    marginBottom: 2
   },
   headerTitle: {
     fontSize: FS.xxl,
     fontWeight: FW.bold,
-    color: COLORS.textOnDark,
+    color: COLORS.textOnDark
   },
   progressBar: {
     flexDirection: 'row',
     gap: SPACING.sm,
-    marginBottom: SPACING.sm,
+    marginBottom: SPACING.sm
   },
   progressSeg: {
     flex: 1,
     height: 4,
-    borderRadius: RADIUS.pill,
+    borderRadius: RADIUS.pill
   },
   progressActive: { backgroundColor: COLORS.lime },
   progressInactive: { backgroundColor: '#2a3a2a' },
   tabRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-between'
   },
   tabLabel: {
     fontSize: FS.xs,
     fontWeight: FW.semibold,
     color: '#4a6a4a',
-    letterSpacing: 1,
+    letterSpacing: 1
   },
   tabActive: { color: COLORS.lime },
 
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
     fontWeight: FW.semibold,
     color: COLORS.textSub,
     letterSpacing: 0.8,
-    marginBottom: 2,
+    marginBottom: 2
   },
   input: {
     backgroundColor: INPUT_BG,
@@ -314,14 +314,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.md,
     paddingVertical: 14,
     fontSize: FS.md,
-    color: COLORS.text,
+    color: COLORS.text
   },
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: INPUT_BG,
     borderRadius: RADIUS.xl,
-    paddingRight: SPACING.sm,
+    paddingRight: SPACING.sm
   },
   eyeBtn: { padding: SPACING.sm },
 
@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
     fontWeight: FW.semibold,
     color: COLORS.textSub,
     letterSpacing: 1,
-    marginTop: SPACING.sm,
+    marginTop: SPACING.sm
   },
 
   infoBox: {
@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#EDF7ED',
     borderRadius: RADIUS.lg,
     padding: SPACING.md,
-    marginTop: SPACING.sm,
+    marginTop: SPACING.sm
   },
   infoText: { flex: 1, fontSize: FS.sm, color: COLORS.textSub, lineHeight: 20 },
   infoBold: { fontWeight: FW.bold, color: COLORS.text },
@@ -353,12 +353,12 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.dark,
     borderRadius: RADIUS.pill,
     paddingVertical: SPACING.md,
-    marginTop: SPACING.lg,
+    marginTop: SPACING.lg
   },
   continueBtnDisabled: { opacity: 0.4 },
   continueBtnText: {
     fontSize: FS.md,
     fontWeight: FW.semibold,
-    color: COLORS.textOnDark,
-  },
+    color: COLORS.textOnDark
+  }
 });
