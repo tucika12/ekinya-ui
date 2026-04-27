@@ -1,4 +1,4 @@
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, FlatList,
@@ -46,6 +46,7 @@ function StarDisplay({ rating, size = 14 }) {
 }
 
 export default function ReviewsListScreen({ navigation }) {
+  const insets = useSafeAreaInsets();
   const [activeFilter, setActiveFilter] = useState('Tümü');
 
   const filtered = activeFilter === 'Tümü'
@@ -84,7 +85,7 @@ export default function ReviewsListScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.safe}>
       {/* ── ÜST BAR ── */}
-      <View style={styles.topBar}>
+      <View style={[styles.topBar, { paddingTop: insets.top + 10 }]}>
         <Pressable style={styles.backBtn} onPress={() => navigation?.goBack()}>
           <Ionicons name="chevron-back" size={22} color={COLORS.text} />
         </Pressable>

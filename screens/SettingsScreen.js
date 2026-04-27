@@ -1,3 +1,4 @@
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, Switch } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -6,6 +7,7 @@ import { SPACING, RADIUS } from '../constants/spacing';
 import { FS, FW } from '../constants/typography';
 
 export default function SettingsScreen({ navigation }) {
+  const insets = useSafeAreaInsets();
   const [notifPush,  setNotifPush]  = useState(true);
   const [notifEmail, setNotifEmail] = useState(false);
   const [notifSms,   setNotifSms]   = useState(false);
@@ -16,7 +18,7 @@ export default function SettingsScreen({ navigation }) {
   return (
     <View style={styles.screen}>
       {/* ── ÜST BAR ── */}
-      <View style={styles.topBar}>
+      <View style={[styles.topBar, { paddingTop: insets.top + 10 }]}>
         <Pressable style={styles.backBtn} onPress={() => navigation.goBack()}>
           <Ionicons name="chevron-back" size={22} color={COLORS.text} />
         </Pressable>
@@ -126,7 +128,7 @@ function SwitchRow({ label, value, onChange, last }) {
 
 const styles = StyleSheet.create({
   screen:   { flex: 1, backgroundColor: COLORS.bg },
-  topBar:   { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: SPACING.md, paddingTop: SPACING.lg },
+  topBar:   { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: SPACING.md, },
   backBtn:  { width: 40, height: 40, borderRadius: 20, backgroundColor: COLORS.surface, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: COLORS.border },
   pageTitle:{ fontSize: FS.lg, fontWeight: FW.bold, color: COLORS.text },
   content:  { paddingHorizontal: SPACING.md },

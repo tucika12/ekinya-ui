@@ -1,4 +1,4 @@
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
@@ -33,6 +33,7 @@ const DEFAULT_JOB = {
 };
 
 export default function JobDetailScreen({ navigation, route }) {
+  const insets = useSafeAreaInsets();
   const job = { ...DEFAULT_JOB, ...(route?.params?.job ?? {}) };
 
   const [liked, setLiked] = useState(false);
@@ -40,7 +41,7 @@ export default function JobDetailScreen({ navigation, route }) {
   return (
     <SafeAreaView style={styles.safe}>
       {/* ── ÜST BAR ── */}
-      <View style={styles.topBar}>
+      <View style={[styles.topBar, { paddingTop: insets.top + 10 }]}>
         <Pressable style={styles.backBtn} onPress={() => navigation?.goBack()}>
           <Ionicons name="arrow-back" size={20} color={COLORS.text} />
         </Pressable>

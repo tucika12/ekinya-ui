@@ -1,4 +1,4 @@
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
@@ -13,6 +13,7 @@ const JOB_TYPES = ['Hasat', 'Paketleme', 'Bakım', 'Sulama', 'Fidan dikimi', 'Di
 const DISTANCES = ['5 km', '10 km', '25 km', 'Tümü'];
 
 export default function FilterScreen({ navigation }) {
+  const insets = useSafeAreaInsets();
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [minWage, setMinWage] = useState('');
   const [maxWage, setMaxWage] = useState('');
@@ -38,7 +39,7 @@ export default function FilterScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.safe}>
       {/* ── ÜST BAR ── */}
-      <View style={styles.topBar}>
+      <View style={[styles.topBar, { paddingTop: insets.top + 10 }]}>
         <Pressable style={styles.closeBtn} onPress={() => navigation?.goBack()}>
           <Ionicons name="close-outline" size={24} color={COLORS.text} />
         </Pressable>

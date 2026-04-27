@@ -21,21 +21,24 @@ const MOCK_MESSAGES = [
   { id: '8', text: 'Harika, bekliyorum!', isMine: false, time: '08:10' },
 ];
 
-export default function ChatDetailScreen({ navigation }) {
+export default function ChatDetailScreen({ navigation, route }) {
+  const thread = route?.params?.thread;
+  const name = thread?.name ?? 'Mehmet Kaya';
+  const initials = thread?.initials ?? 'MK';
+
   const [messages, setMessages] = useState(MOCK_MESSAGES);
   const [input, setInput] = useState('');
   const flatRef = useRef(null);
 
   const send = () => {
     if (!input.trim()) return;
-    const newMsg = {
+    setMessages(prev => [{
       id: Date.now().toString(),
       text: input.trim(),
       isMine: true,
       time: new Date().toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }),
       read: false
-    };
-    setMessages(prev => [newMsg, ...prev]);
+    }, ...prev]);
     setInput('');
   };
 
@@ -56,7 +59,7 @@ export default function ChatDetailScreen({ navigation }) {
             <Text style={styles.myText}>{item.text}</Text>
             <View style={styles.timeRow}>
               <Text style={styles.myTime}>{item.time}</Text>
-              <Ionicons name="checkmark-done" size={14} color={COLORS.dark} />
+              <Ionicons name="checkmark-done" size={13} color={COLORS.dark} opacity={0.6} />
             </View>
           </View>
         </View>
@@ -73,7 +76,8 @@ export default function ChatDetailScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+
       {/* ── ÜST BAR ── */}
       <View style={styles.topBar}>
         <Pressable style={styles.backBtn} onPress={() => navigation?.goBack()}>
@@ -81,10 +85,10 @@ export default function ChatDetailScreen({ navigation }) {
         </Pressable>
         <View style={styles.contactInfo}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>MK</Text>
+            <Text style={styles.avatarText}>{initials}</Text>
           </View>
           <View>
-            <Text style={styles.contactName}>Mehmet Kaya</Text>
+            <Text style={styles.contactName}>{name}</Text>
             <Text style={styles.onlineText}>çevrimiçi</Text>
           </View>
         </View>
@@ -103,7 +107,7 @@ export default function ChatDetailScreen({ navigation }) {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={0}
       >
-        {/* ── MESAJ LİSTESİ ── */}
+        {/* ── MESAJ ALANI ── */}
         <FlatList
           ref={flatRef}
           data={messages}
@@ -112,6 +116,7 @@ export default function ChatDetailScreen({ navigation }) {
           inverted
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
+          style={styles.messageList}
         />
 
         {/* ── ALT INPUT ── */}
@@ -132,7 +137,7 @@ export default function ChatDetailScreen({ navigation }) {
             style={[styles.sendBtn, !input.trim() && styles.sendBtnDisabled]}
             onPress={send}
           >
-            <Ionicons name="paper-plane" size={20} color={COLORS.dark} />
+            <Ionicons name="paper-plane" size={18} color={COLORS.dark} />
           </Pressable>
         </View>
       </KeyboardAvoidingView>
@@ -141,9 +146,8 @@ export default function ChatDetailScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: COLORS.bg },
+  safe: { flex: 1, backgroundColor: COLORS.surface },
 
-  // ── ÜST BAR ──
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -151,75 +155,54 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
     paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
-    gap: SPACING.sm
+    paddingVertical: 10,
+    gap: SPACING.sm,
   },
   backBtn: {
     width: 36, height: 36, borderRadius: 18,
-    backgroundColor: COLORS.bg,
-    alignItems: 'center', justifyContent: 'center'
+    alignItems: 'center', justifyContent: 'center',
   },
-  contactInfo: {
-    flex: 1, flexDirection: 'row', alignItems: 'center', gap: SPACING.sm
-  },
+  contactInfo: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
   avatar: {
-    width: 36, height: 36, borderRadius: 18,
+    width: 38, height: 38, borderRadius: 19,
     backgroundColor: COLORS.lime,
-    alignItems: 'center', justifyContent: 'center'
+    alignItems: 'center', justifyContent: 'center',
   },
   avatarText: { fontSize: FS.xs, fontWeight: FW.bold, color: COLORS.dark },
   contactName: { fontSize: FS.md, fontWeight: FW.bold, color: COLORS.text },
-  onlineText: { fontSize: FS.xs, fontWeight: FW.medium, color: COLORS.lime },
+  onlineText: { fontSize: FS.xs, fontWeight: FW.medium, color: COLORS.success },
   topActions: { flexDirection: 'row', gap: 4 },
-  iconBtn: {
-    width: 36, height: 36, borderRadius: 18,
-    alignItems: 'center', justifyContent: 'center'
-  },
+  iconBtn: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
 
-  // ── LİSTE ──
+  messageList: { backgroundColor: COLORS.bg },
   listContent: { paddingHorizontal: SPACING.md, paddingVertical: SPACING.md, gap: SPACING.sm },
 
   myRow: { alignItems: 'flex-end', marginVertical: 2 },
   myBubble: {
     backgroundColor: COLORS.lime,
-    borderRadius: 16,
-    borderBottomRightRadius: 4,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    maxWidth: '75%'
+    borderRadius: 18, borderBottomRightRadius: 4,
+    paddingHorizontal: 14, paddingVertical: 10,
+    maxWidth: '75%',
   },
   myText: { fontSize: FS.md, color: COLORS.dark, lineHeight: 20 },
-  timeRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4, justifyContent: 'flex-end' },
-  myTime: { fontSize: FS.xs, color: COLORS.dark, opacity: 0.6 },
+  timeRow: { flexDirection: 'row', alignItems: 'center', gap: 3, marginTop: 4, justifyContent: 'flex-end' },
+  myTime: { fontSize: 11, color: COLORS.dark, opacity: 0.6 },
 
   theirRow: { alignItems: 'flex-start', marginVertical: 2 },
   theirBubble: {
     backgroundColor: COLORS.surface,
-    borderRadius: 16,
-    borderBottomLeftRadius: 4,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    maxWidth: '75%'
+    borderRadius: 18, borderBottomLeftRadius: 4,
+    borderWidth: 1, borderColor: COLORS.border,
+    paddingHorizontal: 14, paddingVertical: 10,
+    maxWidth: '75%',
   },
   theirText: { fontSize: FS.md, color: COLORS.text, lineHeight: 20 },
-  theirTime: { fontSize: FS.xs, color: COLORS.textMuted, marginTop: 4, textAlign: 'right' },
+  theirTime: { fontSize: 11, color: COLORS.textMuted, marginTop: 4, textAlign: 'right' },
 
-  separatorWrap: {
-    flexDirection: 'row', alignItems: 'center',
-    gap: SPACING.sm, marginVertical: SPACING.sm
-  },
+  separatorWrap: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, marginVertical: SPACING.sm },
   separatorLine: { flex: 1, height: 1, backgroundColor: COLORS.border },
-  separatorText: {
-    fontSize: FS.xs, color: COLORS.textMuted,
-    fontWeight: FW.medium,
-    backgroundColor: COLORS.bg,
-    paddingHorizontal: SPACING.sm,
-    borderRadius: RADIUS.pill
-  },
+  separatorText: { fontSize: FS.xs, color: COLORS.textMuted, fontWeight: FW.medium, paddingHorizontal: SPACING.sm },
 
-  // ── INPUT BAR ──
   inputBar: {
     flexDirection: 'row',
     alignItems: 'flex-end',
@@ -227,14 +210,10 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: COLORS.border,
     paddingHorizontal: SPACING.md,
-    paddingVertical: 12,
-    paddingBottom: Platform.OS === 'ios' ? 12 : 12,
-    gap: SPACING.sm
+    paddingVertical: 10,
+    gap: SPACING.sm,
   },
-  attachBtn: {
-    width: 40, height: 40, borderRadius: 20,
-    alignItems: 'center', justifyContent: 'center'
-  },
+  attachBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   textInput: {
     flex: 1,
     backgroundColor: COLORS.bg,
@@ -245,12 +224,12 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     fontSize: FS.md,
     color: COLORS.text,
-    maxHeight: 100
+    maxHeight: 100,
   },
   sendBtn: {
     width: 40, height: 40, borderRadius: 20,
     backgroundColor: COLORS.lime,
-    alignItems: 'center', justifyContent: 'center'
+    alignItems: 'center', justifyContent: 'center',
   },
-  sendBtnDisabled: { opacity: 0.4 }
+  sendBtnDisabled: { opacity: 0.4 },
 });
