@@ -8,8 +8,11 @@ import {
   TextInput,
   Pressable,
   KeyboardAvoidingView,
-  Platform
+  Platform,
+  Alert,
+  ActivityIndicator
 } from 'react-native';
+import { login } from '../services/authService';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { COLORS } from '../constants/colors';
 import { SPACING, RADIUS } from '../constants/spacing';
@@ -22,6 +25,31 @@ export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Hata', 'Lütfen e-posta ve şifrenizi girin.');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const data = await login(email, password);
+      
+      // Navigate based on userType
+      if (data.userType === 'Farmer') {
+        navigation.replace('FarmerTabs');
+      } else {
+        navigation.replace('MainTabs');
+      }
+    } catch (error) {
+      const errorMsg = error.response?.data?.message || 'Bir hata oluştu. Bilgilerinizi kontrol edin.';
+      Alert.alert('Giriş Başarısız', errorMsg);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -78,10 +106,15 @@ export default function LoginScreen({ navigation }) {
 
           <View style={styles.buttons}>
             <Pressable
-              style={styles.loginBtn}
-              onPress={() => navigation.navigate('MainTabs')}
+              style={[styles.loginBtn, loading && { opacity: 0.7 }]}
+              onPress={handleLogin}
+              disabled={loading}
             >
-              <Text style={styles.loginBtnText}>Giriş yap</Text>
+              {loading ? (
+                <ActivityIndicator color={COLORS.textOnDark} />
+              ) : (
+                <Text style={styles.loginBtnText}>Giriş yap</Text>
+              )}
             </Pressable>
 
             <View style={styles.divider}>

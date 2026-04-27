@@ -49,7 +49,7 @@ export default function FarmerRegisterEmailScreen({ navigation, route }) {
 
           <Pressable
             style={styles.confirmBtn}
-            onPress={() => navigation.navigate('FarmerRegisterDocument')}
+            onPress={() => navigation.navigate('FarmerRegisterDocument', { formData: route?.params?.formData })}
           >
             <Ionicons name="checkmark-circle-outline" size={20} color={COLORS.textOnDark} />
             <Text style={styles.confirmBtnText}>Doğruladım, devam et</Text>

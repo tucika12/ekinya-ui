@@ -1,10 +1,13 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Backend'in çalıştığı adres
-// Geliştirme sırasında: bilgisayarının yerel IP'si (localhost değil!)
-// Expo fiziksel telefonda çalışırken localhost'u göremez
-const BASE_URL = 'http://192.168.1.X:5000/api'; // ← kendi IP'ni yaz
+import { Platform } from 'react-native';
+
+// Android Emulator kullanıyorsanız genelde 10.0.2.2'dir. iOS Simulator ise localhost.
+// Kendi fiziksel cihazınızda deniyorsanız bilgisayarınızın ağdaki IP adresini yazmanız gerekir (Örn: 192.168.1.X).
+const BASE_URL = Platform.OS === 'android' 
+  ? 'http://10.0.2.2:5290/api' 
+  : 'http://localhost:5290/api';
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -14,16 +17,16 @@ const api = axios.create({
   },
 });
 
-// Her istekte token varsa otomatik ekle
 api.interceptors.request.use(async (config) => {
   const token = await AsyncStorage.getItem('token');
   if (token) {
+    // Ensure headers object exists before assigning
+    config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
 
-// Hata yönetimi — 401 gelirse token sil
 api.interceptors.response.use(
   (response) => response,
   async (error) => {

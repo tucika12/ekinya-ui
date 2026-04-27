@@ -5,25 +5,101 @@ import {
   Text,
   StyleSheet,
   Pressable,
-  ScrollView
+  ScrollView,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import * as DocumentPicker from 'expo-document-picker';
 import { COLORS } from '../constants/colors';
 import { SPACING, RADIUS } from '../constants/spacing';
 import { FS, FW } from '../constants/typography';
+import { registerFarmer } from '../services/authService';
 
-export default function FarmerRegisterDocumentScreen({ navigation }) {
+export default function FarmerRegisterDocumentScreen({ navigation, route }) {
+  // Önceki ekranlardan gelen form verileri
+  const { formData } = route.params || {};
+
   const [docSelected, setDocSelected] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const handlePickDoc = () => {
-    setDocSelected({ name: 'cks_belgesi.pdf', size: '1.4 MB' });
+  // Gerçek dosya seçici
+  const handlePickDoc = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: ['application/pdf', 'image/jpeg', 'image/png'],
+        copyToCacheDirectory: true,
+      });
+
+      if (!result.canceled && result.assets?.length > 0) {
+        const file = result.assets[0];
+        const sizeInMB = (file.size / (1024 * 1024)).toFixed(1);
+
+        if (file.size > 5 * 1024 * 1024) {
+          Alert.alert('Hata', 'Dosya boyutu 5MB\'dan büyük olamaz.');
+          return;
+        }
+
+        setDocSelected({
+          name: file.name,
+          size: `${sizeInMB} MB`,
+          uri: file.uri,
+          mimeType: file.mimeType,
+        });
+      }
+    } catch (err) {
+      Alert.alert('Hata', 'Dosya seçilirken bir sorun oluştu.');
+    }
   };
 
   const handleRemoveDoc = () => setDocSelected(null);
 
-  const handleSubmit = () => {
+  // API'ye kayıt isteği gönder
+  const handleSubmit = async () => {
     if (!docSelected) return;
-    navigation.navigate('SignupSuccess', { role: 'farmer' });
+
+    setLoading(true);
+    try {
+      await registerFarmer({
+        name: formData.adSoyad,
+        email: formData.eposta,
+        phoneNumber: formData.telefon,
+        password: formData.sifre,
+        farmerLocation: `${formData.sehir}/${formData.ilce}`,
+        farmerDoc: docSelected.uri, // Belge URI'si
+      });
+
+      navigation.navigate('SignupSuccess', { role: 'farmer' });
+    } catch (error) {
+      const message =
+        error.response?.data?.message || 'Kayıt sırasında bir hata oluştu.';
+      Alert.alert('Kayıt Hatası', message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Belgeyi atla — sadece kullanıcı kaydı yap
+  const handleSkip = async () => {
+    setLoading(true);
+    try {
+      await registerFarmer({
+        name: formData.adSoyad,
+        email: formData.eposta,
+        phoneNumber: formData.telefon,
+        password: formData.sifre,
+        farmerLocation: `${formData.sehir}/${formData.ilce}`,
+        farmerDoc: '',
+      });
+
+      navigation.navigate('SignupSuccess', { role: 'farmer' });
+    } catch (error) {
+      const message =
+        error.response?.data?.message || 'Kayıt sırasında bir hata oluştu.';
+      Alert.alert('Kayıt Hatası', message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -92,16 +168,21 @@ export default function FarmerRegisterDocumentScreen({ navigation }) {
         )}
 
         <Pressable
-          style={[styles.submitBtn, !docSelected && styles.submitBtnDisabled]}
+          style={[styles.submitBtn, (!docSelected || loading) && styles.submitBtnDisabled]}
           onPress={handleSubmit}
-          disabled={!docSelected}
+          disabled={!docSelected || loading}
         >
-          <Text style={styles.submitBtnText}>Belgeyi Gönder</Text>
+          {loading ? (
+            <ActivityIndicator color={COLORS.textOnDark} />
+          ) : (
+            <Text style={styles.submitBtnText}>Belgeyi Gönder</Text>
+          )}
         </Pressable>
 
         <Pressable
           style={styles.skipBtn}
-          onPress={() => navigation.navigate('SignupSuccess')}
+          onPress={handleSkip}
+          disabled={loading}
         >
           <Text style={styles.skipText}>Şimdi atla, sonra yükle</Text>
         </Pressable>
@@ -125,25 +206,14 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: SPACING.lg,
     paddingTop: SPACING.lg,
-    paddingBottom: SPACING.xl
+    paddingBottom: SPACING.xl,
   },
-
   titleBlock: { marginBottom: SPACING.md },
   pageTitle: { fontSize: FS.title, fontWeight: FW.bold, color: COLORS.text },
   pageSubtitle: { fontSize: FS.sm, color: COLORS.textSub, marginTop: 2 },
-
-  progressBar: {
-    flexDirection: 'row',
-    gap: SPACING.sm,
-    marginBottom: SPACING.xl
-  },
-  progressSeg: {
-    flex: 1,
-    height: 5,
-    borderRadius: RADIUS.pill
-  },
+  progressBar: { flexDirection: 'row', gap: SPACING.sm, marginBottom: SPACING.xl },
+  progressSeg: { flex: 1, height: 5, borderRadius: RADIUS.pill },
   progressDone: { backgroundColor: COLORS.dark },
-
   whyCard: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -153,46 +223,31 @@ const styles = StyleSheet.create({
     borderColor: '#FFE5C0',
     borderRadius: RADIUS.lg,
     padding: SPACING.md,
-    marginBottom: SPACING.md
+    marginBottom: SPACING.md,
   },
   whyIconWrap: { marginTop: 2 },
   whyContent: { flex: 1 },
-  whyTitle: {
-    fontSize: FS.md,
-    fontWeight: FW.bold,
-    color: COLORS.text,
-    marginBottom: 4
-  },
-  whyDesc: {
-    fontSize: FS.sm,
-    color: COLORS.textSub,
-    lineHeight: 20
-  },
-
+  whyTitle: { fontSize: FS.md, fontWeight: FW.bold, color: COLORS.text, marginBottom: 4 },
+  whyDesc: { fontSize: FS.sm, color: COLORS.textSub, lineHeight: 20 },
   docTypesCard: {
     backgroundColor: COLORS.surface,
     borderRadius: RADIUS.lg,
     padding: SPACING.md,
     marginBottom: SPACING.md,
     borderWidth: 1,
-    borderColor: COLORS.border
+    borderColor: COLORS.border,
   },
   docTypesHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.sm,
-    marginBottom: SPACING.sm
+    marginBottom: SPACING.sm,
   },
-  docTypesTitle: {
-    fontSize: FS.md,
-    fontWeight: FW.bold,
-    color: COLORS.text
-  },
+  docTypesTitle: { fontSize: FS.md, fontWeight: FW.bold, color: COLORS.text },
   bulletList: { gap: SPACING.xs },
   bulletItem: { flexDirection: 'row', gap: SPACING.sm, alignItems: 'flex-start' },
   bullet: { fontSize: FS.md, color: COLORS.textSub, lineHeight: 20 },
   bulletText: { flex: 1, fontSize: FS.sm, color: COLORS.textSub, lineHeight: 20 },
-
   uploadBox: {
     borderWidth: 1.5,
     borderColor: COLORS.border,
@@ -203,18 +258,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: SPACING.sm,
     marginBottom: SPACING.lg,
-    backgroundColor: COLORS.surface
+    backgroundColor: COLORS.surface,
   },
-  uploadTitle: {
-    fontSize: FS.md,
-    fontWeight: FW.bold,
-    color: COLORS.text
-  },
-  uploadSub: {
-    fontSize: FS.xs,
-    color: COLORS.textMuted
-  },
-
+  uploadTitle: { fontSize: FS.md, fontWeight: FW.bold, color: COLORS.text },
+  uploadSub: { fontSize: FS.xs, color: COLORS.textMuted },
   docSelectedBox: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -222,7 +269,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.limeSoft,
     borderRadius: RADIUS.lg,
     padding: SPACING.md,
-    marginBottom: SPACING.lg
+    marginBottom: SPACING.lg,
   },
   docSelectedIconWrap: {
     width: 44,
@@ -230,34 +277,20 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS.md,
     backgroundColor: COLORS.surface,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   docSelectedInfo: { flex: 1 },
   docSelectedName: { fontSize: FS.sm, fontWeight: FW.semibold, color: COLORS.text },
   docSelectedSize: { fontSize: FS.xs, color: COLORS.textSub, marginTop: 2 },
-
   submitBtn: {
     backgroundColor: COLORS.dark,
     borderRadius: RADIUS.pill,
     paddingVertical: SPACING.md,
     alignItems: 'center',
-    marginBottom: SPACING.md
+    marginBottom: SPACING.md,
   },
-  submitBtnDisabled: {
-    backgroundColor: '#8a9a8a'
-  },
-  submitBtnText: {
-    fontSize: FS.md,
-    fontWeight: FW.semibold,
-    color: COLORS.textOnDark
-  },
-
-  skipBtn: {
-    alignItems: 'center',
-    paddingVertical: SPACING.sm
-  },
-  skipText: {
-    fontSize: FS.sm,
-    color: COLORS.textMuted
-  }
+  submitBtnDisabled: { backgroundColor: '#8a9a8a' },
+  submitBtnText: { fontSize: FS.md, fontWeight: FW.semibold, color: COLORS.textOnDark },
+  skipBtn: { alignItems: 'center', paddingVertical: SPACING.sm },
+  skipText: { fontSize: FS.sm, color: COLORS.textMuted },
 });
