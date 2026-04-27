@@ -1,4 +1,4 @@
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
@@ -30,6 +30,7 @@ function StarRow({ count, size = 40, onPress }) {
 }
 
 export default function LeaveReviewScreen({ navigation, route }) {
+  const insets = useSafeAreaInsets();
   const job = route?.params?.job ?? {
     title: 'Şeftali Hasadı İşçisi',
     farm: 'Bursa Şeftali Bahçesi',
@@ -50,9 +51,9 @@ export default function LeaveReviewScreen({ navigation, route }) {
   const canSubmit = overall > 0;
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <View style={styles.safe}>
       {/* ── ÜST BAR ── */}
-      <View style={styles.topBar}>
+      <View style={[styles.topBar, { paddingTop: insets.top + 10 }]}>
         <Pressable style={styles.closeBtn} onPress={() => navigation?.goBack()}>
           <Ionicons name="close" size={22} color={COLORS.text} />
         </Pressable>
@@ -136,7 +137,7 @@ export default function LeaveReviewScreen({ navigation, route }) {
 
         <View style={{ height: 40 }} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 

@@ -1,4 +1,4 @@
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, FlatList,
@@ -25,6 +25,7 @@ const MOCK_NOTIFS = [
 ];
 
 export default function NotificationsScreen({ navigation }) {
+  const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState('Tümü');
   const [notifs, setNotifs] = useState(MOCK_NOTIFS);
 
@@ -56,7 +57,7 @@ export default function NotificationsScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.safe}>
       {/* ── ÜST BAR ── */}
-      <View style={styles.topBar}>
+      <View style={[styles.topBar, { paddingTop: insets.top + 10 }]}>
         <Pressable style={styles.backBtn} onPress={() => navigation?.goBack()}>
           <Ionicons name="chevron-back" size={22} color={COLORS.text} />
         </Pressable>

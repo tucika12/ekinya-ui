@@ -6,16 +6,18 @@ import { SPACING, RADIUS } from '../constants/spacing';
 import { FS, FW } from '../constants/typography';
 
 const mockListings = [
-  { id: 1, title: 'Zeytin Toplama', status: 'AKTİF', applications: 5, dates: '15-25 May' },
-  { id: 2, title: 'Domates Hasadı', status: 'DOLU', applications: 7, dates: '10-18 May' },
-  { id: 3, title: 'Fidan Dikimi', status: 'AKTİF', applications: 3, dates: '20-28 May' },
+  { id: 1, title: 'Zeytin Toplama', status: 'active',    statusLabel: 'AKTİF', applications: 5,  dates: '15-25 May', workers: 8 },
+  { id: 2, title: 'Domates Hasadı', status: 'full',      statusLabel: 'DOLU',  applications: 7,  dates: '10-18 May', workers: 7 },
+  { id: 3, title: 'Fidan Dikimi',   status: 'active',    statusLabel: 'AKTİF', applications: 3,  dates: '20-28 May', workers: 4 },
 ];
 
 const mockApplicants = [
   { id: 1, initials: 'AY', name: 'Ayşe Yılmaz', job: 'Zeytin Toplama', time: '2 sa önce' },
-  { id: 2, initials: 'MK', name: 'Mehmet Koç', job: 'Domates Hasadı', time: '4 sa önce' },
-  { id: 3, initials: 'ZD', name: 'Zeynep Doğan', job: 'Fidan Dikimi', time: 'Dün' },
+  { id: 2, initials: 'MK', name: 'Mehmet Koç',  job: 'Domates Hasadı', time: '4 sa önce' },
+  { id: 3, initials: 'ZD', name: 'Zeynep Doğan',job: 'Fidan Dikimi',   time: 'Dün' },
 ];
+
+const EMOJIS = { active: '🌱', full: '✅', completed: '🏆', draft: '📝' };
 
 export default function HomeFarmerScreen({ navigation }) {
   return (
@@ -71,31 +73,43 @@ export default function HomeFarmerScreen({ navigation }) {
       {/* ── İLANLARIM ── */}
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>İlanlarım</Text>
-        <Pressable onPress={() => navigation?.navigate?.('FarmerMyJobs')}><Text style={styles.sectionAll}>Tümü →</Text></Pressable>
+        <Pressable onPress={() => navigation?.navigate?.('FarmerMyJobs')}>
+          <Text style={styles.sectionAll}>Tümü →</Text>
+        </Pressable>
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.hScroll}>
         {mockListings.map(job => (
-          <View key={job.id} style={styles.farmerJobCard}>
-            <View style={[styles.farmerJobImage, { backgroundColor: job.status === 'AKTİF' ? COLORS.limeSoft : '#E8E8E8' }]}>
-              <View style={[styles.statusPill, { backgroundColor: job.status === 'AKTİF' ? COLORS.lime : '#D0D0D0' }]}>
-                <Text style={styles.statusText}>{job.status}</Text>
+          <Pressable
+            key={job.id}
+            style={styles.jobCard}
+            onPress={() => navigation?.navigate?.('FarmerApplicants', { job })}
+          >
+            {/* Üst görsel alanı — öğrenci kartıyla aynı stil */}
+            <View style={[styles.jobImage, { backgroundColor: job.status === 'active' ? '#D8EDD8' : '#E8E8E8' }]}>
+              <View style={[styles.statusPill, { backgroundColor: job.status === 'active' ? COLORS.lime : '#D0D0D0' }]}>
+                <Text style={styles.statusText}>{job.statusLabel}</Text>
+              </View>
+              <View style={styles.appBadge}>
+                <Ionicons name="people-outline" size={11} color={COLORS.dark} />
+                <Text style={styles.appBadgeText}>{job.applications}</Text>
               </View>
             </View>
-            <View style={styles.farmerJobBody}>
-              <Text style={styles.farmerJobTitle} numberOfLines={1}>{job.title}</Text>
-              <View style={styles.appPill}>
-                <Text style={styles.appPillText}>{job.applications} başvuru</Text>
-              </View>
-              <Text style={styles.farmerJobDate}>{job.dates}</Text>
+            {/* Kart içeriği */}
+            <View style={styles.jobBody}>
+              <Text style={styles.jobTitle} numberOfLines={1}>{job.title}</Text>
+              <Text style={styles.jobDates}>{job.dates}</Text>
+              <Text style={styles.jobWorkers}>{job.workers} işçi aranıyor</Text>
             </View>
-          </View>
+          </Pressable>
         ))}
       </ScrollView>
 
       {/* ── YENİ BAŞVURULAR ── */}
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Yeni başvurular</Text>
-        <Text style={styles.sectionAll}>Tümü →</Text>
+        <Pressable onPress={() => navigation?.navigate?.('FarmerMyJobs')}>
+          <Text style={styles.sectionAll}>Tümü →</Text>
+        </Pressable>
       </View>
       <View style={styles.applicantList}>
         {mockApplicants.map(a => (
@@ -119,6 +133,17 @@ export default function HomeFarmerScreen({ navigation }) {
           </View>
         ))}
       </View>
+
+      {/* ── KEŞFET BANNER ── */}
+      <Pressable style={styles.discoverBanner} onPress={() => navigation?.navigate?.('FarmerDiscover')}>
+        <View style={styles.discoverLeft}>
+          <Text style={styles.discoverLabel}>İşçi keşfet</Text>
+          <Text style={styles.discoverDesc}>Bölgende çalışmaya hazır öğrencileri bul</Text>
+        </View>
+        <View style={styles.discoverIcon}>
+          <Ionicons name="search" size={22} color={COLORS.dark} />
+        </View>
+      </Pressable>
 
     </ScrollView>
   );
@@ -150,18 +175,20 @@ const styles = StyleSheet.create({
   statLabel: { fontSize: FS.xs, color: COLORS.textSub, marginTop: 2 },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: SPACING.md, paddingTop: SPACING.md, paddingBottom: SPACING.sm },
   sectionTitle: { fontSize: FS.lg, fontWeight: FW.bold, color: COLORS.text },
-  sectionAll: { fontSize: FS.sm, fontWeight: FW.semibold, color: COLORS.lime },
+  sectionAll: { fontSize: FS.sm, fontWeight: FW.semibold, color: COLORS.text },
   hScroll: { paddingLeft: SPACING.md, paddingRight: SPACING.sm, gap: SPACING.sm, paddingBottom: SPACING.sm },
-  farmerJobCard: { width: 220, backgroundColor: COLORS.surface, borderRadius: RADIUS.xl, borderWidth: 1, borderColor: COLORS.border, overflow: 'hidden' },
-  farmerJobImage: { height: 100, justifyContent: 'flex-start', alignItems: 'flex-start', padding: SPACING.sm },
-  statusPill: { borderRadius: RADIUS.pill, paddingHorizontal: 10, paddingVertical: 4 },
+  /* ── iş kartı — öğrenci sayfasıyla özdeş stil ── */
+  jobCard: { width: 200, backgroundColor: COLORS.surface, borderRadius: RADIUS.xl, borderWidth: 1, borderColor: COLORS.border, overflow: 'hidden' },
+  jobImage: { height: 110, justifyContent: 'space-between', flexDirection: 'row', alignItems: 'flex-start', padding: SPACING.sm },
+  statusPill: { borderRadius: RADIUS.pill, paddingHorizontal: 10, paddingVertical: 5 },
   statusText: { fontSize: FS.xs, fontWeight: FW.bold, color: COLORS.dark },
-  farmerJobBody: { padding: SPACING.sm + 2 },
-  farmerJobTitle: { fontSize: FS.sm, fontWeight: FW.bold, color: COLORS.text },
-  appPill: { alignSelf: 'flex-start', backgroundColor: COLORS.limeSoft, borderRadius: RADIUS.pill, paddingHorizontal: SPACING.sm, paddingVertical: 3, marginTop: SPACING.xs },
-  appPillText: { fontSize: FS.xs, fontWeight: FW.semibold, color: COLORS.dark },
-  farmerJobDate: { fontSize: FS.xs, color: COLORS.textSub, marginTop: 4 },
-  applicantList: { paddingHorizontal: SPACING.md, gap: SPACING.sm, marginBottom: SPACING.xl },
+  appBadge: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: COLORS.surface, borderRadius: RADIUS.pill, paddingHorizontal: 8, paddingVertical: 4 },
+  appBadgeText: { fontSize: FS.xs, fontWeight: FW.semibold, color: COLORS.dark },
+  jobBody: { padding: SPACING.sm + 2 },
+  jobTitle: { fontSize: FS.sm, fontWeight: FW.bold, color: COLORS.text },
+  jobDates: { fontSize: FS.xs, color: COLORS.textSub, marginTop: 3 },
+  jobWorkers: { fontSize: FS.xs, color: COLORS.textMuted, marginTop: 2 },
+  applicantList: { paddingHorizontal: SPACING.md, gap: SPACING.sm, marginBottom: SPACING.md },
   applicantRow: { backgroundColor: COLORS.surface, borderRadius: RADIUS.xl, borderWidth: 1, borderColor: COLORS.border, padding: SPACING.md, flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
   applicantAvatar: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#E8E8E8', alignItems: 'center', justifyContent: 'center' },
   applicantInitials: { fontWeight: FW.bold, fontSize: FS.sm, color: COLORS.textSub },
@@ -171,5 +198,10 @@ const styles = StyleSheet.create({
   applicantTime: { fontSize: FS.xs, color: COLORS.textMuted, marginTop: 2 },
   applicantActions: { flexDirection: 'row', gap: SPACING.sm },
   acceptBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#E8F5DD', alignItems: 'center', justifyContent: 'center' },
-  rejectBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFEBEE', alignItems: 'center', justifyContent: 'center' }
+  rejectBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFEBEE', alignItems: 'center', justifyContent: 'center' },
+  discoverBanner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', margin: SPACING.md, marginTop: 0, backgroundColor: COLORS.limeSoft, borderRadius: RADIUS.xl, borderWidth: 1, borderColor: COLORS.lime, padding: SPACING.md },
+  discoverLeft: { flex: 1 },
+  discoverLabel: { fontSize: FS.md, fontWeight: FW.bold, color: COLORS.dark },
+  discoverDesc: { fontSize: FS.xs, color: COLORS.textSub, marginTop: 3 },
+  discoverIcon: { width: 44, height: 44, borderRadius: 22, backgroundColor: COLORS.lime, alignItems: 'center', justifyContent: 'center' },
 });

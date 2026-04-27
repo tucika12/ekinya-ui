@@ -1,4 +1,4 @@
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
@@ -12,6 +12,7 @@ import { FS, FW } from '../constants/typography';
 const SKILLS = ['Fiziksel dayanıklılık', 'Tarım bilgisi', 'Ekip çalışması', 'Araç kullanımı', 'Budama', 'Depolama'];
 
 export default function ApplyJobScreen({ navigation, route }) {
+  const insets = useSafeAreaInsets();
   const job = route?.params?.job ?? {
     title: 'Şeftali Hasadı İşçisi',
     farm: 'Bursa Şeftali Bahçesi',
@@ -51,7 +52,7 @@ export default function ApplyJobScreen({ navigation, route }) {
   return (
     <SafeAreaView style={styles.safe}>
       {/* ── ÜST BAR ── */}
-      <View style={styles.topBar}>
+      <View style={[styles.topBar, { paddingTop: insets.top + 10 }]}>
         <Pressable style={styles.backBtn} onPress={() => navigation?.goBack()}>
           <Ionicons name="chevron-back" size={22} color={COLORS.text} />
         </Pressable>

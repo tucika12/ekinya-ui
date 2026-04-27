@@ -17,6 +17,7 @@ import { SPACING, RADIUS } from '../constants/spacing';
 import { FS, FW } from '../constants/typography';
 
 const INPUT_BG = '#ECF0FF';
+const inputBg = (val) => (val ? INPUT_BG : '#FFFFFF');
 
 export default function FarmerRegisterFormScreen({ navigation }) {
   const [form, setForm] = useState({
@@ -85,7 +86,7 @@ export default function FarmerRegisterFormScreen({ navigation }) {
           <View style={styles.form}>
             <FormField label="AD SOYAD">
               <TextInput
-                style={styles.input}
+                style={[styles.input, { backgroundColor: inputBg(form.adSoyad) }]}
                 placeholder="Ahmet Yılmaz"
                 placeholderTextColor={COLORS.textMuted}
                 value={form.adSoyad}
@@ -98,7 +99,7 @@ export default function FarmerRegisterFormScreen({ navigation }) {
               <View style={{ flex: 1.4 }}>
                 <FormField label="TELEFON">
                   <TextInput
-                    style={styles.input}
+                    style={[styles.input, { backgroundColor: inputBg(form.telefon) }]}
                     placeholder="5051129169"
                     placeholderTextColor={COLORS.textMuted}
                     value={form.telefon}
@@ -110,7 +111,7 @@ export default function FarmerRegisterFormScreen({ navigation }) {
               <View style={{ flex: 1 }}>
                 <FormField label="YAŞ">
                   <TextInput
-                    style={styles.input}
+                    style={[styles.input, { backgroundColor: inputBg(form.yas) }]}
                     placeholder="45"
                     placeholderTextColor={COLORS.textMuted}
                     value={form.yas}
@@ -123,7 +124,7 @@ export default function FarmerRegisterFormScreen({ navigation }) {
 
             <FormField label="E-POSTA">
               <TextInput
-                style={styles.input}
+                style={[styles.input, { backgroundColor: inputBg(form.eposta) }]}
                 placeholder="eposta@gmail.com"
                 placeholderTextColor={COLORS.textMuted}
                 value={form.eposta}
@@ -134,9 +135,9 @@ export default function FarmerRegisterFormScreen({ navigation }) {
             </FormField>
 
             <FormField label="ŞİFRE">
-              <View style={styles.inputRow}>
+              <View style={[styles.inputRow, { backgroundColor: inputBg(form.sifre) }]}>
                 <TextInput
-                  style={[styles.input, { flex: 1 }]}
+                  style={[styles.input, { flex: 1, backgroundColor: 'transparent' }]}
                   placeholder="••••••••••"
                   placeholderTextColor={COLORS.textMuted}
                   value={form.sifre}
@@ -160,7 +161,7 @@ export default function FarmerRegisterFormScreen({ navigation }) {
 
             <FormField label="ÇİFTLİK ADI">
               <TextInput
-                style={styles.input}
+                style={[styles.input, { backgroundColor: inputBg(form.ciftlikAdi) }]}
                 placeholder="Yılmaz Çiftliği"
                 placeholderTextColor={COLORS.textMuted}
                 value={form.ciftlikAdi}
@@ -173,7 +174,7 @@ export default function FarmerRegisterFormScreen({ navigation }) {
               <View style={{ flex: 1 }}>
                 <FormField label="ŞEHİR">
                   <TextInput
-                    style={styles.input}
+                    style={[styles.input, { backgroundColor: inputBg(form.sehir) }]}
                     placeholder="Konya"
                     placeholderTextColor={COLORS.textMuted}
                     value={form.sehir}
@@ -185,7 +186,7 @@ export default function FarmerRegisterFormScreen({ navigation }) {
               <View style={{ flex: 1 }}>
                 <FormField label="İLÇE">
                   <TextInput
-                    style={styles.input}
+                    style={[styles.input, { backgroundColor: inputBg(form.ilce) }]}
                     placeholder="Karatay"
                     placeholderTextColor={COLORS.textMuted}
                     value={form.ilce}
@@ -309,7 +310,7 @@ const styles = StyleSheet.create({
     marginBottom: 2
   },
   input: {
-    backgroundColor: INPUT_BG,
+    backgroundColor: '#FFFFFF',
     borderRadius: RADIUS.xl,
     paddingHorizontal: SPACING.md,
     paddingVertical: 14,
@@ -319,7 +320,7 @@ const styles = StyleSheet.create({
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: INPUT_BG,
+    backgroundColor: '#FFFFFF',
     borderRadius: RADIUS.xl,
     paddingRight: SPACING.sm
   },

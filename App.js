@@ -37,6 +37,10 @@ import ApplyJobScreen                 from './screens/ApplyJobScreen';
 import FarmerMyJobsScreen             from './screens/FarmerMyJobsScreen';
 import FarmerApplicantsScreen         from './screens/FarmerApplicantsScreen';
 import QRCodeScreen                   from './screens/QRCodeScreen';
+import FarmerProfileScreen            from './screens/FarmerProfileScreen';
+import FarmerLeaveReviewScreen        from './screens/FarmerLeaveReviewScreen';
+import FarmerDiscoverScreen           from './screens/FarmerDiscoverScreen';
+import StudentLeaveReviewScreen       from './screens/StudentLeaveReviewScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -79,9 +83,13 @@ export default function App() {
         <Stack.Screen name="PaymentDetail"      component={PaymentDetailScreen} />
         <Stack.Screen name="Filter"              component={FilterScreen} />
         <Stack.Screen name="ApplyJob"            component={ApplyJobScreen} />
-        <Stack.Screen name="FarmerMyJobs"        component={FarmerMyJobsScreen} />
-        <Stack.Screen name="FarmerApplicants"    component={FarmerApplicantsScreen} />
-        <Stack.Screen name="QRCode"              component={QRCodeScreen} />
+        <Stack.Screen name="FarmerMyJobs"          component={FarmerMyJobsScreen} />
+        <Stack.Screen name="FarmerApplicants"      component={FarmerApplicantsScreen} />
+        <Stack.Screen name="QRCode"                component={QRCodeScreen} />
+        <Stack.Screen name="FarmerProfile"         component={FarmerProfileScreen} />
+        <Stack.Screen name="FarmerLeaveReview"     component={FarmerLeaveReviewScreen} />
+        <Stack.Screen name="FarmerDiscover"        component={FarmerDiscoverScreen} />
+        <Stack.Screen name="StudentLeaveReview"    component={StudentLeaveReviewScreen} />
       </Stack.Navigator>
     </NavigationContainer>
     </SafeAreaProvider>

@@ -1,4 +1,4 @@
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
@@ -13,6 +13,7 @@ const JOB_TYPES = ['Hasat', 'Bakım', 'Paketleme', 'Sulama', 'Ekim', 'Diğer'];
 const SKILLS = ['Fiziksel dayanıklılık', 'Tarım bilgisi', 'Ekip çalışması', 'Araç kullanımı', 'Depolama', 'Budama'];
 
 export default function CreateJobScreen({ navigation }) {
+  const insets = useSafeAreaInsets();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
     title: '',
@@ -55,7 +56,7 @@ export default function CreateJobScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.safe}>
       {/* ── ÜST BAR ── */}
-      <View style={styles.topBar}>
+      <View style={[styles.topBar, { paddingTop: insets.top + 10 }]}>
         <Pressable
           style={styles.backBtn}
           onPress={() => (step > 1 ? setStep(s => s - 1) : navigation?.goBack())}

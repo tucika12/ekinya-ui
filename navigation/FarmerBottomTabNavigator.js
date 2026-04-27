@@ -7,7 +7,7 @@ import HomeFarmerScreen    from '../screens/HomeFarmerScreen';
 import FarmerMyJobsScreen  from '../screens/FarmerMyJobsScreen';
 import QRScannerScreen     from '../screens/QRScannerScreen';
 import ChatListScreen      from '../screens/ChatListScreen';
-import ProfileScreen       from '../screens/ProfileScreen';
+import FarmerProfileScreen from '../screens/FarmerProfileScreen';
 
 const TABS = [
   { key: 'home',    label: 'Ana Sayfa', icon: 'home-outline',      iconActive: 'home' },
@@ -22,7 +22,7 @@ const SCREENS = {
   jobs:    FarmerMyJobsScreen,
   qr:      QRScannerScreen,
   chat:    ChatListScreen,
-  profile: ProfileScreen,
+  profile: FarmerProfileScreen,
 };
 
 export default function FarmerBottomTabNavigator({ navigation }) {
