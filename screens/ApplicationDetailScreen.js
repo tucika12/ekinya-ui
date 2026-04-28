@@ -1,13 +1,14 @@
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
-  Pressable
+  Pressable, ActivityIndicator
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { COLORS } from '../constants/colors';
 import { SPACING, RADIUS } from '../constants/spacing';
 import { FS, FW } from '../constants/typography';
+import { getApplicationById } from '../services/jobService';
 
 const STATUS_CONFIG = {
   accepted: {
@@ -33,27 +34,62 @@ const STATUS_CONFIG = {
   }
 };
 
-const TIMELINE = [
-  { label: 'Başvuru yapıldı', time: '23 Nisan, 14:30', done: true },
-  { label: 'İşveren görüntüledi', time: '24 Nisan, 09:15', done: true },
-  { label: 'Yanıt verildi', time: '24 Nisan, 10:00', done: true },
-];
+const formatDate = (iso) => {
+  if (!iso) return null;
+  return new Date(iso).toLocaleString('tr-TR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+};
 
 export default function ApplicationDetailScreen({ navigation, route }) {
   const insets = useSafeAreaInsets();
-  const application = route?.params?.application ?? {
-    id: '1',
-    jobTitle: 'Şeftali Hasadı İşçisi',
-    farm: 'Bursa Şeftali Bahçesi',
-    emoji: '🍑',
-    status: 'accepted',
-    message: 'Merhaba, daha önce hasat deneyimim var. Tüm tarihler için müsaitim.',
-    employerReply: 'Başvurunuzu inceledik, sizi kabul etmekten memnuniyet duyarız!',
-    wage: '₺850/gün',
-    dates: '15.07 — 30.07'
-  };
+  const routeApp = route?.params?.application ?? {};
+
+  const [application, setApplication] = useState(routeApp);
+  const [loading, setLoading] = useState(!!routeApp.id);
+
+  useEffect(() => {
+    if (!routeApp.id) return;
+    const load = async () => {
+      try {
+        const data = await getApplicationById(routeApp.id);
+        setApplication({
+          id:                data.id,
+          jobPostId:         data.jobPostId,
+          jobTitle:          routeApp.jobTitle  ?? 'İş İlanı',
+          farm:              routeApp.farm      ?? '',
+          emoji:             routeApp.emoji     ?? '🌾',
+          wage:              routeApp.wage      ?? '',
+          dates:             routeApp.dates     ?? '',
+          status:            data.applicationStatus,
+          message:           data.coverLetter   ?? '',
+          appliedAt:         data.appliedAt,
+          reviewedAt:        data.reviewedAt,
+        });
+      } catch (e) {
+        console.error('ApplicationDetailScreen load error:', e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, [routeApp.id]);
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color={COLORS.lime} />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   const config = STATUS_CONFIG[application.status] ?? STATUS_CONFIG.pending;
+
+  // Gerçek tarihlerden timeline oluştur
+  const timeline = [
+    { label: 'Başvuru yapıldı', time: formatDate(application.appliedAt), done: true },
+    { label: 'Yanıt verildi',   time: formatDate(application.reviewedAt), done: !!application.reviewedAt },
+  ].filter(t => t.time);
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -99,11 +135,11 @@ export default function ApplicationDetailScreen({ navigation, route }) {
         {/* ── ZAMANÇİZELGESİ ── */}
         <Text style={styles.sectionTitle}>Zaman çizelgesi</Text>
         <View style={styles.timelineWrap}>
-          {TIMELINE.map((step, idx) => (
+          {timeline.map((step, idx) => (
             <View key={idx} style={styles.timelineItem}>
               <View style={styles.timelineLeft}>
                 <View style={[styles.timelineDot, step.done && styles.timelineDotDone]} />
-                {idx < TIMELINE.length - 1 && (
+                {idx < timeline.length - 1 && (
                   <View style={[styles.timelineLine, step.done && styles.timelineLineDone]} />
                 )}
               </View>
@@ -134,7 +170,10 @@ export default function ApplicationDetailScreen({ navigation, route }) {
         {/* ── CTA ── */}
         <View style={styles.ctaWrap}>
           {application.status === 'accepted' && (
-            <Pressable style={styles.primaryBtn}>
+            <Pressable
+              style={styles.primaryBtn}
+              onPress={() => navigation?.navigate('QRCode', { applicationId: application.id })}
+            >
               <Ionicons name="qr-code-outline" size={20} color={COLORS.dark} style={{ marginRight: 8 }} />
               <Text style={styles.primaryBtnText}>QR kodumu göster</Text>
             </Pressable>

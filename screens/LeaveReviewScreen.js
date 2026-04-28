@@ -2,12 +2,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
-  Pressable, TextInput
+  Pressable, TextInput, Alert, ActivityIndicator
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { COLORS } from '../constants/colors';
 import { SPACING, RADIUS } from '../constants/spacing';
 import { FS, FW } from '../constants/typography';
+import { createReview } from '../services/reviewService';
 
 const STAR_LABELS = ['', 'Berbat', 'Kötü', 'Orta', 'İyi', 'Mükemmel'];
 const CATEGORIES = ['İş güvenliği', 'İletişim', 'Zaman uyumu', 'Ödeme'];

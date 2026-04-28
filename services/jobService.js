@@ -41,3 +41,15 @@ export async function applyForJob(jobPostId, message = "") {
   const response = await api.post('/JobApplications', { jobPostId, message });
   return response.data;
 }
+
+// Tek ilan getir
+export async function getJobById(id) {
+  const response = await api.get(`/JobPosts/${id}`);
+  return response.data;
+}
+
+// Tek başvuru getir
+export async function getApplicationById(id) {
+  const response = await api.get(`/JobApplications/${id}`);
+  return response.data;
+}

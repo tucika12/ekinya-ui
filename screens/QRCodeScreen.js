@@ -1,13 +1,52 @@
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import React from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import QRCode from 'react-native-qrcode-svg';
 import { COLORS } from '../constants/colors';
 import { SPACING, RADIUS } from '../constants/spacing';
 import { FS, FW } from '../constants/typography';
+import { getStoredUser } from '../services/authService';
+import { getSessionsByApplication } from '../services/workSessionService';
 
-export default function QRCodeScreen({ navigation }) {
+export default function QRCodeScreen({ navigation, route }) {
   const insets = useSafeAreaInsets();
+  // ApplicationDetailScreen'den applicationId gelebilir
+  const applicationId = route?.params?.applicationId ?? null;
+
+  const [user, setUser] = useState(null);
+  const [session, setSession] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const storedUser = await getStoredUser();
+        setUser(storedUser);
+
+        if (applicationId) {
+          const sessions = await getSessionsByApplication(applicationId);
+          // En güncel checked_in oturumu bul
+          const active = sessions.find(s => s.sessionStatus === 'checked_in');
+          setSession(active ?? sessions[0] ?? null);
+        }
+      } catch (e) {
+        console.error('QRCodeScreen load error:', e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, [applicationId]);
+
+  const insets_ = useSafeAreaInsets();
+  const name = user?.name || user?.Name || 'Öğrenci';
+  const getInitials = (n) => {
+    if (!n) return '?';
+    const p = n.trim().split(' ');
+    return p.length > 1 ? (p[0][0] + p[p.length - 1][0]).toUpperCase() : p[0][0].toUpperCase();
+  };
+
   return (
     <View style={styles.screen}>
 
@@ -24,66 +63,69 @@ export default function QRCodeScreen({ navigation }) {
       <View style={styles.qrCard}>
         <Text style={styles.qrHint}>Çiftçinin okutması için ekranı göster</Text>
 
-        {/* QR Kod görseli (placeholder grid) */}
         <View style={styles.qrBox}>
-          <View style={styles.qrInner}>
-            {/* Köşe kareleri */}
-            <View style={[styles.corner, styles.cornerTL]} />
-            <View style={[styles.corner, styles.cornerTR]} />
-            <View style={[styles.corner, styles.cornerBL]} />
-            <View style={[styles.corner, styles.cornerBR]} />
-
-            {/* Orta ikon */}
-            <View style={styles.qrCenter}>
-              <View style={styles.qrCenterCircle}>
-                <Ionicons name="leaf" size={24} color={COLORS.dark} />
-              </View>
-            </View>
-
-            {/* QR nokta grid (dekoratif) */}
-            {Array.from({ length: 6 }).map((_, row) =>
-              Array.from({ length: 6 }).map((_, col) => (
-                <View
-                  key={`${row}-${col}`}
-                  style={[
-                    styles.dot,
-                    {
-                      top: 28 + row * 26,
-                      left: 28 + col * 26,
-                      opacity: Math.random() > 0.4 ? 1 : 0,
-                    },
-                  ]}
-                />
-              ))
-            )}
-          </View>
+          {loading ? (
+            <ActivityIndicator size="large" color={COLORS.lime} />
+          ) : session?.checkInQr ? (
+            <QRCode
+              value={session.checkInQr}
+              size={200}
+              color={COLORS.dark}
+              backgroundColor="white"
+              logo={require('../assets/icon.png')}
+              logoSize={36}
+              logoBackgroundColor="white"
+              logoBorderRadius={8}
+            />
+          ) : (
+            // Aktif session yoksa — sadece kimlik QR'ı göster
+            <QRCode
+              value={`EKN-USER-${user?.id ?? '0'}`}
+              size={200}
+              color={COLORS.dark}
+              backgroundColor="white"
+            />
+          )}
         </View>
 
         {/* İsim & ID */}
-        <Text style={styles.userName}>Ayşe Yılmaz</Text>
-        <Text style={styles.userId}>ID: EKN-2026-00142</Text>
+        <Text style={styles.userName}>{name}</Text>
+        <Text style={styles.userId}>ID: EKN-{String(user?.id ?? '0').padStart(8, '0')}</Text>
         <View style={styles.verifiedRow}>
           <Ionicons name="checkmark-circle" size={16} color={COLORS.success} />
           <Text style={styles.verifiedText}>Doğrulanmış öğrenci</Text>
         </View>
       </View>
 
-      {/* ── AKTİF İŞ BİLGİSİ ── */}
-      <View style={styles.jobCard}>
-        <Text style={styles.jobCardTitle}>Aktif iş</Text>
-        <View style={styles.jobRow}>
-          <View style={styles.jobEmoji}>
-            <Text style={{ fontSize: 20 }}>🫒</Text>
-          </View>
-          <View style={styles.jobInfo}>
-            <Text style={styles.jobTitle}>Zeytin Toplama</Text>
-            <Text style={styles.jobFarm}>Kaya Çiftliği · 15-25 Mayıs</Text>
-          </View>
-          <View style={styles.jobPill}>
-            <Text style={styles.jobPillText}>Aktif</Text>
+      {/* ── AKTİF OTURUM BİLGİSİ ── */}
+      {session ? (
+        <View style={styles.jobCard}>
+          <Text style={styles.jobCardTitle}>AKTİF OTURUM</Text>
+          <View style={styles.jobRow}>
+            <View style={styles.jobEmoji}>
+              <Ionicons name="time-outline" size={22} color={COLORS.lime} />
+            </View>
+            <View style={styles.jobInfo}>
+              <Text style={styles.jobTitle}>
+                Giriş: {new Date(session.checkInTime).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+              </Text>
+              <Text style={styles.jobFarm}>
+                Oturum #{session.id} · {session.sessionStatus === 'checked_in' ? 'Devam ediyor' : 'Tamamlandı'}
+              </Text>
+            </View>
+            <View style={[styles.jobPill, session.sessionStatus !== 'checked_in' && styles.jobPillDone]}>
+              <Text style={[styles.jobPillText, session.sessionStatus !== 'checked_in' && styles.jobPillTextDone]}>
+                {session.sessionStatus === 'checked_in' ? 'Aktif' : 'Bitti'}
+              </Text>
+            </View>
           </View>
         </View>
-      </View>
+      ) : !loading && (
+        <View style={styles.jobCard}>
+          <Text style={styles.jobCardTitle}>OTURUM</Text>
+          <Text style={styles.noSessionText}>Henüz aktif bir iş oturumu yok.</Text>
+        </View>
+      )}
 
       {/* ── PAYLAŞ ── */}
       <Pressable style={styles.shareBtn}>
@@ -97,21 +139,12 @@ export default function QRCodeScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: COLORS.bg },
-  topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: SPACING.md, },
+  topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: SPACING.md },
   backBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: COLORS.surface, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: COLORS.border },
   pageTitle: { fontSize: FS.title, fontWeight: FW.bold, color: COLORS.text },
   qrCard: { backgroundColor: COLORS.surface, borderRadius: RADIUS.xl, borderWidth: 1, borderColor: COLORS.border, margin: SPACING.md, padding: SPACING.lg, alignItems: 'center' },
   qrHint: { fontSize: FS.sm, color: COLORS.textSub, marginBottom: SPACING.lg },
-  qrBox: { width: 220, height: 220, marginBottom: SPACING.lg },
-  qrInner: { width: 220, height: 220, backgroundColor: COLORS.bg, borderRadius: RADIUS.lg, borderWidth: 2, borderColor: COLORS.border, position: 'relative', alignItems: 'center', justifyContent: 'center' },
-  corner: { position: 'absolute', width: 36, height: 36, borderColor: COLORS.dark, borderRadius: 6 },
-  cornerTL: { top: 12, left: 12, borderTopWidth: 4, borderLeftWidth: 4 },
-  cornerTR: { top: 12, right: 12, borderTopWidth: 4, borderRightWidth: 4 },
-  cornerBL: { bottom: 12, left: 12, borderBottomWidth: 4, borderLeftWidth: 4 },
-  cornerBR: { bottom: 12, right: 12, borderBottomWidth: 4, borderRightWidth: 4 },
-  qrCenter: { zIndex: 10 },
-  qrCenterCircle: { width: 52, height: 52, borderRadius: 26, backgroundColor: COLORS.lime, alignItems: 'center', justifyContent: 'center' },
-  dot: { position: 'absolute', width: 8, height: 8, borderRadius: 2, backgroundColor: COLORS.dark },
+  qrBox: { width: 220, height: 220, marginBottom: SPACING.lg, alignItems: 'center', justifyContent: 'center', backgroundColor: 'white', borderRadius: RADIUS.lg, padding: 10 },
   userName: { fontSize: FS.xl, fontWeight: FW.bold, color: COLORS.text },
   userId: { fontSize: FS.sm, color: COLORS.textSub, marginTop: 4, fontFamily: 'monospace' },
   verifiedRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: SPACING.sm },
@@ -125,6 +158,9 @@ const styles = StyleSheet.create({
   jobFarm: { fontSize: FS.xs, color: COLORS.textSub, marginTop: 2 },
   jobPill: { backgroundColor: COLORS.limeSoft, borderRadius: RADIUS.pill, paddingHorizontal: SPACING.sm, paddingVertical: 4 },
   jobPillText: { fontSize: FS.xs, fontWeight: FW.semibold, color: COLORS.success },
+  jobPillDone: { backgroundColor: '#ECF0FF' },
+  jobPillTextDone: { color: '#3D5AFE' },
+  noSessionText: { fontSize: FS.sm, color: COLORS.textMuted },
   shareBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: SPACING.sm, marginHorizontal: SPACING.md, marginTop: SPACING.sm, padding: SPACING.md, borderRadius: RADIUS.pill, backgroundColor: COLORS.lime },
   shareText: { fontSize: FS.md, fontWeight: FW.semibold, color: COLORS.dark },
 });

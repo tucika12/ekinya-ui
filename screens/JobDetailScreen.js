@@ -1,42 +1,73 @@
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
-  Pressable
+  Pressable, ActivityIndicator
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { COLORS } from '../constants/colors';
 import { SPACING, RADIUS } from '../constants/spacing';
 import { FS, FW } from '../constants/typography';
+import { getJobById } from '../services/jobService';
 
 const HERO_BG = '#001c0e';
 
-const DEFAULT_JOB = {
-  category:    'Meyve Toplama',
-  emoji:       '🍑',
-  title:       'Şeftali Hasadı İşçisi',
-  farm:        'Bursa Şeftali Bahçesi',
-  rating:      4.5,
-  reviewCount: 355,
-  location:    'Bursa',
-  wage:        '₺850/gün',
-  dates:       '15.07 — 30.07',
-  amenities: [
-    { icon: 'wifi',                      label: 'Wi-Fi',   lib: 'ion' },
-    { icon: 'restaurant',                label: 'Yemek',   lib: 'ion' },
-    { icon: 'bus-outline',               label: 'Ulaşım',  lib: 'ion' },
-    { icon: 'shield-checkmark-outline',  label: 'Ekipman', lib: 'ion' },
-  ],
-  description:
-    'İznik bölgesinde şeftali hasadı için işçi aranıyor. Konaklama ve öğle yemeği dahil. Deneyim şart değil. Çalışma saatleri esnektir: sabah erken başlayabilirsin. Günlük servis ve öğle yemeği sağlanmaktadır. Güvenli çalışma ortamı garantidir.'
-};
+const DEFAULT_AMENITIES = [
+  { icon: 'wifi',                     label: 'Wi-Fi'   },
+  { icon: 'restaurant',               label: 'Yemek'   },
+  { icon: 'bus-outline',              label: 'Ulaşım'  },
+  { icon: 'shield-checkmark-outline', label: 'Ekipman' },
+];
 
 export default function JobDetailScreen({ navigation, route }) {
   const insets = useSafeAreaInsets();
-  const job = { ...DEFAULT_JOB, ...(route?.params?.job ?? {}) };
+  const routeJob = route?.params?.job ?? {};
 
+  const [job, setJob] = useState(routeJob);
+  const [loading, setLoading] = useState(!!routeJob.id);
   const [liked, setLiked] = useState(false);
+
+  useEffect(() => {
+    if (!routeJob.id) return;
+    const load = async () => {
+      try {
+        const data = await getJobById(routeJob.id);
+        setJob({
+          id:          data.id,
+          title:       data.title,
+          description: data.description,
+          location:    data.location,
+          wage:        `₺${data.hourlyRate}/saat`,
+          dates:       `${new Date(data.startDate).toLocaleDateString('tr-TR')} — ${new Date(data.endDate).toLocaleDateString('tr-TR')}`,
+          workers:     data.requiredWorkers,
+          category:    routeJob.category ?? 'İlan',
+          emoji:       routeJob.emoji    ?? '🌾',
+          farm:        routeJob.farm     ?? 'Çiftlik',
+          rating:      routeJob.rating   ?? '—',
+          reviewCount: routeJob.reviewCount ?? 0,
+          amenities:   DEFAULT_AMENITIES,
+        });
+      } catch (e) {
+        console.error('JobDetailScreen load error:', e);
+        // Hata durumunda route'dan gelen veriyle devam et
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, [routeJob.id]);
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color={COLORS.lime} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  const amenities = job.amenities ?? DEFAULT_AMENITIES;
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -113,7 +144,7 @@ export default function JobDetailScreen({ navigation, route }) {
         {/* ── İMKÂNLAR ── */}
         <Text style={styles.sectionTitle}>İmkânlar</Text>
         <View style={styles.amenitiesRow}>
-          {job.amenities.map(a => (
+          {amenities.map(a => (
             <View key={a.label} style={styles.amenityCard}>
               <Ionicons name={a.icon} size={22} color={COLORS.dark} />
               <Text style={styles.amenityLabel}>{a.label}</Text>
