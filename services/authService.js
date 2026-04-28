@@ -32,13 +32,14 @@ export async function getStoredUser() {
 }
 
 // Farmer kaydı
-export async function registerFarmer({ name, email, phoneNumber, password, farmerLocation, farmerDoc }) {
+export async function registerFarmer({ name, email, phoneNumber, password, farmerName, farmerLocation, farmerDoc }) {
   const response = await api.post('/auth/register', {
     name,
     email,
     phoneNumber,
     password,
     userType: 'Farmer',
+    farmerName,
     farmerLocation,
     farmerDoc,
   });

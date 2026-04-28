@@ -203,6 +203,7 @@ export default function FarmerDiscoverScreen({ navigation }) {
         )}
         <View style={{ height: 40 }} />
       </ScrollView>
+      )}
     </View>
   );
 }

@@ -65,6 +65,7 @@ export default function FarmerRegisterDocumentScreen({ navigation, route }) {
         email: formData.eposta,
         phoneNumber: formData.telefon,
         password: formData.sifre,
+        farmerName: formData.ciftlikAdi,
         farmerLocation: `${formData.sehir}/${formData.ilce}`,
         farmerDoc: docSelected.uri, // Belge URI'si
       });
@@ -88,6 +89,7 @@ export default function FarmerRegisterDocumentScreen({ navigation, route }) {
         email: formData.eposta,
         phoneNumber: formData.telefon,
         password: formData.sifre,
+        farmerName: formData.ciftlikAdi,
         farmerLocation: `${formData.sehir}/${formData.ilce}`,
         farmerDoc: '',
       });
