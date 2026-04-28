@@ -41,6 +41,7 @@ export default function MyApplicationsScreen({ navigation }) {
         appliedAt: a.appliedAt,
         reviewedAt: a.reviewedAt,
         message: a.coverLetter ?? '',
+        revieweeId: a.farmerId ?? null,
       }));
       setApplications(mapped);
     } catch (e) {

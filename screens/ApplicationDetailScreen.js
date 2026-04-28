@@ -54,7 +54,7 @@ export default function ApplicationDetailScreen({ navigation, route }) {
         setApplication({
           id:                data.id,
           jobPostId:         data.jobPostId,
-          jobTitle:          routeApp.jobTitle  ?? 'İş İlanı',
+          jobTitle:          routeApp.jobTitle  ?? data.jobTitle ?? 'İş İlanı',
           farm:              routeApp.farm      ?? '',
           emoji:             routeApp.emoji     ?? '🌾',
           wage:              routeApp.wage      ?? '',
@@ -63,6 +63,7 @@ export default function ApplicationDetailScreen({ navigation, route }) {
           message:           data.coverLetter   ?? '',
           appliedAt:         data.appliedAt,
           reviewedAt:        data.reviewedAt,
+          revieweeId:        routeApp.revieweeId ?? null, // çiftçi id'si (farmer tarafından geçirilir)
         });
       } catch (e) {
         console.error('ApplicationDetailScreen load error:', e);
@@ -170,13 +171,31 @@ export default function ApplicationDetailScreen({ navigation, route }) {
         {/* ── CTA ── */}
         <View style={styles.ctaWrap}>
           {application.status === 'accepted' && (
-            <Pressable
-              style={styles.primaryBtn}
-              onPress={() => navigation?.navigate('QRCode', { applicationId: application.id })}
-            >
-              <Ionicons name="qr-code-outline" size={20} color={COLORS.dark} style={{ marginRight: 8 }} />
-              <Text style={styles.primaryBtnText}>QR kodumu göster</Text>
-            </Pressable>
+            <>
+              <Pressable
+                style={styles.primaryBtn}
+                onPress={() => navigation?.navigate('QRCode', { applicationId: application.id })}
+              >
+                <Ionicons name="qr-code-outline" size={20} color={COLORS.dark} style={{ marginRight: 8 }} />
+                <Text style={styles.primaryBtnText}>QR kodumu göster</Text>
+              </Pressable>
+              {application.revieweeId && (
+                <Pressable
+                  style={[styles.outlineBtn, { marginTop: 10, borderColor: COLORS.lime }]}
+                  onPress={() => navigation?.navigate('LeaveReview', {
+                    job: {
+                      title: application.jobTitle,
+                      farm: application.farm,
+                      emoji: application.emoji,
+                    },
+                    applicationId: application.id,
+                    revieweeId: application.revieweeId,
+                  })}
+                >
+                  <Text style={[styles.outlineBtnText, { color: COLORS.dark }]}>Değerlendir ⭐</Text>
+                </Pressable>
+              )}
+            </>
           )}
           {application.status === 'pending' && (
             <Pressable style={styles.outlineBtn}>

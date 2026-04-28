@@ -168,6 +168,16 @@ export default function FarmerApplicantsScreen({ navigation, route }) {
                       </Pressable>
                     </View>
                   )}
+                  {item.status === 'accepted' && (
+                    <View style={styles.actions}>
+                      <Pressable
+                        style={styles.acceptBtn}
+                        onPress={() => navigation?.navigate?.('QRScanner', { applicationId: item.id })}
+                      >
+                        <Text style={styles.acceptText}>QR Tara</Text>
+                      </Pressable>
+                    </View>
+                  )}
                 </View>
               );
             })
