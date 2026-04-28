@@ -1,25 +1,54 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, TextInput } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, ActivityIndicator } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { COLORS } from '../constants/colors';
 import { SPACING, RADIUS } from '../constants/spacing';
 import { FS, FW } from '../constants/typography';
+import { getOpenJobs } from '../services/jobService';
 
 const filters = ['Yakın', 'Bugün', 'Yüksek ücret', 'Hasat', 'Bakım'];
-const mockJobs = [
-  { id: 1, title: 'Zeytin Toplama', farm: 'Kaya Çiftliği', location: 'Aydın · Nazilli', distance: '2.3 km', rating: '4.8', wage: '₺600/gün', dates: '15-25 Mayıs', workers: 7 },
-  { id: 2, title: 'Domates Hasadı', farm: 'Demir Tarım', location: 'Antalya · Serik', distance: '5.1 km', rating: '4.6', wage: '₺550/gün', dates: '10-20 Mayıs', workers: 5 },
-  { id: 3, title: 'Fidan Dikimi', farm: 'Yeşil Tarla', location: 'İzmir · Torbalı', distance: '3.8 km', rating: '4.9', wage: '₺500/gün', dates: '20-28 Mayıs', workers: 4 },
-  { id: 4, title: 'Çilek Hasadı', farm: 'Akdeniz Tarım', location: 'Mersin · Tarsus', distance: '8.2 km', rating: '4.5', wage: '₺580/gün', dates: '1-10 Mayıs', workers: 10 },
-  { id: 5, title: 'Üzüm Bağbozumu', farm: 'Ege Bağları', location: 'Manisa · Alaşehir', distance: '12 km', rating: '4.7', wage: '₺650/gün', dates: '5-15 Eylül', workers: 6 },
-];
 
 export default function JobsScreen({ navigation }) {
   const [activeFilter, setActiveFilter] = useState(null);
   const [bookmarks, setBookmarks] = useState([]);
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadJobs = async () => {
+      try {
+        const data = await getOpenJobs();
+        const mapped = data.map(j => ({
+          id: j.id,
+          title: j.title,
+          farm: 'Çiftlik',
+          location: j.location ?? '',
+          distance: '',
+          rating: '—',
+          wage: `₺${j.hourlyRate}/saat`,
+          dates: `${new Date(j.startDate).toLocaleDateString('tr-TR')} - ${new Date(j.endDate).toLocaleDateString('tr-TR')}`,
+          workers: j.requiredWorkers,
+        }));
+        setJobs(mapped);
+      } catch (e) {
+        console.error('JobsScreen load error:', e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadJobs();
+  }, []);
 
   const toggleBookmark = (id) =>
     setBookmarks(b => b.includes(id) ? b.filter(x => x !== id) : [...b, id]);
+
+  if (loading) {
+    return (
+      <View style={[styles.screen, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color={COLORS.lime} />
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -53,13 +82,13 @@ export default function JobsScreen({ navigation }) {
 
       {/* ── SAYAÇ SATIRI ── */}
       <View style={styles.countRow}>
-        <Text style={styles.countText}>127 ilan bulundu</Text>
+        <Text style={styles.countText}>{jobs.length} ilan bulundu</Text>
         <Pressable><Text style={styles.sortText}>Yakınlık ↓</Text></Pressable>
       </View>
 
       {/* ── JOB LİSTESİ ── */}
       <View style={styles.list}>
-        {mockJobs.map(job => (
+        {jobs.map(job => (
           <Pressable
             key={job.id}
             style={styles.jobCard}

@@ -1,13 +1,15 @@
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, StyleSheet, FlatList,
-  Pressable
+  Pressable, ActivityIndicator, RefreshControl
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useIsFocused } from '@react-navigation/native';
 import { COLORS } from '../constants/colors';
 import { SPACING, RADIUS } from '../constants/spacing';
 import { FS, FW } from '../constants/typography';
+import api from '../api';
 
 const TABS = ['Tümü', 'Beklemede', 'Kabul', 'Reddedilen'];
 

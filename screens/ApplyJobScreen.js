@@ -2,12 +2,13 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
-  Pressable, TextInput
+  Pressable, TextInput, Alert, ActivityIndicator
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { COLORS } from '../constants/colors';
 import { SPACING, RADIUS } from '../constants/spacing';
 import { FS, FW } from '../constants/typography';
+import { applyForJob } from '../services/jobService';
 
 const SKILLS = ['Fiziksel dayanıklılık', 'Tarım bilgisi', 'Ekip çalışması', 'Araç kullanımı', 'Budama', 'Depolama'];
 

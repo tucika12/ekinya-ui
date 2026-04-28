@@ -1,9 +1,11 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { COLORS } from '../constants/colors';
 import { SPACING, RADIUS } from '../constants/spacing';
 import { FS, FW } from '../constants/typography';
+import { getStoredUser, logout } from '../services/authService';
+import api from '../api';
 
 const menuItems = [
   { label: 'Kişisel bilgiler', icon: 'person-outline', screen: 'EditProfile' },
@@ -16,20 +18,64 @@ const menuItems = [
   { label: 'Ayarlar', icon: 'settings-outline', screen: 'Settings' },
 ];
 
-const stats = [
-  { value: '12', label: 'Tamamlanan' },
-  { value: '₺18.000', label: 'Kazanç' },
-  { value: '4.7 ⭐', label: 'Puan' },
-  { value: '%98', label: 'Doğrulama' },
-];
-
-const badges = [
-  { label: '✓ E-posta', color: COLORS.success },
-  { label: '✓ Telefon', color: COLORS.success },
-  { label: '⏳ Belge inceleniyor', color: COLORS.warning },
-];
+const getInitials = (name) => {
+  if (!name) return '?';
+  const parts = name.trim().split(' ');
+  if (parts.length > 1) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  return parts[0][0].toUpperCase();
+};
 
 export default function ProfileScreen({ navigation }) {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        // Önce cache'den göster, sonra API'den tazele
+        const stored = await getStoredUser();
+        if (stored) setUser(stored);
+
+        const response = await api.get('/auth/me');
+        setUser(response.data);
+      } catch (e) {
+        console.error('ProfileScreen load error:', e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadProfile();
+  }, []);
+
+  const handleLogout = async () => {
+    await logout();
+    navigation?.replace?.('Welcome');
+  };
+
+  if (loading && !user) {
+    return (
+      <View style={[styles.screen, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color={COLORS.lime} />
+      </View>
+    );
+  }
+
+  const verificationStatus = user?.verificationStatus ?? user?.VerificationStatus;
+  const badges = [
+    { label: user?.email || user?.Email ? '✓ E-posta' : '✗ E-posta', color: COLORS.success },
+    { label: user?.phoneNumber || user?.PhoneNumber ? '✓ Telefon' : '✗ Telefon', color: COLORS.success },
+    {
+      label: verificationStatus === 'approved' ? '✓ Doğrulandı' : '⏳ Belge inceleniyor',
+      color: verificationStatus === 'approved' ? COLORS.success : COLORS.warning,
+    },
+  ];
+
+  const name = user?.name || user?.Name || '';
+  const meta = user?.universityName || user?.UniversityName
+    ? user.universityName || user.UniversityName
+    : user?.farmerLocation || user?.FarmerLocation || '';
+  const score = user?.reliabilityScore ?? user?.ReliabilityScore ?? 0;
+
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
@@ -43,15 +89,15 @@ export default function ProfileScreen({ navigation }) {
       <View style={styles.hero}>
         <View style={styles.avatarWrap}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>AY</Text>
+            <Text style={styles.avatarText}>{getInitials(name)}</Text>
           </View>
           <View style={styles.cameraBtn}>
             <Ionicons name="camera-outline" size={14} color={COLORS.dark} />
           </View>
         </View>
-        <Text style={styles.heroName}>Ayşe Yılmaz</Text>
-        <Text style={styles.heroMeta}>Yıldırım Beyazıt Üni · YBS</Text>
-        <Text style={styles.heroStats}>⭐ 4.7 · 12 iş · Üye: Ocak 2026</Text>
+        <Text style={styles.heroName}>{name || 'Kullanıcı'}</Text>
+        {!!meta && <Text style={styles.heroMeta}>{meta}</Text>}
+        <Text style={styles.heroStats}>⭐ {Number(score).toFixed(1)}</Text>
       </View>
 
       {/* ── ROZETLER ── */}
@@ -63,23 +109,13 @@ export default function ProfileScreen({ navigation }) {
         ))}
       </ScrollView>
 
-      {/* ── STATS GRID ── */}
-      <View style={styles.statsGrid}>
-        {stats.map(s => (
-          <View key={s.label} style={styles.statCard}>
-            <Text style={styles.statValue}>{s.value}</Text>
-            <Text style={styles.statLabel}>{s.label}</Text>
-          </View>
-        ))}
-      </View>
-
       {/* ── MENU ── */}
       <View style={styles.menuCard}>
         {menuItems.map((item, i) => (
           <Pressable
             key={item.label}
             style={[styles.menuRow, i < menuItems.length - 1 && styles.menuBorder]}
-            onPress={() => item.screen && navigation?.navigate?.(item.screen)}
+            onPress={() => item.screen && navigation?.navigate?.(item.screen, { user })}
           >
             <View style={styles.menuIconWrap}>
               <Ionicons name={item.icon} size={18} color={COLORS.dark} />
@@ -91,7 +127,7 @@ export default function ProfileScreen({ navigation }) {
       </View>
 
       {/* ── ÇIKIŞ ── */}
-      <Pressable style={styles.logoutBtn} onPress={() => navigation?.navigate?.('Welcome')}>
+      <Pressable style={styles.logoutBtn} onPress={handleLogout}>
         <Text style={styles.logoutText}>Çıkış yap</Text>
       </Pressable>
 
@@ -114,10 +150,6 @@ const styles = StyleSheet.create({
   badgesRow: { paddingHorizontal: SPACING.md, gap: SPACING.sm, paddingBottom: SPACING.md },
   badge: { backgroundColor: COLORS.surface, borderWidth: 1, borderColor: COLORS.border, borderRadius: RADIUS.pill, paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm },
   badgeText: { fontSize: FS.xs, fontWeight: FW.semibold },
-  statsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.sm, paddingHorizontal: SPACING.md, marginBottom: SPACING.md },
-  statCard: { width: '47%', backgroundColor: COLORS.surface, borderRadius: RADIUS.xl, borderWidth: 1, borderColor: COLORS.border, padding: SPACING.md, alignItems: 'center' },
-  statValue: { fontSize: FS.xl, fontWeight: FW.bold, color: COLORS.text },
-  statLabel: { fontSize: FS.xs, color: COLORS.textSub, marginTop: 4 },
   menuCard: { marginHorizontal: SPACING.md, backgroundColor: COLORS.surface, borderRadius: RADIUS.xl, borderWidth: 1, borderColor: COLORS.border, overflow: 'hidden', marginBottom: SPACING.md },
   menuRow: { flexDirection: 'row', alignItems: 'center', padding: SPACING.md, gap: SPACING.sm },
   menuBorder: { borderBottomWidth: 1, borderBottomColor: COLORS.border },

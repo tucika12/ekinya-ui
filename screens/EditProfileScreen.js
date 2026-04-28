@@ -1,16 +1,18 @@
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, KeyboardAvoidingView, Platform, Alert, ActivityIndicator } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { COLORS } from '../constants/colors';
 import { SPACING, RADIUS } from '../constants/spacing';
 import { FS, FW } from '../constants/typography';
+import api from '../api';
 
 const INPUT_BG = '#ECF0FF';
 const inputBg = (val) => (val ? INPUT_BG : '#FFFFFF');
 
-export default function EditProfileScreen({ navigation }) {
+export default function EditProfileScreen({ navigation, route }) {
   const insets = useSafeAreaInsets();
+  const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     adSoyad:    '',
     eposta:     '',
@@ -23,6 +25,37 @@ export default function EditProfileScreen({ navigation }) {
   });
   const set = (k) => (v) => setForm(f => ({ ...f, [k]: v }));
 
+  // Profil sayfasından gelen user verisini forma doldur
+  useEffect(() => {
+    const u = route?.params?.user;
+    if (!u) return;
+    setForm(f => ({
+      ...f,
+      adSoyad:    u.name    || u.Name    || '',
+      eposta:     u.email   || u.Email   || '',
+      telefon:    u.phoneNumber || u.PhoneNumber || '',
+      universite: u.universityName || u.UniversityName || '',
+      sehir:      u.farmerLocation || u.FarmerLocation || '',
+    }));
+  }, [route?.params?.user]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await api.put('/Users/me', {
+        name:        form.adSoyad,
+        phoneNumber: form.telefon,
+      });
+      Alert.alert('Başarılı', 'Profilin güncellendi.');
+      navigation.goBack();
+    } catch (e) {
+      const msg = e.response?.data?.message || 'Güncelleme sırasında bir hata oluştu.';
+      Alert.alert('Hata', msg);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <View style={styles.screen}>
       {/* ── ÜST BAR ── */}
@@ -31,8 +64,11 @@ export default function EditProfileScreen({ navigation }) {
           <Ionicons name="chevron-back" size={22} color={COLORS.text} />
         </Pressable>
         <Text style={styles.pageTitle}>Profili düzenle</Text>
-        <Pressable onPress={() => navigation.goBack()}>
-          <Text style={styles.saveLink}>Kaydet</Text>
+        <Pressable onPress={handleSave} disabled={saving}>
+          {saving
+            ? <ActivityIndicator size="small" color={COLORS.lime} />
+            : <Text style={styles.saveLink}>Kaydet</Text>
+          }
         </Pressable>
       </View>
 
@@ -43,7 +79,9 @@ export default function EditProfileScreen({ navigation }) {
           <View style={styles.avatarSection}>
             <View style={styles.avatarWrap}>
               <View style={styles.avatar}>
-                <Text style={styles.avatarText}>AY</Text>
+                <Text style={styles.avatarText}>
+                  {form.adSoyad ? form.adSoyad.trim().split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase() : '?'}
+                </Text>
               </View>
               <View style={styles.cameraBtn}>
                 <Ionicons name="camera-outline" size={14} color={COLORS.dark} />
