@@ -50,6 +50,34 @@ export default function LeaveReviewScreen({ navigation, route }) {
   const setCatRating = (cat, val) => setCats(c => ({ ...c, [cat]: val }));
 
   const canSubmit = overall > 0;
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async () => {
+    const applicationId = route?.params?.applicationId;
+    const revieweeId    = route?.params?.revieweeId;
+    if (!applicationId || !revieweeId) {
+      Alert.alert('Hata', 'Değerlendirme için gerekli bilgiler eksik.');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const tagNote = selectedTags.length > 0 ? `\nEtiketler: ${selectedTags.join(', ')}` : '';
+      await createReview({
+        applicationId,
+        revieweeId,
+        rating: overall,
+        comment: comment + tagNote,
+      });
+      Alert.alert('Teşekkürler!', 'Değerlendirmen gönderildi.', [
+        { text: 'Tamam', onPress: () => navigation?.goBack() }
+      ]);
+    } catch (e) {
+      const msg = e.response?.data?.message || 'Değerlendirme gönderilemedi.';
+      Alert.alert('Hata', msg);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <View style={styles.safe}>
@@ -129,11 +157,14 @@ export default function LeaveReviewScreen({ navigation, route }) {
 
         {/* ── GÖNDER ── */}
         <Pressable
-          style={[styles.submitBtn, !canSubmit && styles.submitBtnDisabled]}
-          disabled={!canSubmit}
-          onPress={() => navigation?.goBack()}
+          style={[styles.submitBtn, (!canSubmit || submitting) && styles.submitBtnDisabled]}
+          disabled={!canSubmit || submitting}
+          onPress={handleSubmit}
         >
-          <Text style={styles.submitText}>Değerlendirmeyi gönder</Text>
+          {submitting
+            ? <ActivityIndicator color={COLORS.textOnDark} />
+            : <Text style={styles.submitText}>Değerlendirmeyi gönder</Text>
+          }
         </Pressable>
 
         <View style={{ height: 40 }} />

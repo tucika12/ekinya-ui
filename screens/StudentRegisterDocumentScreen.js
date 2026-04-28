@@ -16,6 +16,20 @@ import { COLORS } from '../constants/colors';
 import { SPACING, RADIUS } from '../constants/spacing';
 import { FS, FW } from '../constants/typography';
 import { registerStudent } from '../services/authService';
+import api from '../api';
+
+async function uploadDoc(doc) {
+  const formData = new FormData();
+  formData.append('file', {
+    uri: doc.uri,
+    name: doc.name,
+    type: doc.mimeType ?? 'application/octet-stream',
+  });
+  const res = await api.post('/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return res.data.url;
+}
 
 export default function StudentRegisterDocumentScreen({ navigation, route }) {
   const { formData } = route.params || {};
@@ -54,23 +68,21 @@ export default function StudentRegisterDocumentScreen({ navigation, route }) {
 
   const handleSubmit = async () => {
     if (!docSelected) return;
-
     setLoading(true);
     try {
+      const docUrl = await uploadDoc(docSelected);
       await registerStudent({
         name: formData.adSoyad,
         email: formData.eposta,
         phoneNumber: formData.telefon,
         password: formData.sifre,
         universityName: formData.universite,
-        universityDoc: docSelected.uri,
-        enrollmentYear: 2024 // Veya UI'dan alınabilir, şimdilik statik gönderelim veya backend default alsın.
+        universityDoc: docUrl,
+        enrollmentYear: 2024,
       });
-
       navigation.navigate('SignupSuccess', { role: 'student' });
     } catch (error) {
-      const message =
-        error.response?.data?.message || 'Kayıt sırasında bir hata oluştu.';
+      const message = error.response?.data?.message || 'Kayıt sırasında bir hata oluştu.';
       Alert.alert('Kayıt Hatası', message);
     } finally {
       setLoading(false);

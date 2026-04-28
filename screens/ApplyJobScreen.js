@@ -34,20 +34,36 @@ export default function ApplyJobScreen({ navigation, route }) {
   );
 
   const canSubmit = startDate && endDate && consent;
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = () => {
-    navigation?.navigate('ApplicationDetail', {
-      application: {
-        id: Date.now().toString(),
-        jobTitle: job.title,
-        farm: job.farm,
-        emoji: job.emoji,
-        status: 'pending',
-        message: message || 'Başvuru mesajı yok.',
-        wage: job.wage,
-        dates: `${startDate} — ${endDate}`
-      }
-    });
+  const handleSubmit = async () => {
+    if (!job?.id) {
+      Alert.alert('Hata', 'İlan bilgisi bulunamadı.');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const created = await applyForJob(job.id, message);
+      navigation?.navigate('ApplicationDetail', {
+        application: {
+          id: created.id,
+          jobPostId: created.jobPostId,
+          jobTitle: job.title,
+          farm: job.farm ?? '',
+          emoji: job.emoji ?? '🌾',
+          status: created.applicationStatus,
+          message: created.coverLetter ?? message,
+          wage: job.wage ?? '',
+          dates: `${startDate} — ${endDate}`,
+          appliedAt: created.appliedAt,
+        }
+      });
+    } catch (e) {
+      const msg = e.response?.data?.message || 'Başvuru gönderilemedi.';
+      Alert.alert('Hata', msg);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -140,11 +156,14 @@ export default function ApplyJobScreen({ navigation, route }) {
 
         {/* ── GÖNDER ── */}
         <Pressable
-          style={[styles.submitBtn, !canSubmit && styles.submitBtnDisabled]}
-          disabled={!canSubmit}
+          style={[styles.submitBtn, (!canSubmit || submitting) && styles.submitBtnDisabled]}
+          disabled={!canSubmit || submitting}
           onPress={handleSubmit}
         >
-          <Text style={styles.submitText}>Başvuruyu gönder</Text>
+          {submitting
+            ? <ActivityIndicator color={COLORS.textOnDark} />
+            : <Text style={styles.submitText}>Başvuruyu gönder</Text>
+          }
         </Pressable>
 
         <View style={{ height: 40 }} />

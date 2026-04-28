@@ -15,6 +15,21 @@ import { COLORS } from '../constants/colors';
 import { SPACING, RADIUS } from '../constants/spacing';
 import { FS, FW } from '../constants/typography';
 import { registerFarmer } from '../services/authService';
+import api from '../api';
+
+// Dosyayı önce upload endpoint'ine gönder, dönen URL'i döndür
+async function uploadDoc(doc) {
+  const formData = new FormData();
+  formData.append('file', {
+    uri: doc.uri,
+    name: doc.name,
+    type: doc.mimeType ?? 'application/octet-stream',
+  });
+  const res = await api.post('/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return res.data.url;
+}
 
 export default function FarmerRegisterDocumentScreen({ navigation, route }) {
   // Önceki ekranlardan gelen form verileri
@@ -54,12 +69,11 @@ export default function FarmerRegisterDocumentScreen({ navigation, route }) {
 
   const handleRemoveDoc = () => setDocSelected(null);
 
-  // API'ye kayıt isteği gönder
   const handleSubmit = async () => {
     if (!docSelected) return;
-
     setLoading(true);
     try {
+      const docUrl = await uploadDoc(docSelected);
       await registerFarmer({
         name: formData.adSoyad,
         email: formData.eposta,
@@ -67,13 +81,11 @@ export default function FarmerRegisterDocumentScreen({ navigation, route }) {
         password: formData.sifre,
         farmerName: formData.ciftlikAdi,
         farmerLocation: `${formData.sehir}/${formData.ilce}`,
-        farmerDoc: docSelected.uri, // Belge URI'si
+        farmerDoc: docUrl,
       });
-
       navigation.navigate('SignupSuccess', { role: 'farmer' });
     } catch (error) {
-      const message =
-        error.response?.data?.message || 'Kayıt sırasında bir hata oluştu.';
+      const message = error.response?.data?.message || 'Kayıt sırasında bir hata oluştu.';
       Alert.alert('Kayıt Hatası', message);
     } finally {
       setLoading(false);

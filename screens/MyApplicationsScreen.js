@@ -19,17 +19,46 @@ const STATUS_STYLE = {
   rejected: { bg: '#FFEBEE', text: COLORS.error, label: 'Reddedildi' }
 };
 
-const MOCK_APPLICATIONS = [
-  { id: '1', jobTitle: 'Şeftali Hasadı İşçisi', farm: 'Bursa Şeftali Bahçesi', emoji: '🍑', status: 'accepted', date: '2 gün önce' },
-  { id: '2', jobTitle: 'Zeytin Toplama İşçisi', farm: 'Ayvalık Zeytinlik', emoji: '🫒', status: 'pending', date: '3 gün önce' },
-  { id: '3', jobTitle: 'Kiraz Hasadı', farm: 'Tekirdağ Tarım İşletmesi', emoji: '🍒', status: 'rejected', date: '5 gün önce' },
-  { id: '4', jobTitle: 'Domates Paketleme', farm: 'Antalya Sera', emoji: '🍅', status: 'pending', date: '1 hafta önce' },
-  { id: '5', jobTitle: 'Fidan Dikimi', farm: 'Kastamonu Orman Fidanlığı', emoji: '🌱', status: 'accepted', date: '2 hafta önce' },
-];
-
 export default function MyApplicationsScreen({ navigation }) {
   const insets = useSafeAreaInsets();
+  const isFocused = useIsFocused();
   const [activeTab, setActiveTab] = useState('Tümü');
+  const [applications, setApplications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const loadApplications = useCallback(async () => {
+    try {
+      const data = await api.get('/JobApplications/my');
+      const mapped = data.data.map(a => ({
+        id: String(a.id),
+        jobPostId: a.jobPostId,
+        jobTitle: a.jobTitle ?? 'İş İlanı',
+        farm: a.applicantUniversity ?? '',
+        emoji: '🌾',
+        status: a.applicationStatus,
+        date: new Date(a.appliedAt).toLocaleDateString('tr-TR'),
+        appliedAt: a.appliedAt,
+        reviewedAt: a.reviewedAt,
+        message: a.coverLetter ?? '',
+      }));
+      setApplications(mapped);
+    } catch (e) {
+      console.error('MyApplicationsScreen load error:', e);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isFocused) loadApplications();
+  }, [isFocused]);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    loadApplications();
+  }, [loadApplications]);
 
   const tabFilter = {
     'Tümü': null,
@@ -39,8 +68,8 @@ export default function MyApplicationsScreen({ navigation }) {
   };
 
   const filtered = tabFilter[activeTab]
-    ? MOCK_APPLICATIONS.filter(a => a.status === tabFilter[activeTab])
-    : MOCK_APPLICATIONS;
+    ? applications.filter(a => a.status === tabFilter[activeTab])
+    : applications;
 
   const renderItem = ({ item }) => {
     const s = STATUS_STYLE[item.status];
@@ -96,31 +125,36 @@ export default function MyApplicationsScreen({ navigation }) {
       </View>
 
       {/* ── LİSTE ── */}
-      <FlatList
-        data={filtered}
-        keyExtractor={item => item.id}
-        renderItem={renderItem}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={[
-          styles.listContent,
-          filtered.length === 0 && styles.emptyContainer,
-        ]}
-        ListEmptyComponent={
-          <View style={styles.empty}>
-            <View style={styles.emptyIcon}>
-              <Ionicons name="file-tray-outline" size={36} color={COLORS.textMuted} />
+      {loading ? (
+        <ActivityIndicator size="large" color={COLORS.lime} style={{ marginTop: 40 }} />
+      ) : (
+        <FlatList
+          data={filtered}
+          keyExtractor={item => item.id}
+          renderItem={renderItem}
+          showsVerticalScrollIndicator={false}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.lime]} />}
+          contentContainerStyle={[
+            styles.listContent,
+            filtered.length === 0 && styles.emptyContainer,
+          ]}
+          ListEmptyComponent={
+            <View style={styles.empty}>
+              <View style={styles.emptyIcon}>
+                <Ionicons name="file-tray-outline" size={36} color={COLORS.textMuted} />
+              </View>
+              <Text style={styles.emptyTitle}>Henüz başvuru yok</Text>
+              <Text style={styles.emptyDesc}>İş bulup ilk başvurunu yap</Text>
+              <Pressable
+                style={styles.findJobBtn}
+                onPress={() => navigation?.goBack()}
+              >
+                <Text style={styles.findJobText}>İş bul</Text>
+              </Pressable>
             </View>
-            <Text style={styles.emptyTitle}>Henüz başvuru yok</Text>
-            <Text style={styles.emptyDesc}>İş bulup ilk başvurunu yap</Text>
-            <Pressable
-              style={styles.findJobBtn}
-              onPress={() => navigation?.goBack()}
-            >
-              <Text style={styles.findJobText}>İş bul</Text>
-            </Pressable>
-          </View>
-        }
-      />
+          }
+        />
+      )}
     </SafeAreaView>
   );
 }
