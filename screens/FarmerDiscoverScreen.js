@@ -30,6 +30,13 @@ export default function FarmerDiscoverScreen({ navigation }) {
     loadStudents();
   }, []);
 
+  const getInitials = (name) => {
+    if (!name) return 'Ö';
+    const p = name.trim().split(' ');
+    if (p.length > 1) return (p[0][0] + p[1][0]).toUpperCase();
+    return p[0][0].toUpperCase();
+  };
+
   const loadStudents = async () => {
     try {
       const data = await getStudents();
@@ -51,13 +58,6 @@ export default function FarmerDiscoverScreen({ navigation }) {
     } finally {
       setLoading(false);
     }
-  };
-
-  const getInitials = (name) => {
-    if (!name) return 'Ö';
-    const p = name.trim().split(' ');
-    if (p.length > 1) return (p[0][0] + p[1][0]).toUpperCase();
-    return p[0][0].toUpperCase();
   };
 
   const filtered = students.filter(w => {
@@ -141,68 +141,68 @@ export default function FarmerDiscoverScreen({ navigation }) {
             </View>
           ) : (
             filtered.map(w => (
-            <Pressable key={w.id} style={styles.card}>
-              {/* Üst satır */}
-              <View style={styles.cardTop}>
-                <View style={styles.avatarWrap}>
-                  <View style={styles.avatar}>
-                    <Text style={styles.avatarText}>{w.initials}</Text>
-                  </View>
-                  {w.available && <View style={styles.availableDot} />}
-                </View>
-
-                <View style={styles.info}>
-                  <Text style={styles.name}>{w.name}</Text>
-                  <Text style={styles.uni}>{w.uni}</Text>
-
-                  <View style={styles.metaRow}>
-                    <View style={styles.metaItem}>
-                      <Ionicons name="star" size={11} color="#F5A623" />
-                      <Text style={styles.metaText}>{w.rating}</Text>
+              <Pressable key={w.id} style={styles.card}>
+                {/* Üst satır */}
+                <View style={styles.cardTop}>
+                  <View style={styles.avatarWrap}>
+                    <View style={styles.avatar}>
+                      <Text style={styles.avatarText}>{w.initials}</Text>
                     </View>
-                    <Text style={styles.metaDot}>·</Text>
-                    <Text style={styles.metaText}>{w.jobs} iş tamamlandı</Text>
-                    <Text style={styles.metaDot}>·</Text>
-                    <Ionicons name="location-outline" size={11} color={COLORS.textMuted} />
-                    <Text style={styles.metaText}>{w.dist}</Text>
+                    {w.available && <View style={styles.availableDot} />}
+                  </View>
+
+                  <View style={styles.info}>
+                    <Text style={styles.name}>{w.name}</Text>
+                    <Text style={styles.uni}>{w.uni}</Text>
+
+                    <View style={styles.metaRow}>
+                      <View style={styles.metaItem}>
+                        <Ionicons name="star" size={11} color="#F5A623" />
+                        <Text style={styles.metaText}>{w.rating}</Text>
+                      </View>
+                      <Text style={styles.metaDot}>·</Text>
+                      <Text style={styles.metaText}>{w.jobs} iş tamamlandı</Text>
+                      <Text style={styles.metaDot}>·</Text>
+                      <Ionicons name="location-outline" size={11} color={COLORS.textMuted} />
+                      <Text style={styles.metaText}>{w.dist}</Text>
+                    </View>
+                  </View>
+
+                  <View style={[styles.statusPill, { backgroundColor: w.available ? COLORS.limeSoft : '#F0F0F0' }]}>
+                    <Text style={[styles.statusText, { color: w.available ? COLORS.success : COLORS.textMuted }]}>
+                      {w.available ? 'Müsait' : 'Meşgul'}
+                    </Text>
                   </View>
                 </View>
 
-                <View style={[styles.statusPill, { backgroundColor: w.available ? COLORS.limeSoft : '#F0F0F0' }]}>
-                  <Text style={[styles.statusText, { color: w.available ? COLORS.success : COLORS.textMuted }]}>
-                    {w.available ? 'Müsait' : 'Meşgul'}
-                  </Text>
+                {/* Beceriler */}
+                <View style={styles.skillsRow}>
+                  {w.skills.map(s => (
+                    <View key={s} style={[styles.skillChip, { backgroundColor: SKILL_COLORS[s] ?? '#E8E8E8' }]}>
+                      <Text style={styles.skillText}>{s}</Text>
+                    </View>
+                  ))}
                 </View>
-              </View>
 
-              {/* Beceriler */}
-              <View style={styles.skillsRow}>
-                {w.skills.map(s => (
-                  <View key={s} style={[styles.skillChip, { backgroundColor: SKILL_COLORS[s] ?? '#E8E8E8' }]}>
-                    <Text style={styles.skillText}>{s}</Text>
-                  </View>
-                ))}
-              </View>
-
-              {/* Aksiyon */}
-              <View style={styles.cardActions}>
-                <Pressable
-                  style={styles.msgBtn}
-                  onPress={() => navigation?.navigate?.('ChatDetail', { thread: { name: w.name, initials: w.initials } })}
-                >
-                  <Ionicons name="chatbubble-outline" size={15} color={COLORS.text} />
-                  <Text style={styles.msgBtnText}>Mesaj gönder</Text>
-                </Pressable>
-                <Pressable style={styles.inviteBtn}>
-                  <Ionicons name="add" size={15} color={COLORS.dark} />
-                  <Text style={styles.inviteBtnText}>İlana davet et</Text>
-                </Pressable>
-              </View>
-            </Pressable>
-          ))
-        )}
-        <View style={{ height: 40 }} />
-      </ScrollView>
+                {/* Aksiyon */}
+                <View style={styles.cardActions}>
+                  <Pressable
+                    style={styles.msgBtn}
+                    onPress={() => navigation?.navigate?.('ChatDetail', { thread: { name: w.name, initials: w.initials } })}
+                  >
+                    <Ionicons name="chatbubble-outline" size={15} color={COLORS.text} />
+                    <Text style={styles.msgBtnText}>Mesaj gönder</Text>
+                  </Pressable>
+                  <Pressable style={styles.inviteBtn}>
+                    <Ionicons name="add" size={15} color={COLORS.dark} />
+                    <Text style={styles.inviteBtnText}>İlana davet et</Text>
+                  </Pressable>
+                </View>
+              </Pressable>
+            ))
+          )}
+          <View style={{ height: 40 }} />
+        </ScrollView>
       )}
     </View>
   );

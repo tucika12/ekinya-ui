@@ -2,7 +2,8 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
-  Pressable, TextInput, Switch, Alert, ActivityIndicator
+  Pressable, TextInput, Switch, Alert, ActivityIndicator,
+  Modal, KeyboardAvoidingView, Platform
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { COLORS } from '../constants/colors';
@@ -33,7 +34,35 @@ export default function CreateJobScreen({ navigation }) {
     escrow: true
   });
 
+  const [dateModal, setDateModal] = useState(null); // 'start' | 'end' | null
+  const [dateInput, setDateInput] = useState('');
+
   const set = (k) => (v) => setForm(f => ({ ...f, [k]: v }));
+
+  const openDateModal = (field) => {
+    setDateInput(field === 'start' ? form.startDate : form.endDate);
+    setDateModal(field);
+  };
+
+  const applyDate = () => {
+    const dateRegex = /^(\d{2})\.(\d{2})\.(\d{4})$/;
+    if (!dateRegex.test(dateInput)) {
+      Alert.alert('Geçersiz Tarih', 'Lütfen GG.AA.YYYY formatında girin. Örn: 15.07.2026');
+      return;
+    }
+    const [d, m, y] = dateInput.split('.').map(Number);
+    if (m < 1 || m > 12 || d < 1 || d > 31 || y < 2024) {
+      Alert.alert('Geçersiz Tarih', 'Lütfen geçerli bir tarih girin.');
+      return;
+    }
+    set(dateModal === 'start' ? 'startDate' : 'endDate')(dateInput);
+    setDateModal(null);
+  };
+
+  const setPreset = (startStr, endStr) => {
+    if (dateModal === 'start') setDateInput(startStr);
+    else setDateInput(endStr);
+  };
 
   const toggleSkill = (s) => {
     setForm(f => ({
@@ -190,12 +219,12 @@ export default function CreateJobScreen({ navigation }) {
 
             <Text style={styles.label}>Tarih</Text>
             <View style={styles.dateRow}>
-              <Pressable style={styles.datePicker}>
+              <Pressable style={styles.datePicker} onPress={() => openDateModal('start')}>
                 <Ionicons name="calendar-outline" size={16} color={COLORS.textSub} />
                 <Text style={styles.dateText}>{form.startDate}</Text>
               </Pressable>
               <Text style={styles.dateSep}>—</Text>
-              <Pressable style={styles.datePicker}>
+              <Pressable style={styles.datePicker} onPress={() => openDateModal('end')}>
                 <Ionicons name="calendar-outline" size={16} color={COLORS.textSub} />
                 <Text style={styles.dateText}>{form.endDate}</Text>
               </Pressable>
@@ -326,6 +355,65 @@ export default function CreateJobScreen({ navigation }) {
           )}
         </Pressable>
       </View>
+      {/* ── TARİH SEÇİCİ MODAL ── */}
+      <Modal
+        visible={dateModal !== null}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setDateModal(null)}
+      >
+        <Pressable style={styles.modalOverlay} onPress={() => setDateModal(null)}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          >
+            <Pressable style={styles.modalCard} onPress={e => e.stopPropagation()}>
+              <Text style={styles.modalTitle}>
+                {dateModal === 'start' ? 'Başlangıç Tarihi' : 'Bitiş Tarihi'}
+              </Text>
+
+              {/* Hızlı seçim */}
+              <Text style={styles.modalHint}>Hızlı seçim</Text>
+              <View style={styles.presetRow}>
+                {[
+                  { label: 'Temmuz', start: '01.07.2026', end: '31.07.2026' },
+                  { label: 'Ağustos', start: '01.08.2026', end: '31.08.2026' },
+                  { label: 'Eylül', start: '01.09.2026', end: '30.09.2026' },
+                  { label: 'Ekim', start: '01.10.2026', end: '31.10.2026' },
+                ].map(p => (
+                  <Pressable
+                    key={p.label}
+                    style={styles.presetChip}
+                    onPress={() => setPreset(p.start, p.end)}
+                  >
+                    <Text style={styles.presetText}>{p.label}</Text>
+                  </Pressable>
+                ))}
+              </View>
+
+              {/* Manuel giriş */}
+              <Text style={styles.modalHint}>Ya da manuel gir (GG.AA.YYYY)</Text>
+              <TextInput
+                style={styles.modalInput}
+                value={dateInput}
+                onChangeText={setDateInput}
+                placeholder="15.07.2026"
+                placeholderTextColor={COLORS.textMuted}
+                keyboardType="numeric"
+                maxLength={10}
+              />
+
+              <View style={styles.modalActions}>
+                <Pressable style={styles.modalCancel} onPress={() => setDateModal(null)}>
+                  <Text style={styles.modalCancelText}>Vazgeç</Text>
+                </Pressable>
+                <Pressable style={styles.modalApply} onPress={applyDate}>
+                  <Text style={styles.modalApplyText}>Uygula</Text>
+                </Pressable>
+              </View>
+            </Pressable>
+          </KeyboardAvoidingView>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -509,5 +597,85 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   continueBtnDisabled: { opacity: 0.4 },
-  continueBtnText: { fontSize: FS.md, fontWeight: FW.bold, color: COLORS.textOnDark }
+  continueBtnText: { fontSize: FS.md, fontWeight: FW.bold, color: COLORS.textOnDark },
+
+  // ── TARİH SEÇİCİ MODAL ──
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'flex-end',
+  },
+  modalCard: {
+    backgroundColor: COLORS.bg,
+    borderTopLeftRadius: RADIUS.xl,
+    borderTopRightRadius: RADIUS.xl,
+    padding: SPACING.lg,
+    paddingBottom: SPACING.xl,
+  },
+  modalTitle: {
+    fontSize: FS.xl,
+    fontWeight: FW.bold,
+    color: COLORS.text,
+    marginBottom: SPACING.md,
+  },
+  modalHint: {
+    fontSize: FS.xs,
+    fontWeight: FW.semibold,
+    color: COLORS.textMuted,
+    letterSpacing: 0.8,
+    marginBottom: SPACING.sm,
+    marginTop: SPACING.sm,
+  },
+  presetRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: SPACING.sm,
+    marginBottom: SPACING.sm,
+  },
+  presetChip: {
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    borderRadius: RADIUS.pill,
+    backgroundColor: COLORS.limeSoft,
+    borderWidth: 1,
+    borderColor: COLORS.lime,
+  },
+  presetText: {
+    fontSize: FS.sm,
+    fontWeight: FW.semibold,
+    color: COLORS.dark,
+  },
+  modalInput: {
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: RADIUS.lg,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: 14,
+    fontSize: FS.lg,
+    color: COLORS.text,
+    letterSpacing: 1.5,
+    marginBottom: SPACING.lg,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: SPACING.sm,
+  },
+  modalCancel: {
+    flex: 1,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    borderRadius: RADIUS.pill,
+    paddingVertical: SPACING.md,
+    alignItems: 'center',
+  },
+  modalCancelText: { fontSize: FS.md, fontWeight: FW.semibold, color: COLORS.text },
+  modalApply: {
+    flex: 2,
+    backgroundColor: COLORS.dark,
+    borderRadius: RADIUS.pill,
+    paddingVertical: SPACING.md,
+    alignItems: 'center',
+  },
+  modalApplyText: { fontSize: FS.md, fontWeight: FW.bold, color: COLORS.textOnDark },
 });
