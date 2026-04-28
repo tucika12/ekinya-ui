@@ -39,7 +39,6 @@ export default function QRCodeScreen({ navigation, route }) {
     load();
   }, [applicationId]);
 
-  const insets_ = useSafeAreaInsets();
   const name = user?.name || user?.Name || 'Öğrenci';
   const getInitials = (n) => {
     if (!n) return '?';

@@ -60,21 +60,19 @@ export default function ProfileScreen({ navigation }) {
     );
   }
 
-  const verificationStatus = user?.verificationStatus ?? user?.VerificationStatus;
+  const verificationStatus = user?.verificationStatus;
   const badges = [
-    { label: user?.email || user?.Email ? '✓ E-posta' : '✗ E-posta', color: COLORS.success },
-    { label: user?.phoneNumber || user?.PhoneNumber ? '✓ Telefon' : '✗ Telefon', color: COLORS.success },
+    { label: user?.email ? '✓ E-posta' : '✗ E-posta', color: COLORS.success },
+    { label: user?.phoneNumber ? '✓ Telefon' : '✗ Telefon', color: COLORS.success },
     {
       label: verificationStatus === 'approved' ? '✓ Doğrulandı' : '⏳ Belge inceleniyor',
       color: verificationStatus === 'approved' ? COLORS.success : COLORS.warning,
     },
   ];
 
-  const name = user?.name || user?.Name || '';
-  const meta = user?.universityName || user?.UniversityName
-    ? user.universityName || user.UniversityName
-    : user?.farmerLocation || user?.FarmerLocation || '';
-  const score = user?.reliabilityScore ?? user?.ReliabilityScore ?? 0;
+  const name = user?.name || '';
+  const meta = user?.universityName || user?.farmerLocation || '';
+  const score = user?.reliabilityScore ?? 0;
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>

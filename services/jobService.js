@@ -38,7 +38,7 @@ export async function rejectApplication(applicationId) {
 
 // İlana başvur (Student)
 export async function applyForJob(jobPostId, message = "") {
-  const response = await api.post('/JobApplications', { jobPostId, message });
+  const response = await api.post('/JobApplications', { jobPostId, coverLetter: message });
   return response.data;
 }
 
