@@ -1,19 +1,11 @@
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, TextInput } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, ActivityIndicator, Alert } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { COLORS } from '../constants/colors';
 import { SPACING, RADIUS } from '../constants/spacing';
 import { FS, FW } from '../constants/typography';
-
-const WORKERS = [
-  { id: 1, initials: 'AY', name: 'Ayşe Yılmaz', uni: 'Yıldırım Beyazıt Üni', skills: ['Hasat', 'Fidan Dikimi'], rating: 4.8, jobs: 12, dist: '8 km', available: true },
-  { id: 2, initials: 'MK', name: 'Mehmet Koç', uni: 'Ankara Üni', skills: ['Hasat', 'Sulama'], rating: 4.6, jobs: 7, dist: '12 km', available: true },
-  { id: 3, initials: 'ZD', name: 'Zeynep Doğan', uni: 'Hacettepe Üni', skills: ['Budama', 'İlaçlama'], rating: 4.9, jobs: 20, dist: '5 km', available: false },
-  { id: 4, initials: 'EŞ', name: 'Emre Şahin', uni: 'Gazi Üni', skills: ['Hasat', 'Paketleme'], rating: 4.3, jobs: 3, dist: '20 km', available: true },
-  { id: 5, initials: 'FA', name: 'Fatma Arslan', uni: 'ODTÜ', skills: ['Budama', 'Fidan Dikimi'], rating: 4.7, jobs: 9, dist: '3 km', available: true },
-  { id: 6, initials: 'CK', name: 'Can Kaya', uni: 'Bilkent Üni', skills: ['Hasat', 'Sulama', 'Budama'], rating: 4.5, jobs: 15, dist: '15 km', available: false },
-];
+import { getStudents } from '../services/studentService';
 
 const FILTERS = ['Tümü', 'Müsait', 'Yakın', 'Deneyimli', 'Yüksek Puan'];
 
@@ -24,23 +16,60 @@ const SKILL_COLORS = {
   'Budama': '#FFE8D8',
   'İlaçlama': '#FFD8D8',
   'Paketleme': '#F0D8FF',
+  'Tarım': '#E8E8E8'
 };
 
 export default function FarmerDiscoverScreen({ navigation }) {
   const insets = useSafeAreaInsets();
   const [search, setSearch] = useState('');
   const [activeFilter, setActiveFilter] = useState('Tümü');
+  const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const filtered = WORKERS.filter(w => {
+  useEffect(() => {
+    loadStudents();
+  }, []);
+
+  const loadStudents = async () => {
+    try {
+      const data = await getStudents();
+      const mapped = data.map(s => ({
+        id: s.id,
+        initials: getInitials(s.name),
+        name: s.name || 'Öğrenci',
+        uni: s.universityName || 'Üniversite Belirtilmemiş',
+        skills: ['Tarım'], // Şimdilik backend'den beceriler gelmiyor
+        rating: '4.5',
+        jobs: 0,
+        dist: 'Yakın',
+        available: true
+      }));
+      setStudents(mapped);
+    } catch (e) {
+      console.log('Error fetching students:', e);
+      Alert.alert('Hata', 'Öğrenciler yüklenemedi.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getInitials = (name) => {
+    if (!name) return 'Ö';
+    const p = name.trim().split(' ');
+    if (p.length > 1) return (p[0][0] + p[1][0]).toUpperCase();
+    return p[0][0].toUpperCase();
+  };
+
+  const filtered = students.filter(w => {
     const matchSearch =
       w.name.toLowerCase().includes(search.toLowerCase()) ||
       w.uni.toLowerCase().includes(search.toLowerCase()) ||
       w.skills.some(s => s.toLowerCase().includes(search.toLowerCase()));
 
     if (activeFilter === 'Müsait') return matchSearch && w.available;
-    if (activeFilter === 'Yakın') return matchSearch && parseInt(w.dist) <= 10;
+    if (activeFilter === 'Yakın') return matchSearch && w.dist === 'Yakın';
     if (activeFilter === 'Deneyimli') return matchSearch && w.jobs >= 10;
-    if (activeFilter === 'Yüksek Puan') return matchSearch && w.rating >= 4.7;
+    if (activeFilter === 'Yüksek Puan') return matchSearch && parseFloat(w.rating) >= 4.7;
     return matchSearch;
   });
 
@@ -94,19 +123,24 @@ export default function FarmerDiscoverScreen({ navigation }) {
       </ScrollView>
 
       {/* ── İŞÇİ LİSTESİ ── */}
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={styles.list}
-        showsVerticalScrollIndicator={false}
-      >
-        {filtered.length === 0 ? (
-          <View style={styles.emptyState}>
-            <Ionicons name="people-outline" size={44} color={COLORS.border} />
-            <Text style={styles.emptyTitle}>Sonuç bulunamadı</Text>
-            <Text style={styles.emptyDesc}>Farklı bir arama veya filtre deneyin</Text>
-          </View>
-        ) : (
-          filtered.map(w => (
+      {loading ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color={COLORS.lime} />
+        </View>
+      ) : (
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={styles.list}
+          showsVerticalScrollIndicator={false}
+        >
+          {filtered.length === 0 ? (
+            <View style={styles.emptyState}>
+              <Ionicons name="people-outline" size={44} color={COLORS.border} />
+              <Text style={styles.emptyTitle}>Sonuç bulunamadı</Text>
+              <Text style={styles.emptyDesc}>Farklı bir arama veya filtre deneyin</Text>
+            </View>
+          ) : (
+            filtered.map(w => (
             <Pressable key={w.id} style={styles.card}>
               {/* Üst satır */}
               <View style={styles.cardTop}>

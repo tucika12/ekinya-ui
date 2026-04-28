@@ -2,12 +2,13 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
-  Pressable, TextInput, Switch
+  Pressable, TextInput, Switch, Alert, ActivityIndicator
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { COLORS } from '../constants/colors';
 import { SPACING, RADIUS } from '../constants/spacing';
 import { FS, FW } from '../constants/typography';
+import { createJobPost } from '../services/jobService';
 
 const JOB_TYPES = ['Hasat', 'Bakım', 'Paketleme', 'Sulama', 'Ekim', 'Diğer'];
 const SKILLS = ['Fiziksel dayanıklılık', 'Tarım bilgisi', 'Ekip çalışması', 'Araç kullanımı', 'Depolama', 'Budama'];
@@ -15,6 +16,7 @@ const SKILLS = ['Fiziksel dayanıklılık', 'Tarım bilgisi', 'Ekip çalışmas�
 export default function CreateJobScreen({ navigation }) {
   const insets = useSafeAreaInsets();
   const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     title: '',
     description: '',
@@ -22,8 +24,8 @@ export default function CreateJobScreen({ navigation }) {
     city: '',
     district: '',
     address: '',
-    startDate: '15.07.2025',
-    endDate: '30.07.2025',
+    startDate: '15.07.2026',
+    endDate: '30.07.2026',
     workerCount: 3,
     skills: [],
     wageType: 'Günlük',
@@ -48,9 +50,38 @@ export default function CreateJobScreen({ navigation }) {
 
   const canContinue = [step1Valid, step2Valid, step3Valid][step - 1];
 
-  const handleNext = () => {
-    if (step < 3) setStep(s => s + 1);
-    else navigation?.goBack();
+  const handleNext = async () => {
+    if (step < 3) {
+      setStep(s => s + 1);
+    } else {
+      setLoading(true);
+      try {
+        const parseDate = (dStr) => {
+          const [d, m, y] = dStr.split('.');
+          return new Date(`${y}-${m}-${d}T00:00:00Z`).toISOString();
+        };
+
+        const payload = {
+          title: form.title,
+          description: `${form.description}\n\nİş Türü: ${form.jobType}\nBeceriler: ${form.skills.join(', ')}`,
+          location: `${form.city}, ${form.district} - ${form.address}`,
+          startDate: parseDate(form.startDate),
+          endDate: parseDate(form.endDate),
+          hourlyRate: parseFloat(form.wage),
+          requiredWorkers: form.workerCount
+        };
+
+        await createJobPost(payload);
+        Alert.alert('Başarılı', 'İlanınız başarıyla oluşturuldu!', [
+          { text: 'Tamam', onPress: () => navigation?.goBack() }
+        ]);
+      } catch (error) {
+        console.error('Job creation error:', error?.response?.data || error);
+        Alert.alert('Hata', 'İlan oluşturulurken bir hata oluştu. Lütfen bilgileri kontrol edin.');
+      } finally {
+        setLoading(false);
+      }
+    }
   };
 
   return (
@@ -281,14 +312,18 @@ export default function CreateJobScreen({ navigation }) {
           style={[
             styles.continueBtn,
             step === 1 && { flex: 1 },
-            !canContinue && styles.continueBtnDisabled,
+            (!canContinue || loading) && styles.continueBtnDisabled,
           ]}
           onPress={handleNext}
-          disabled={!canContinue}
+          disabled={!canContinue || loading}
         >
-          <Text style={styles.continueBtnText}>
-            {step === 3 ? 'Yayınla' : 'Devam et'}
-          </Text>
+          {loading ? (
+            <ActivityIndicator color={COLORS.textOnDark} />
+          ) : (
+            <Text style={styles.continueBtnText}>
+              {step === 3 ? 'Yayınla' : 'Devam et'}
+            </Text>
+          )}
         </Pressable>
       </View>
     </SafeAreaView>

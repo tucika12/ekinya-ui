@@ -1,10 +1,11 @@
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, TextInput } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, ActivityIndicator, Alert } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { COLORS } from '../constants/colors';
 import { SPACING, RADIUS } from '../constants/spacing';
 import { FS, FW } from '../constants/typography';
+import { createReview } from '../services/reviewService';
 
 const STAR_LABELS = ['', 'Berbat', 'Kötü', 'Orta', 'İyi', 'Mükemmel'];
 const CATEGORIES = ['Çalışma gayreti', 'Dakiklik', 'İletişim', 'İş kalitesi'];
@@ -29,6 +30,8 @@ function StarRow({ count, size = 40, onPress }) {
 export default function FarmerLeaveReviewScreen({ navigation, route }) {
   const insets = useSafeAreaInsets();
   const worker = route?.params?.worker ?? {
+    applicationId: 1,
+    studentId: 2,
     name: 'Ayşe Yılmaz',
     initials: 'AY',
     job: 'Zeytin Toplama',
@@ -40,12 +43,41 @@ export default function FarmerLeaveReviewScreen({ navigation, route }) {
   const [comment, setComment] = useState('');
   const [selectedTags, setSelectedTags] = useState([]);
   const [wouldHireAgain, setWouldHireAgain] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const toggleTag = (t) => setSelectedTags(prev =>
     prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]
   );
   const setCatRating = (cat, val) => setCats(c => ({ ...c, [cat]: val }));
   const canSubmit = overall > 0;
+
+  const handleSubmit = async () => {
+    if (!worker.applicationId || !worker.studentId) {
+      Alert.alert('Hata', 'İş başvurusu bilgisi eksik.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const finalComment = `${comment}\n\nEtiketler: ${selectedTags.join(', ')}\nTekrar Çalıştırır Mı?: ${wouldHireAgain ? 'Evet' : 'Hayır'}`;
+      
+      await createReview({
+        applicationId: worker.applicationId,
+        revieweeId: worker.studentId,
+        rating: overall,
+        comment: finalComment
+      });
+
+      Alert.alert('Başarılı', 'Değerlendirmeniz gönderildi!', [
+        { text: 'Tamam', onPress: () => navigation?.goBack() }
+      ]);
+    } catch (e) {
+      console.log('Review error:', e);
+      Alert.alert('Hata', e.response?.data?.message || 'Değerlendirme gönderilemedi.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <View style={styles.safe}>
@@ -143,12 +175,16 @@ export default function FarmerLeaveReviewScreen({ navigation, route }) {
 
         {/* ── GÖNDER ── */}
         <Pressable
-          style={[styles.submitBtn, !canSubmit && styles.submitBtnDisabled]}
-          disabled={!canSubmit}
-          onPress={() => navigation?.goBack()}
+          style={[styles.submitBtn, (!canSubmit || loading) && styles.submitBtnDisabled]}
+          disabled={!canSubmit || loading}
+          onPress={handleSubmit}
         >
-          <Text style={styles.submitText}>Değerlendirmeyi gönder</Text>
-        </Pressable>
+          {loading ? (
+            <ActivityIndicator color={COLORS.textOnDark} />
+          ) : (
+            <Text style={styles.submitText}>Değerlendirmeyi gönder</Text>
+          )}
+        </Pressable
 
         <View style={{ height: 40 }} />
       </ScrollView>

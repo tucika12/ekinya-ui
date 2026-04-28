@@ -1,9 +1,11 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator, Alert } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { COLORS } from '../constants/colors';
 import { SPACING, RADIUS } from '../constants/spacing';
 import { FS, FW } from '../constants/typography';
+import { getStoredUser, logout } from '../services/authService';
+import { getFarmerById } from '../services/farmerService';
 
 const stats = [
   { value: '24', label: 'İlan' },
@@ -31,6 +33,39 @@ const menuItems = [
 ];
 
 export default function FarmerProfileScreen({ navigation }) {
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadProfile();
+  }, []);
+
+  const loadProfile = async () => {
+    try {
+      const user = await getStoredUser();
+      if (!user) return;
+      const data = await getFarmerById(user.id);
+      setProfile(data);
+    } catch (e) {
+      Alert.alert('Hata', 'Profil yüklenemedi.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    navigation?.reset({ index: 0, routes: [{ name: 'Welcome' }] });
+  };
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, backgroundColor: COLORS.bg, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color={COLORS.lime} />
+      </View>
+    );
+  }
+
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
@@ -50,9 +85,9 @@ export default function FarmerProfileScreen({ navigation }) {
             <Ionicons name="camera-outline" size={14} color={COLORS.dark} />
           </View>
         </View>
-        <Text style={styles.heroName}>Mehmet Kaya</Text>
-        <Text style={styles.heroFarm}>Kaya Çiftliği</Text>
-        <Text style={styles.heroMeta}>📍 Aydın · Nazilli · Üye: Ocak 2024</Text>
+        <Text style={styles.heroName}>{profile?.name || 'Çiftçi'}</Text>
+        <Text style={styles.heroFarm}>{profile?.farmerName || 'Çiftlik'}</Text>
+        <Text style={styles.heroMeta}>📍 {profile?.farmerLocation || 'Bilinmiyor'} · Üye: 2024</Text>
       </View>
 
       {/* ── ROZETLER ── */}
@@ -104,7 +139,7 @@ export default function FarmerProfileScreen({ navigation }) {
       </View>
 
       {/* ── ÇIKIŞ ── */}
-      <Pressable style={styles.logoutBtn} onPress={() => navigation?.navigate?.('Welcome')}>
+      <Pressable style={styles.logoutBtn} onPress={handleLogout}>
         <Text style={styles.logoutText}>Çıkış yap</Text>
       </Pressable>
 

@@ -1,5 +1,11 @@
 import api from '../api';
 
+// Yeni ilan oluştur (Farmer)
+export async function createJobPost(data) {
+  const response = await api.post('/JobPosts', data);
+  return response.data;
+}
+
 // Farmer'ın kendi ilanlarını getir
 export async function getMyJobs() {
   const response = await api.get('/JobPosts/my');

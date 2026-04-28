@@ -1,18 +1,12 @@
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator, Alert, RefreshControl } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { COLORS } from '../constants/colors';
 import { SPACING, RADIUS } from '../constants/spacing';
 import { FS, FW } from '../constants/typography';
-
-const ALL_JOBS = [
-  { id: 1, title: 'Zeytin Toplama', dates: '15-25 May', wage: '₺600/gün', applications: 5, status: 'active', workers: 8 },
-  { id: 2, title: 'Domates Hasadı', dates: '10-18 May', wage: '₺550/gün', applications: 7, status: 'full', workers: 7 },
-  { id: 3, title: 'Fidan Dikimi', dates: '20-28 May', wage: '₺500/gün', applications: 3, status: 'active', workers: 4 },
-  { id: 4, title: 'Çilek Hasadı', dates: '1-10 Nis', wage: '₺580/gün', applications: 12, status: 'completed', workers: 10 },
-  { id: 5, title: 'Üzüm Bağbozumu', dates: '5-15 Eyl', wage: '₺650/gün', applications: 0, status: 'draft', workers: 6 },
-];
+import { getMyJobs } from '../services/jobService';
 
 const FILTERS = ['Tümü', 'Aktif', 'Dolu', 'Tamamlanan', 'Taslak'];
 
@@ -25,9 +19,47 @@ const STATUS_META = {
 
 export default function FarmerMyJobsScreen({ navigation }) {
   const insets = useSafeAreaInsets();
+  const isFocused = useIsFocused();
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [activeFilter, setActiveFilter] = useState('Tümü');
 
-  const filtered = ALL_JOBS.filter(j => {
+  useEffect(() => {
+    if (isFocused) {
+      loadJobs();
+    }
+  }, [isFocused]);
+
+  const loadJobs = async () => {
+    try {
+      const data = await getMyJobs();
+      const mapped = data.map(j => ({
+        id: j.id,
+        title: j.title,
+        dates: `${new Date(j.startDate).toLocaleDateString()} - ${new Date(j.endDate).toLocaleDateString()}`,
+        wage: `₺${j.hourlyRate}/saat`,
+        applications: 0,
+        status: j.jobStatus === 'open' ? 'active' : j.jobStatus,
+        workers: j.requiredWorkers,
+        raw: j
+      }));
+      setJobs(mapped);
+    } catch (e) {
+      console.log('Error loading farmer jobs:', e);
+      Alert.alert('Hata', 'İlanlar yüklenemedi.');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    loadJobs();
+  }, []);
+
+  const filtered = jobs.filter(j => {
     if (activeFilter === 'Tümü') return true;
     if (activeFilter === 'Aktif') return j.status === 'active';
     if (activeFilter === 'Dolu') return j.status === 'full';
@@ -37,8 +69,7 @@ export default function FarmerMyJobsScreen({ navigation }) {
   });
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-
+    <View style={styles.screen}>
       {/* ── ÜST BAR ── */}
       <View style={[styles.topBar, { paddingTop: insets.top + 10 }]}>
         <Pressable style={styles.backBtn} onPress={() => navigation?.goBack?.()}>
@@ -53,78 +84,98 @@ export default function FarmerMyJobsScreen({ navigation }) {
         </Pressable>
       </View>
 
-      {/* ── ÖZET ── */}
-      <View style={styles.summaryRow}>
-        {[
-          { value: ALL_JOBS.filter(j => j.status === 'active').length.toString(), label: 'Aktif' },
-          { value: ALL_JOBS.reduce((s, j) => s + j.applications, 0).toString(), label: 'Başvuru' },
-          { value: ALL_JOBS.filter(j => j.status === 'completed').length.toString(), label: 'Tamamlanan' },
-        ].map(s => (
-          <View key={s.label} style={styles.summaryCard}>
-            <Text style={styles.summaryValue}>{s.value}</Text>
-            <Text style={styles.summaryLabel}>{s.label}</Text>
+      <ScrollView 
+        contentContainerStyle={styles.content} 
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[COLORS.lime]} />
+        }
+      >
+        {loading && !refreshing ? (
+          <View style={{ paddingVertical: 40, alignItems: 'center' }}>
+            <ActivityIndicator size="large" color={COLORS.lime} />
           </View>
-        ))}
-      </View>
-
-      {/* ── FİLTRE ── */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
-        {FILTERS.map(f => (
-          <Pressable
-            key={f}
-            style={[styles.chip, activeFilter === f && styles.chipActive]}
-            onPress={() => setActiveFilter(f)}
-          >
-            <Text style={[styles.chipText, activeFilter === f && styles.chipTextActive]}>{f}</Text>
-          </Pressable>
-        ))}
-      </ScrollView>
-
-      {/* ── İLAN LİSTESİ ── */}
-      <View style={styles.list}>
-        {filtered.map(job => {
-          const meta = STATUS_META[job.status];
-          return (
-            <Pressable
-              key={job.id}
-              style={styles.jobCard}
-              onPress={() => navigation?.navigate?.('FarmerApplicants', { job })}
-            >
-              {/* Emoji kutu */}
-              <View style={styles.emojiBox}>
-                <Text style={styles.emojiText}>🌾</Text>
-              </View>
-
-              <View style={styles.jobInfo}>
-                <View style={styles.jobTitleRow}>
-                  <Text style={styles.jobTitle}>{job.title}</Text>
-                  <View style={[styles.statusPill, { backgroundColor: meta.bg }]}>
-                    <Text style={[styles.statusText, { color: meta.color }]}>{meta.label}</Text>
-                  </View>
+        ) : (
+          <>
+            {/* ── ÖZET ── */}
+            <View style={styles.summaryRow}>
+              {[
+                { value: jobs.filter(j => j.status === 'active').length.toString(), label: 'Aktif' },
+                { value: jobs.reduce((s, j) => s + j.applications, 0).toString(), label: 'Başvuru' },
+                { value: jobs.filter(j => j.status === 'completed').length.toString(), label: 'Tamamlanan' },
+              ].map(s => (
+                <View key={s.label} style={styles.summaryCard}>
+                  <Text style={styles.summaryValue}>{s.value}</Text>
+                  <Text style={styles.summaryLabel}>{s.label}</Text>
                 </View>
-                <Text style={styles.jobDates}>📅 {job.dates} · {job.wage}</Text>
-                <View style={styles.jobFooterRow}>
-                  <View style={styles.appBadge}>
-                    <Ionicons name="people-outline" size={13} color={COLORS.textSub} />
-                    <Text style={styles.appText}>{job.applications} başvuru</Text>
-                  </View>
-                  <Text style={styles.workerText}>{job.workers} işçi aranıyor</Text>
-                </View>
-              </View>
+              ))}
+            </View>
 
-              <Ionicons name="chevron-forward" size={18} color={COLORS.textMuted} />
+            {/* ── FİLTRE ── */}
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterRow}>
+              {FILTERS.map(f => (
+                <Pressable
+                  key={f}
+                  style={[styles.chip, activeFilter === f && styles.chipActive]}
+                  onPress={() => setActiveFilter(f)}
+                >
+                  <Text style={[styles.chipText, activeFilter === f && styles.chipTextActive]}>{f}</Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+
+            {/* ── İLAN LİSTESİ ── */}
+            <View style={styles.list}>
+              {filtered.length === 0 ? (
+                <Text style={{ textAlign: 'center', color: COLORS.textMuted, marginTop: 20 }}>
+                  Bu kriterlere uygun ilanınız yok.
+                </Text>
+              ) : (
+                filtered.map(job => {
+                  const meta = STATUS_META[job.status] || STATUS_META.draft;
+                  return (
+                    <Pressable
+                      key={job.id}
+                      style={styles.jobCard}
+                      onPress={() => navigation?.navigate?.('FarmerApplicants', { job })}
+                    >
+                      <View style={styles.emojiBox}>
+                        <Text style={styles.emojiText}>🌾</Text>
+                      </View>
+
+                      <View style={styles.jobInfo}>
+                        <View style={styles.jobTitleRow}>
+                          <Text style={styles.jobTitle}>{job.title}</Text>
+                          <View style={[styles.statusPill, { backgroundColor: meta.bg }]}>
+                            <Text style={[styles.statusText, { color: meta.color }]}>{meta.label}</Text>
+                          </View>
+                        </View>
+                        <Text style={styles.jobDates}>📅 {job.dates} · {job.wage}</Text>
+                        <View style={styles.jobFooterRow}>
+                          <View style={styles.appBadge}>
+                            <Ionicons name="people-outline" size={13} color={COLORS.textSub} />
+                            <Text style={styles.appText}>{job.applications} başvuru</Text>
+                          </View>
+                          <Text style={styles.workerText}>{job.workers} işçi aranıyor</Text>
+                        </View>
+                      </View>
+
+                      <Ionicons name="chevron-forward" size={18} color={COLORS.textMuted} />
+                    </Pressable>
+                  );
+                })
+              )}
+            </View>
+
+            {/* ── YENİ İLAN CTA ── */}
+            <Pressable style={styles.createBtn} onPress={() => navigation?.navigate?.('CreateJob')}>
+              <Ionicons name="add-circle-outline" size={20} color={COLORS.dark} />
+              <Text style={styles.createText}>Yeni ilan oluştur</Text>
             </Pressable>
-          );
-        })}
-      </View>
-
-      {/* ── YENİ İLAN CTA ── */}
-      <Pressable style={styles.createBtn} onPress={() => navigation?.navigate?.('CreateJob')}>
-        <Ionicons name="add-circle-outline" size={20} color={COLORS.dark} />
-        <Text style={styles.createText}>Yeni ilan oluştur</Text>
-      </Pressable>
-
-    </ScrollView>
+          </>
+        )}
+      </ScrollView>
+    </View>
   );
 }
 

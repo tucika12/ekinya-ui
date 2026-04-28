@@ -1,18 +1,11 @@
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator, Alert } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { COLORS } from '../constants/colors';
 import { SPACING, RADIUS } from '../constants/spacing';
 import { FS, FW } from '../constants/typography';
-
-const APPLICANTS = [
-  { id: 1, initials: 'AY', name: 'Ayşe Yılmaz', uni: 'Yıldırım Beyazıt Üni', rating: 4.8, jobs: 12, status: 'pending' },
-  { id: 2, initials: 'MK', name: 'Mehmet Koç', uni: 'Ankara Üni', rating: 4.6, jobs: 7, status: 'pending' },
-  { id: 3, initials: 'ZD', name: 'Zeynep Doğan', uni: 'Hacettepe Üni', rating: 4.9, jobs: 20, status: 'accepted' },
-  { id: 4, initials: 'EŞ', name: 'Emre Şahin', uni: 'Gazi Üni', rating: 4.3, jobs: 3, status: 'rejected' },
-  { id: 5, initials: 'FA', name: 'Fatma Arslan', uni: 'ODTÜ', rating: 4.7, jobs: 9, status: 'pending' },
-];
+import { getApplicantsForJob, acceptApplication, rejectApplication } from '../services/jobService';
 
 const FILTERS = ['Tümü', 'Beklemede', 'Kabul', 'Reddedilen'];
 
@@ -24,12 +17,61 @@ const STATUS_META = {
 
 export default function FarmerApplicantsScreen({ navigation, route }) {
   const insets = useSafeAreaInsets();
-  const job = route?.params?.job ?? { title: 'İş İlanı', workers: 5 };
-  const [applicants, setApplicants] = useState(APPLICANTS);
+  const job = route?.params?.job ?? { id: 0, title: 'İş İlanı', workers: 5 };
+  const [applicants, setApplicants] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('Tümü');
 
-  const accept = (id) => setApplicants(a => a.map(x => x.id === id ? { ...x, status: 'accepted' } : x));
-  const reject = (id) => setApplicants(a => a.map(x => x.id === id ? { ...x, status: 'rejected' } : x));
+  useEffect(() => {
+    if (job?.id) loadApplicants();
+    else setLoading(false);
+  }, [job?.id]);
+
+  const loadApplicants = async () => {
+    try {
+      const data = await getApplicantsForJob(job.id);
+      const mapped = data.map(a => ({
+        id: a.id,
+        initials: getInitials(a.applicantName),
+        name: a.applicantName || 'Öğrenci',
+        uni: a.applicantUniversity || 'Üniversite belirtilmemiş',
+        rating: 'Yeni',
+        jobs: 0,
+        status: a.applicationStatus
+      }));
+      setApplicants(mapped);
+    } catch (e) {
+      console.log('Error fetching applicants:', e);
+      Alert.alert('Hata', 'Başvurular yüklenemedi.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getInitials = (name) => {
+    if (!name) return 'Ö';
+    const p = name.trim().split(' ');
+    if (p.length > 1) return (p[0][0] + p[1][0]).toUpperCase();
+    return p[0][0].toUpperCase();
+  };
+
+  const accept = async (id) => {
+    try {
+      await acceptApplication(id);
+      setApplicants(a => a.map(x => x.id === id ? { ...x, status: 'accepted' } : x));
+    } catch (e) {
+      Alert.alert('Hata', e.response?.data?.message || 'Başvuru kabul edilemedi.');
+    }
+  };
+
+  const reject = async (id) => {
+    try {
+      await rejectApplication(id);
+      setApplicants(a => a.map(x => x.id === id ? { ...x, status: 'rejected' } : x));
+    } catch (e) {
+      Alert.alert('Hata', e.response?.data?.message || 'Başvuru reddedilemedi.');
+    }
+  };
 
   const filtered = applicants.filter(a => {
     if (activeFilter === 'Tümü') return true;
@@ -78,55 +120,61 @@ export default function FarmerApplicantsScreen({ navigation, route }) {
       </View>
 
       {/* ── BAŞVURU LİSTESİ (ScrollView → items always at top) ── */}
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={styles.list}
-        showsVerticalScrollIndicator={false}
-      >
-        {filtered.length === 0 ? (
-          <View style={styles.emptyState}>
-            <Ionicons name="people-outline" size={40} color={COLORS.border} />
-            <Text style={styles.emptyText}>Bu filtrede başvuru yok</Text>
-          </View>
-        ) : (
-          filtered.map(item => {
-            const meta = STATUS_META[item.status];
-            return (
-              <View key={item.id} style={styles.card}>
-                <View style={styles.cardTop}>
-                  <View style={styles.avatar}>
-                    <Text style={styles.avatarText}>{item.initials}</Text>
-                  </View>
-                  <View style={styles.info}>
-                    <Text style={styles.name}>{item.name}</Text>
-                    <Text style={styles.uni}>{item.uni}</Text>
-                    <View style={styles.metaRow}>
-                      <Text style={styles.metaText}>⭐ {item.rating}</Text>
-                      <Text style={styles.metaDot}>·</Text>
-                      <Text style={styles.metaText}>{item.jobs} iş tamamlandı</Text>
+      {loading ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color={COLORS.lime} />
+        </View>
+      ) : (
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={styles.list}
+          showsVerticalScrollIndicator={false}
+        >
+          {filtered.length === 0 ? (
+            <View style={styles.emptyState}>
+              <Ionicons name="people-outline" size={40} color={COLORS.border} />
+              <Text style={styles.emptyText}>Bu filtrede başvuru yok</Text>
+            </View>
+          ) : (
+            filtered.map(item => {
+              const meta = STATUS_META[item.status];
+              return (
+                <View key={item.id} style={styles.card}>
+                  <View style={styles.cardTop}>
+                    <View style={styles.avatar}>
+                      <Text style={styles.avatarText}>{item.initials}</Text>
+                    </View>
+                    <View style={styles.info}>
+                      <Text style={styles.name}>{item.name}</Text>
+                      <Text style={styles.uni}>{item.uni}</Text>
+                      <View style={styles.metaRow}>
+                        <Text style={styles.metaText}>⭐ {item.rating}</Text>
+                        <Text style={styles.metaDot}>·</Text>
+                        <Text style={styles.metaText}>{item.jobs} iş tamamlandı</Text>
+                      </View>
+                    </View>
+                    <View style={[styles.statusPill, { backgroundColor: meta?.bg || '#ccc' }]}>
+                      <Text style={[styles.statusText, { color: meta?.color || '#000' }]}>{meta?.label || item.status}</Text>
                     </View>
                   </View>
-                  <View style={[styles.statusPill, { backgroundColor: meta.bg }]}>
-                    <Text style={[styles.statusText, { color: meta.color }]}>{meta.label}</Text>
-                  </View>
-                </View>
 
-                {item.status === 'pending' && (
-                  <View style={styles.actions}>
-                    <Pressable style={styles.rejectBtn} onPress={() => reject(item.id)}>
-                      <Text style={styles.rejectText}>Reddet</Text>
-                    </Pressable>
-                    <Pressable style={styles.acceptBtn} onPress={() => accept(item.id)}>
-                      <Text style={styles.acceptText}>Kabul et</Text>
-                    </Pressable>
-                  </View>
-                )}
-              </View>
-            );
-          })
-        )}
-        <View style={{ height: 40 }} />
-      </ScrollView>
+                  {item.status === 'pending' && (
+                    <View style={styles.actions}>
+                      <Pressable style={styles.rejectBtn} onPress={() => reject(item.id)}>
+                        <Text style={styles.rejectText}>Reddet</Text>
+                      </Pressable>
+                      <Pressable style={styles.acceptBtn} onPress={() => accept(item.id)}>
+                        <Text style={styles.acceptText}>Kabul et</Text>
+                      </Pressable>
+                    </View>
+                  )}
+                </View>
+              );
+            })
+          )}
+          <View style={{ height: 40 }} />
+        </ScrollView>
+      )}
     </View>
   );
 }

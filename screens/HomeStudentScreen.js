@@ -1,15 +1,11 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, TextInput } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable, TextInput, ActivityIndicator } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { COLORS } from '../constants/colors';
 import { SPACING, RADIUS } from '../constants/spacing';
 import { FS, FW } from '../constants/typography';
-
-const mockJobs = [
-  { id: 1, title: 'Zeytin Toplama', farm: 'Kaya Çiftliği', location: 'Aydın', distance: '2.3 km', rating: '4.8', wage: '₺600/gün' },
-  { id: 2, title: 'Domates Hasadı', farm: 'Demir Tarım', location: 'Antalya', distance: '5.1 km', rating: '4.6', wage: '₺550/gün' },
-  { id: 3, title: 'Fidan Dikimi', farm: 'Yeşil Tarla', location: 'İzmir', distance: '3.8 km', rating: '4.9', wage: '₺500/gün' },
-];
+import { getStoredUser } from '../services/authService';
+import { getOpenJobs } from '../services/jobService';
 
 const quickLinks = [
   { label: 'Belgelerim', icon: 'document-text-outline', screen: null },
@@ -19,6 +15,52 @@ const quickLinks = [
 ];
 
 export default function HomeStudentScreen({ navigation }) {
+  const [user, setUser] = useState(null);
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const storedUser = await getStoredUser();
+        if (storedUser) setUser(storedUser);
+
+        const openJobs = await getOpenJobs();
+        const formattedJobs = openJobs.map(j => ({
+          id: j.id,
+          title: j.title,
+          farm: 'Çiftçi', // Backend JobPostDto'da çiftlik adı şu an dönmüyor
+          location: j.location,
+          distance: 'Yakın', // Konum servisi entegre edilene kadar
+          rating: 'Yeni', // Puanlama servisi eklenecek
+          wage: `₺${j.hourlyRate}/saat`
+        }));
+        setJobs(formattedJobs);
+      } catch (error) {
+        console.error('Student home data error:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  const getInitials = (name) => {
+    if (!name) return 'S';
+    const parts = name.split(' ');
+    if (parts.length > 1) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return parts[0][0].toUpperCase();
+  };
+
+  if (loading) {
+    return (
+      <View style={[styles.screen, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color={COLORS.lime} />
+      </View>
+    );
+  }
+
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
@@ -26,11 +68,11 @@ export default function HomeStudentScreen({ navigation }) {
       <View style={styles.topBar}>
         <View style={styles.avatarRow}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>AY</Text>
+            <Text style={styles.avatarText}>{getInitials(user?.name)}</Text>
           </View>
           <View>
             <Text style={styles.greet}>Merhaba 👋</Text>
-            <Text style={styles.name}>Ayşe Yılmaz</Text>
+            <Text style={styles.name}>{user?.name || 'Öğrenci'}</Text>
           </View>
         </View>
         <Pressable style={styles.bellWrap} onPress={() => navigation?.navigate?.('Notifications')}>
@@ -58,13 +100,25 @@ export default function HomeStudentScreen({ navigation }) {
       {/* ── YAKINDAKI İLANLAR ── */}
       <SectionHeader title="Yakındaki ilanlar" />
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.hScroll}>
-        {mockJobs.map(job => <JobCard key={job.id} job={job} />)}
+        {jobs.length === 0 ? (
+          <View style={{ padding: SPACING.md }}>
+            <Text style={{ color: COLORS.textSub }}>Şu an açık ilan bulunmuyor.</Text>
+          </View>
+        ) : (
+          jobs.map(job => <JobCard key={job.id} job={job} />)
+        )}
       </ScrollView>
 
       {/* ── ÖNERİLEN İLANLAR ── */}
       <SectionHeader title="Önerilen ilanlar" />
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.hScroll}>
-        {[...mockJobs].reverse().map(job => <JobCard key={job.id} job={job} />)}
+        {jobs.length === 0 ? (
+          <View style={{ padding: SPACING.md }}>
+            <Text style={{ color: COLORS.textSub }}>Öneri bulunmuyor.</Text>
+          </View>
+        ) : (
+          [...jobs].reverse().map(job => <JobCard key={`rec-${job.id}`} job={job} />)
+        )}
       </ScrollView>
 
       {/* ── HIZLI BAĞLANTILAR ── */}
