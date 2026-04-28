@@ -1,23 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator, Alert } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { COLORS } from '../constants/colors';
 import { SPACING, RADIUS } from '../constants/spacing';
 import { FS, FW } from '../constants/typography';
 import { getStoredUser } from '../services/authService';
-import { getMyJobs } from '../services/jobService';
-
-const mockApplicants = [
-  { id: 1, initials: 'AY', name: 'Ayşe Yılmaz', job: 'Zeytin Toplama', time: '2 sa önce' },
-  { id: 2, initials: 'MK', name: 'Mehmet Koç',  job: 'Domates Hasadı', time: '4 sa önce' },
-  { id: 3, initials: 'ZD', name: 'Zeynep Doğan',job: 'Fidan Dikimi',   time: 'Dün' },
-];
+import { getMyJobs, getApplicantsForJob, acceptApplication, rejectApplication } from '../services/jobService';
 
 const EMOJIS = { active: '🌱', full: '✅', completed: '🏆', draft: '📝' };
 
 export default function HomeFarmerScreen({ navigation }) {
   const [user, setUser] = useState(null);
   const [listings, setListings] = useState([]);
+  const [recentApplicants, setRecentApplicants] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -32,12 +27,26 @@ export default function HomeFarmerScreen({ navigation }) {
           title: j.title,
           status: j.jobStatus === 'open' ? 'active' : j.jobStatus,
           statusLabel: j.jobStatus === 'open' ? 'AKTİF' : j.jobStatus.toUpperCase(),
-          applications: 0, // Backend'den gelene kadar 0 bırakıyoruz
+          applications: 0,
           dates: `${new Date(j.startDate).toLocaleDateString()} - ${new Date(j.endDate).toLocaleDateString()}`,
           workers: j.requiredWorkers,
           raw: j
         }));
         setListings(formattedJobs);
+
+        // Aktif ilanların pending başvurularını çek (max 3 göster)
+        const activeJobs = jobs.filter(j => j.jobStatus === 'open');
+        const applicantPromises = activeJobs.map(j =>
+          getApplicantsForJob(j.id)
+            .then(list => list.map(a => ({ ...a, jobTitle: j.title })))
+            .catch(() => [])
+        );
+        const results = await Promise.all(applicantPromises);
+        const allPending = results
+          .flat()
+          .filter(a => a.applicationStatus === 'pending')
+          .slice(0, 3);
+        setRecentApplicants(allPending);
       } catch (error) {
         console.error('Home data load error:', error);
       } finally {
@@ -53,6 +62,24 @@ export default function HomeFarmerScreen({ navigation }) {
     const parts = name.split(' ');
     if (parts.length > 1) return (parts[0][0] + parts[1][0]).toUpperCase();
     return parts[0][0].toUpperCase();
+  };
+
+  const handleAccept = async (applicationId) => {
+    try {
+      await acceptApplication(applicationId);
+      setRecentApplicants(prev => prev.filter(a => a.id !== applicationId));
+    } catch (e) {
+      Alert.alert('Hata', e.response?.data?.message || 'Kabul edilemedi.');
+    }
+  };
+
+  const handleReject = async (applicationId) => {
+    try {
+      await rejectApplication(applicationId);
+      setRecentApplicants(prev => prev.filter(a => a.id !== applicationId));
+    } catch (e) {
+      Alert.alert('Hata', e.response?.data?.message || 'Reddedilemedi.');
+    }
   };
 
   if (loading) {
@@ -151,7 +178,7 @@ export default function HomeFarmerScreen({ navigation }) {
         )}
       </ScrollView>
 
-      {/* ── YENİ BAŞVURULAR (MOCK KALDI) ── */}
+      {/* ── YENİ BAŞVURULAR ── */}
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Yeni başvurular</Text>
         <Pressable onPress={() => navigation?.navigate?.('FarmerMyJobs')}>
@@ -159,26 +186,36 @@ export default function HomeFarmerScreen({ navigation }) {
         </Pressable>
       </View>
       <View style={styles.applicantList}>
-        {mockApplicants.map(a => (
-          <View key={a.id} style={styles.applicantRow}>
-            <View style={styles.applicantAvatar}>
-              <Text style={styles.applicantInitials}>{a.initials}</Text>
-            </View>
-            <View style={styles.applicantInfo}>
-              <Text style={styles.applicantName}>{a.name}</Text>
-              <Text style={styles.applicantJob}>{a.job}</Text>
-              <Text style={styles.applicantTime}>{a.time}</Text>
-            </View>
-            <View style={styles.applicantActions}>
-              <Pressable style={styles.acceptBtn}>
-                <Ionicons name="checkmark" size={16} color={COLORS.success} />
-              </Pressable>
-              <Pressable style={styles.rejectBtn}>
-                <Ionicons name="close" size={16} color={COLORS.error} />
-              </Pressable>
-            </View>
+        {recentApplicants.length === 0 ? (
+          <View style={[styles.applicantRow, { justifyContent: 'center' }]}>
+            <Text style={{ fontSize: FS.sm, color: COLORS.textMuted }}>Bekleyen başvuru yok.</Text>
           </View>
-        ))}
+        ) : (
+          recentApplicants.map(a => (
+            <View key={a.id} style={styles.applicantRow}>
+              <View style={styles.applicantAvatar}>
+                <Text style={styles.applicantInitials}>
+                  {getInitials(a.applicantName)}
+                </Text>
+              </View>
+              <View style={styles.applicantInfo}>
+                <Text style={styles.applicantName}>{a.applicantName || 'Öğrenci'}</Text>
+                <Text style={styles.applicantJob}>{a.jobTitle}</Text>
+                <Text style={styles.applicantTime}>
+                  {new Date(a.appliedAt).toLocaleDateString('tr-TR')}
+                </Text>
+              </View>
+              <View style={styles.applicantActions}>
+                <Pressable style={styles.acceptBtn} onPress={() => handleAccept(a.id)}>
+                  <Ionicons name="checkmark" size={16} color={COLORS.success} />
+                </Pressable>
+                <Pressable style={styles.rejectBtn} onPress={() => handleReject(a.id)}>
+                  <Ionicons name="close" size={16} color={COLORS.error} />
+                </Pressable>
+              </View>
+            </View>
+          ))
+        )}
       </View>
 
       {/* ── KEŞFET BANNER ── */}

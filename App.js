@@ -3,6 +3,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+// Navigation ref for use outside components
+export const navigationRef = React.createRef();
+
 // ── Auth Ekranları ──
 import WelcomeScreen                 from './screens/WelcomeScreen';
 import LoginScreen                   from './screens/LoginScreen';
@@ -47,7 +50,7 @@ const Stack = createNativeStackNavigator();
 export default function App() {
   return (
     <SafeAreaProvider>
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       <Stack.Navigator
         initialRouteName="Welcome"
         screenOptions={{ headerShown: false, animation: 'slide_from_right' }}
