@@ -20,12 +20,9 @@ export default function StudentRegisterFormScreen({ navigation }) {
   const [form, setForm] = useState({
     adSoyad: '',
     telefon: '',
-    yas: '',
     eposta: '',
     sifre: '',
     universite: '',
-    bolum: '',
-    sehir: ''
   });
   const [showPassword, setShowPassword] = useState(false);
 
@@ -99,33 +96,17 @@ export default function StudentRegisterFormScreen({ navigation }) {
               />
             </FormField>
 
-            {/* TELEFON + YAŞ */}
-            <View style={styles.row}>
-              <View style={{ flex: 1.4 }}>
-                <FormField label="TELEFON">
-                  <TextInput
-                    style={[styles.input, { backgroundColor: inputBg(form.telefon) }]}
-                    placeholder="5051129169"
-                    placeholderTextColor={COLORS.textMuted}
-                    value={form.telefon}
-                    onChangeText={set('telefon')}
-                    keyboardType="phone-pad"
-                  />
-                </FormField>
-              </View>
-              <View style={{ flex: 1 }}>
-                <FormField label="YAŞ">
-                  <TextInput
-                    style={[styles.input, { backgroundColor: inputBg(form.yas) }]}
-                    placeholder="20"
-                    placeholderTextColor={COLORS.textMuted}
-                    value={form.yas}
-                    onChangeText={set('yas')}
-                    keyboardType="number-pad"
-                  />
-                </FormField>
-              </View>
-            </View>
+            {/* TELEFON */}
+            <FormField label="TELEFON">
+              <TextInput
+                style={[styles.input, { backgroundColor: inputBg(form.telefon) }]}
+                placeholder="5051129169"
+                placeholderTextColor={COLORS.textMuted}
+                value={form.telefon}
+                onChangeText={set('telefon')}
+                keyboardType="phone-pad"
+              />
+            </FormField>
 
             {/* E-POSTA */}
             <FormField label="E-POSTA">
@@ -178,34 +159,6 @@ export default function StudentRegisterFormScreen({ navigation }) {
                 autoCapitalize="none"
               />
             </FormField>
-
-            {/* BÖLÜM + ŞEHİR */}
-            <View style={styles.row}>
-              <View style={{ flex: 1 }}>
-                <FormField label="BÖLÜM">
-                  <TextInput
-                    style={[styles.input, { backgroundColor: inputBg(form.bolum) }]}
-                    placeholder="ziraat"
-                    placeholderTextColor={COLORS.textMuted}
-                    value={form.bolum}
-                    onChangeText={set('bolum')}
-                    autoCapitalize="none"
-                  />
-                </FormField>
-              </View>
-              <View style={{ flex: 1 }}>
-                <FormField label="ŞEHİR">
-                  <TextInput
-                    style={[styles.input, { backgroundColor: inputBg(form.sehir) }]}
-                    placeholder="ankara"
-                    placeholderTextColor={COLORS.textMuted}
-                    value={form.sehir}
-                    onChangeText={set('sehir')}
-                    autoCapitalize="none"
-                  />
-                </FormField>
-              </View>
-            </View>
 
             {/* ── GÜVENLİK BİLGİ KUTUSU ── */}
             <View style={styles.infoBox}>
