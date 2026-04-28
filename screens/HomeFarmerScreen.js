@@ -22,19 +22,27 @@ export default function HomeFarmerScreen({ navigation }) {
         if (storedUser) setUser(storedUser);
 
         const jobs = await getMyJobs();
+
+        // Tüm ilanların başvuru sayılarını çek
+        const applicantCountPromises = jobs.map(j =>
+          getApplicantsForJob(j.id).then(list => ({ id: j.id, count: list.length })).catch(() => ({ id: j.id, count: 0 }))
+        );
+        const applicantCounts = await Promise.all(applicantCountPromises);
+        const countMap = Object.fromEntries(applicantCounts.map(x => [x.id, x.count]));
+
         const formattedJobs = jobs.map(j => ({
           id: j.id,
           title: j.title,
           status: j.jobStatus === 'open' ? 'active' : j.jobStatus,
           statusLabel: j.jobStatus === 'open' ? 'AKTİF' : j.jobStatus.toUpperCase(),
-          applications: 0,
+          applications: countMap[j.id] ?? 0,
           dates: `${new Date(j.startDate).toLocaleDateString()} - ${new Date(j.endDate).toLocaleDateString()}`,
           workers: j.requiredWorkers,
           raw: j
         }));
         setListings(formattedJobs);
 
-        // Aktif ilanların pending başvurularını çek (max 3 göster)
+        // Aktif ilanların pending başvurularını çek (max 3 göster) — zaten çekilen veriden al
         const activeJobs = jobs.filter(j => j.jobStatus === 'open');
         const applicantPromises = activeJobs.map(j =>
           getApplicantsForJob(j.id)

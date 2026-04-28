@@ -34,7 +34,7 @@ export default function MyApplicationsScreen({ navigation }) {
         id: String(a.id),
         jobPostId: a.jobPostId,
         jobTitle: a.jobTitle ?? 'İş İlanı',
-        farm: a.applicantUniversity ?? '',
+        farm: a.farmerName ?? '',
         emoji: '🌾',
         status: a.applicationStatus,
         date: new Date(a.appliedAt).toLocaleDateString('tr-TR'),
