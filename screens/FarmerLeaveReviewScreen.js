@@ -60,7 +60,7 @@ export default function FarmerLeaveReviewScreen({ navigation, route }) {
     setLoading(true);
     try {
       const finalComment = `${comment}\n\nEtiketler: ${selectedTags.join(', ')}\nTekrar Çalıştırır Mı?: ${wouldHireAgain ? 'Evet' : 'Hayır'}`;
-      
+
       await createReview({
         applicationId: worker.applicationId,
         revieweeId: worker.studentId,
@@ -184,7 +184,7 @@ export default function FarmerLeaveReviewScreen({ navigation, route }) {
           ) : (
             <Text style={styles.submitText}>Değerlendirmeyi gönder</Text>
           )}
-        </Pressable
+        </Pressable>
 
         <View style={{ height: 40 }} />
       </ScrollView>

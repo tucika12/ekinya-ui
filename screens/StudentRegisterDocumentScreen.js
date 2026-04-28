@@ -34,7 +34,7 @@ export default function StudentRegisterDocumentScreen({ navigation, route }) {
         const sizeInMB = (file.size / (1024 * 1024)).toFixed(1);
 
         if (file.size > 5 * 1024 * 1024) {
-          Alert.alert('Hata', 'Dosya boyutu 5MB\\'dan büyük olamaz.');
+          Alert.alert('Hata', "Dosya boyutu 5MB'dan büyük olamaz.");
           return;
         }
 
