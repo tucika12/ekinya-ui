@@ -2,9 +2,7 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-
-// Navigation ref for use outside components
-export const navigationRef = React.createRef();
+import { navigationRef } from './navigationService';
 
 // ── Auth Ekranları ──
 import WelcomeScreen                 from './screens/WelcomeScreen';

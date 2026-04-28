@@ -1,7 +1,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
-import { navigationRef } from './App';
+import { navigationRef } from './navigationService';
 
 // Android Emulator kullanıyorsanız genelde 10.0.2.2'dir. iOS Simulator ise localhost.
 // Kendi fiziksel cihazınızda deniyorsanız bilgisayarınızın ağdaki IP adresini yazmanız gerekir (Örn: 192.168.1.X).

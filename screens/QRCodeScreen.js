@@ -71,10 +71,6 @@ export default function QRCodeScreen({ navigation, route }) {
               size={200}
               color={COLORS.dark}
               backgroundColor="white"
-              logo={require('../assets/icon.png')}
-              logoSize={36}
-              logoBackgroundColor="white"
-              logoBorderRadius={8}
             />
           ) : (
             // Aktif session yoksa — sadece kimlik QR'ı göster
