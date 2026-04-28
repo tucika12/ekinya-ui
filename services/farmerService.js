@@ -5,7 +5,17 @@ export async function getFarmerById(id) {
   return response.data;
 }
 
-export async function updateFarmer(id, data) {
-  const response = await api.put(`/Farmers/${id}`, data);
+/**
+ * Çiftçi kendi profilini günceller.
+ * Backend sadece: name, phoneNumber, farmerLocation, farmerDoc kabul eder.
+ * id === token'daki userId olmalı, aksi hâlde 403 döner.
+ */
+export async function updateFarmer(id, { name, phoneNumber, farmerLocation, farmerDoc }) {
+  const response = await api.put(`/Farmers/${id}`, {
+    name,
+    phoneNumber,
+    farmerLocation,
+    farmerDoc,
+  });
   return response.data;
 }
