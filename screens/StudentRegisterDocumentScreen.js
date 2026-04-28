@@ -6,27 +6,98 @@ import {
   Text,
   StyleSheet,
   Pressable,
-  ScrollView
+  ScrollView,
+  ActivityIndicator,
+  Alert
 } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import * as DocumentPicker from 'expo-document-picker';
 import { COLORS } from '../constants/colors';
 import { SPACING, RADIUS } from '../constants/spacing';
 import { FS, FW } from '../constants/typography';
+import { registerStudent } from '../services/authService';
 
-export default function StudentRegisterDocumentScreen({ navigation }) {
+export default function StudentRegisterDocumentScreen({ navigation, route }) {
+  const { formData } = route.params || {};
   const [docSelected, setDocSelected] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const handlePickDoc = () => {
-    // Gerçek uygulamada expo-document-picker veya expo-image-picker kullanılır
-    // Mock: dosya seçildi gibi davran
-    setDocSelected({ name: 'ogrenci_belgesi.pdf', size: '1.2 MB' });
+  const handlePickDoc = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: ['application/pdf', 'image/jpeg', 'image/png'],
+        copyToCacheDirectory: true,
+      });
+
+      if (!result.canceled && result.assets?.length > 0) {
+        const file = result.assets[0];
+        const sizeInMB = (file.size / (1024 * 1024)).toFixed(1);
+
+        if (file.size > 5 * 1024 * 1024) {
+          Alert.alert('Hata', 'Dosya boyutu 5MB\\'dan büyük olamaz.');
+          return;
+        }
+
+        setDocSelected({
+          name: file.name,
+          size: `${sizeInMB} MB`,
+          uri: file.uri,
+          mimeType: file.mimeType,
+        });
+      }
+    } catch (err) {
+      Alert.alert('Hata', 'Dosya seçilirken bir sorun oluştu.');
+    }
   };
 
   const handleRemoveDoc = () => setDocSelected(null);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!docSelected) return;
-    navigation.navigate('SignupSuccess');
+
+    setLoading(true);
+    try {
+      await registerStudent({
+        name: formData.adSoyad,
+        email: formData.eposta,
+        phoneNumber: formData.telefon,
+        password: formData.sifre,
+        universityName: formData.universite,
+        universityDoc: docSelected.uri,
+        enrollmentYear: 2024 // Veya UI'dan alınabilir, şimdilik statik gönderelim veya backend default alsın.
+      });
+
+      navigation.navigate('SignupSuccess', { role: 'student' });
+    } catch (error) {
+      const message =
+        error.response?.data?.message || 'Kayıt sırasında bir hata oluştu.';
+      Alert.alert('Kayıt Hatası', message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSkip = async () => {
+    setLoading(true);
+    try {
+      await registerStudent({
+        name: formData.adSoyad,
+        email: formData.eposta,
+        phoneNumber: formData.telefon,
+        password: formData.sifre,
+        universityName: formData.universite,
+        universityDoc: '',
+        enrollmentYear: 2024
+      });
+
+      navigation.navigate('SignupSuccess', { role: 'student' });
+    } catch (error) {
+      const message =
+        error.response?.data?.message || 'Kayıt sırasında bir hata oluştu.';
+      Alert.alert('Kayıt Hatası', message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -103,17 +174,22 @@ export default function StudentRegisterDocumentScreen({ navigation }) {
 
         {/* ── GÖNDER BUTONU ── */}
         <Pressable
-          style={[styles.submitBtn, !docSelected && styles.submitBtnDisabled]}
+          style={[styles.submitBtn, (!docSelected || loading) && styles.submitBtnDisabled]}
           onPress={handleSubmit}
-          disabled={!docSelected}
+          disabled={!docSelected || loading}
         >
-          <Text style={styles.submitBtnText}>Belgeyi Gönder</Text>
+          {loading ? (
+            <ActivityIndicator color={COLORS.textOnDark} />
+          ) : (
+            <Text style={styles.submitBtnText}>Belgeyi Gönder</Text>
+          )}
         </Pressable>
 
         {/* ── SONRA YÜKLEYEYİM ── */}
         <Pressable
           style={styles.skipBtn}
-          onPress={() => navigation.navigate('SignupSuccess')}
+          onPress={handleSkip}
+          disabled={loading}
         >
           <Text style={styles.skipText}>Şimdi atla, sonra yükle</Text>
         </Pressable>
@@ -284,3 +360,4 @@ const styles = StyleSheet.create({
     color: COLORS.textMuted
   }
 });
+

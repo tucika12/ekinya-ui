@@ -1,15 +1,11 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { COLORS } from '../constants/colors';
 import { SPACING, RADIUS } from '../constants/spacing';
 import { FS, FW } from '../constants/typography';
-
-const mockListings = [
-  { id: 1, title: 'Zeytin Toplama', status: 'active',    statusLabel: 'AKTİF', applications: 5,  dates: '15-25 May', workers: 8 },
-  { id: 2, title: 'Domates Hasadı', status: 'full',      statusLabel: 'DOLU',  applications: 7,  dates: '10-18 May', workers: 7 },
-  { id: 3, title: 'Fidan Dikimi',   status: 'active',    statusLabel: 'AKTİF', applications: 3,  dates: '20-28 May', workers: 4 },
-];
+import { getStoredUser } from '../services/authService';
+import { getMyJobs } from '../services/jobService';
 
 const mockApplicants = [
   { id: 1, initials: 'AY', name: 'Ayşe Yılmaz', job: 'Zeytin Toplama', time: '2 sa önce' },
@@ -20,6 +16,53 @@ const mockApplicants = [
 const EMOJIS = { active: '🌱', full: '✅', completed: '🏆', draft: '📝' };
 
 export default function HomeFarmerScreen({ navigation }) {
+  const [user, setUser] = useState(null);
+  const [listings, setListings] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const storedUser = await getStoredUser();
+        if (storedUser) setUser(storedUser);
+
+        const jobs = await getMyJobs();
+        const formattedJobs = jobs.map(j => ({
+          id: j.id,
+          title: j.title,
+          status: j.jobStatus === 'open' ? 'active' : j.jobStatus,
+          statusLabel: j.jobStatus === 'open' ? 'AKTİF' : j.jobStatus.toUpperCase(),
+          applications: 0, // Backend'den gelene kadar 0 bırakıyoruz
+          dates: `${new Date(j.startDate).toLocaleDateString()} - ${new Date(j.endDate).toLocaleDateString()}`,
+          workers: j.requiredWorkers,
+          raw: j
+        }));
+        setListings(formattedJobs);
+      } catch (error) {
+        console.error('Home data load error:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  const getInitials = (name) => {
+    if (!name) return 'F';
+    const parts = name.split(' ');
+    if (parts.length > 1) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return parts[0][0].toUpperCase();
+  };
+
+  if (loading) {
+    return (
+      <View style={[styles.screen, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color={COLORS.lime} />
+      </View>
+    );
+  }
+
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
@@ -27,12 +70,12 @@ export default function HomeFarmerScreen({ navigation }) {
       <View style={styles.topBar}>
         <View style={styles.avatarRow}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>MK</Text>
+            <Text style={styles.avatarText}>{getInitials(user?.name)}</Text>
           </View>
           <View>
             <Text style={styles.greet}>Merhaba 👋</Text>
-            <Text style={styles.name}>Mehmet Kaya</Text>
-            <Text style={styles.farmName}>Kaya Çiftliği</Text>
+            <Text style={styles.name}>{user?.name || 'Çiftçi'}</Text>
+            <Text style={styles.farmName}>Çiftliğim</Text>
           </View>
         </View>
         <Pressable style={styles.bellWrap} onPress={() => navigation?.navigate?.('Notifications')}>
@@ -46,8 +89,8 @@ export default function HomeFarmerScreen({ navigation }) {
         <View style={styles.workerCardTop}>
           <View>
             <Text style={styles.workerLabel}>AKTİF İŞÇİ</Text>
-            <Text style={styles.workerCount}>12</Text>
-            <Text style={styles.workerDesc}>3 ilanında bugün çalışıyor</Text>
+            <Text style={styles.workerCount}>0</Text>
+            <Text style={styles.workerDesc}>Bugün çalışan yok</Text>
           </View>
           <Pressable style={styles.newJobBtn} onPress={() => navigation?.navigate?.('CreateJob')}>
             <Ionicons name="add" size={16} color={COLORS.dark} />
@@ -59,9 +102,9 @@ export default function HomeFarmerScreen({ navigation }) {
       {/* ── İSTATİSTİK BARI ── */}
       <View style={styles.statsBar}>
         {[
-          { value: '24', label: 'Tamamlanan' },
-          { value: '₺18K', label: 'Ödenen' },
-          { value: '⭐ 4.8', label: 'Ortalama' },
+          { value: '0', label: 'Tamamlanan' },
+          { value: '₺0', label: 'Ödenen' },
+          { value: '⭐ 0.0', label: 'Ortalama' },
         ].map((s, i) => (
           <View key={i} style={[styles.statCol, i < 2 && styles.statDivider]}>
             <Text style={styles.statValue}>{s.value}</Text>
@@ -78,33 +121,37 @@ export default function HomeFarmerScreen({ navigation }) {
         </Pressable>
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.hScroll}>
-        {mockListings.map(job => (
-          <Pressable
-            key={job.id}
-            style={styles.jobCard}
-            onPress={() => navigation?.navigate?.('FarmerApplicants', { job })}
-          >
-            {/* Üst görsel alanı — öğrenci kartıyla aynı stil */}
-            <View style={[styles.jobImage, { backgroundColor: job.status === 'active' ? '#D8EDD8' : '#E8E8E8' }]}>
-              <View style={[styles.statusPill, { backgroundColor: job.status === 'active' ? COLORS.lime : '#D0D0D0' }]}>
-                <Text style={styles.statusText}>{job.statusLabel}</Text>
+        {listings.length === 0 ? (
+          <View style={{ padding: SPACING.md }}>
+            <Text style={{ color: COLORS.textSub }}>Henüz ilanınız yok.</Text>
+          </View>
+        ) : (
+          listings.map(job => (
+            <Pressable
+              key={job.id}
+              style={styles.jobCard}
+              onPress={() => navigation?.navigate?.('FarmerApplicants', { job })}
+            >
+              <View style={[styles.jobImage, { backgroundColor: job.status === 'active' ? '#D8EDD8' : '#E8E8E8' }]}>
+                <View style={[styles.statusPill, { backgroundColor: job.status === 'active' ? COLORS.lime : '#D0D0D0' }]}>
+                  <Text style={styles.statusText}>{job.statusLabel}</Text>
+                </View>
+                <View style={styles.appBadge}>
+                  <Ionicons name="people-outline" size={11} color={COLORS.dark} />
+                  <Text style={styles.appBadgeText}>{job.applications}</Text>
+                </View>
               </View>
-              <View style={styles.appBadge}>
-                <Ionicons name="people-outline" size={11} color={COLORS.dark} />
-                <Text style={styles.appBadgeText}>{job.applications}</Text>
+              <View style={styles.jobBody}>
+                <Text style={styles.jobTitle} numberOfLines={1}>{job.title}</Text>
+                <Text style={styles.jobDates}>{job.dates}</Text>
+                <Text style={styles.jobWorkers}>{job.workers} işçi aranıyor</Text>
               </View>
-            </View>
-            {/* Kart içeriği */}
-            <View style={styles.jobBody}>
-              <Text style={styles.jobTitle} numberOfLines={1}>{job.title}</Text>
-              <Text style={styles.jobDates}>{job.dates}</Text>
-              <Text style={styles.jobWorkers}>{job.workers} işçi aranıyor</Text>
-            </View>
-          </Pressable>
-        ))}
+            </Pressable>
+          ))
+        )}
       </ScrollView>
 
-      {/* ── YENİ BAŞVURULAR ── */}
+      {/* ── YENİ BAŞVURULAR (MOCK KALDI) ── */}
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>Yeni başvurular</Text>
         <Pressable onPress={() => navigation?.navigate?.('FarmerMyJobs')}>

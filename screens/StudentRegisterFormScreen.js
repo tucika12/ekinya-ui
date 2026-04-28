@@ -222,7 +222,7 @@ export default function StudentRegisterFormScreen({ navigation }) {
           <Pressable
             style={[styles.continueBtn, !isValid && styles.continueBtnDisabled]}
             disabled={!isValid}
-            onPress={() => navigation.navigate('StudentRegisterEmail', { email: form.eposta })}
+            onPress={() => navigation.navigate('StudentRegisterEmail', { email: form.eposta, formData: form })}
           >
             <Text style={styles.continueBtnText}>Devam et</Text>
             <Ionicons name="arrow-forward" size={18} color={COLORS.textOnDark} />

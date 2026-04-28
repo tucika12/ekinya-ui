@@ -1,0 +1,37 @@
+import api from '../api';
+
+// Farmer'ın kendi ilanlarını getir
+export async function getMyJobs() {
+  const response = await api.get('/JobPosts/my');
+  return response.data;
+}
+
+// Bir ilana gelen başvuruları getir (Farmer için)
+export async function getApplicantsForJob(jobId) {
+  const response = await api.get(`/JobApplications/by-job-post/${jobId}`);
+  return response.data;
+}
+
+// Tüm açık ilanları getir (Student için)
+export async function getOpenJobs(params = {}) {
+  const response = await api.get('/JobPosts/open', { params });
+  return response.data;
+}
+
+// Başvuru kabul et (Farmer)
+export async function acceptApplication(applicationId) {
+  const response = await api.post(`/JobApplications/${applicationId}/accept`);
+  return response.data;
+}
+
+// Başvuru reddet (Farmer)
+export async function rejectApplication(applicationId) {
+  const response = await api.post(`/JobApplications/${applicationId}/reject`);
+  return response.data;
+}
+
+// İlana başvur (Student)
+export async function applyForJob(jobPostId, message = "") {
+  const response = await api.post('/JobApplications', { jobPostId, message });
+  return response.data;
+}

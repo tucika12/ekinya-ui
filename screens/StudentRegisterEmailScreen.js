@@ -15,6 +15,7 @@ import { FS, FW } from '../constants/typography';
 
 export default function StudentRegisterEmailScreen({ navigation, route }) {
   const email = route?.params?.email || 'e-posta adresinize';
+  const formData = route?.params?.formData || {};
   const [resent, setResent] = useState(false);
 
   const handleResend = () => {
@@ -59,7 +60,7 @@ export default function StudentRegisterEmailScreen({ navigation, route }) {
           {/* Doğruladım butonu */}
           <Pressable
             style={styles.confirmBtn}
-            onPress={() => navigation.navigate('StudentRegisterDocument')}
+            onPress={() => navigation.navigate('StudentRegisterDocument', { formData })}
           >
             <Ionicons name="checkmark-circle-outline" size={20} color={COLORS.textOnDark} />
             <Text style={styles.confirmBtnText}>Doğruladım, devam et</Text>
