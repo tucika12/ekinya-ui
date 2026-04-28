@@ -105,7 +105,7 @@ export default function HomeStudentScreen({ navigation }) {
             <Text style={{ color: COLORS.textSub }}>Şu an açık ilan bulunmuyor.</Text>
           </View>
         ) : (
-          jobs.map(job => <JobCard key={job.id} job={job} />)
+          jobs.map(job => <JobCard key={job.id} job={job} navigation={navigation} />)
         )}
       </ScrollView>
 
@@ -117,7 +117,7 @@ export default function HomeStudentScreen({ navigation }) {
             <Text style={{ color: COLORS.textSub }}>Öneri bulunmuyor.</Text>
           </View>
         ) : (
-          [...jobs].reverse().map(job => <JobCard key={`rec-${job.id}`} job={job} />)
+          [...jobs].reverse().map(job => <JobCard key={`rec-${job.id}`} job={job} navigation={navigation} />)
         )}
       </ScrollView>
 
@@ -153,9 +153,12 @@ function SectionHeader({ title }) {
   );
 }
 
-function JobCard({ job }) {
+function JobCard({ job, navigation }) {
   return (
-    <View style={styles.jobCard}>
+    <Pressable
+      style={({ pressed }) => [styles.jobCard, pressed && { opacity: 0.85 }]}
+      onPress={() => navigation?.navigate('JobDetail', { jobId: job.id })}
+    >
       <View style={styles.jobImage}>
         <View style={styles.wagePill}><Text style={styles.wageText}>{job.wage}</Text></View>
       </View>
@@ -167,7 +170,7 @@ function JobCard({ job }) {
           <Text style={styles.jobMeta}>⭐ {job.rating}</Text>
         </View>
       </View>
-    </View>
+    </Pressable>
   );
 }
 

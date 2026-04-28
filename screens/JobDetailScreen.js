@@ -21,17 +21,20 @@ const DEFAULT_AMENITIES = [
 
 export default function JobDetailScreen({ navigation, route }) {
   const insets = useSafeAreaInsets();
-  const routeJob = route?.params?.job ?? {};
+  // HomeStudentScreen → { jobId: 5 }
+  // Diğer ekranlar   → { job: { id, title, ... } }
+  const routeJob  = route?.params?.job ?? {};
+  const routeJobId = route?.params?.jobId ?? routeJob.id;
 
   const [job, setJob] = useState(routeJob);
-  const [loading, setLoading] = useState(!!routeJob.id);
+  const [loading, setLoading] = useState(!!routeJobId);
   const [liked, setLiked] = useState(false);
 
   useEffect(() => {
-    if (!routeJob.id) return;
+    if (!routeJobId) return;
     const load = async () => {
       try {
-        const data = await getJobById(routeJob.id);
+        const data = await getJobById(routeJobId);
         setJob({
           id:          data.id,
           title:       data.title,
@@ -55,7 +58,7 @@ export default function JobDetailScreen({ navigation, route }) {
       }
     };
     load();
-  }, [routeJob.id]);
+  }, [routeJobId]);
 
   if (loading) {
     return (

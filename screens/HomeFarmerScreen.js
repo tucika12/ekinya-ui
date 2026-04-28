@@ -42,8 +42,8 @@ export default function HomeFarmerScreen({ navigation }) {
         }));
         setListings(formattedJobs);
 
-        // Aktif ilanların pending başvurularını çek (max 3 göster) — zaten çekilen veriden al
-        const activeJobs = jobs.filter(j => j.jobStatus === 'open');
+        // Aktif ilanların pending başvurularını çek (max 3 göster)
+        const activeJobs = jobs.filter(j => j.jobStatus === 'open'); // ham jobs listesinden filtrele
         const applicantPromises = activeJobs.map(j =>
           getApplicantsForJob(j.id)
             .then(list => list.map(a => ({ ...a, jobTitle: j.title })))

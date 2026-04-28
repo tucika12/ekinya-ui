@@ -45,6 +45,7 @@ export default function EditProfileScreen({ navigation, route }) {
       await api.put('/Users/me', {
         name:        form.adSoyad,
         phoneNumber: form.telefon,
+        email:       form.eposta || undefined, // boş string gönderilmez, null bırakılır
       });
       Alert.alert('Başarılı', 'Profilin güncellendi.');
       navigation.goBack();

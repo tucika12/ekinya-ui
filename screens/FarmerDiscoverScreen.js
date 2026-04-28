@@ -39,7 +39,7 @@ export default function FarmerDiscoverScreen({ navigation }) {
         name: s.name || 'Öğrenci',
         uni: s.universityName || 'Üniversite Belirtilmemiş',
         skills: ['Tarım'], // Şimdilik backend'den beceriler gelmiyor
-        rating: '4.5',
+        rating: s.reliabilityScore != null ? s.reliabilityScore.toFixed(1) : '0.0',
         jobs: 0,
         dist: 'Yakın',
         available: true
