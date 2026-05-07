@@ -2,7 +2,8 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { navigationRef } from './navigationService';
+import JobsScreen from "./screens/JobsScreen";
+
 
 // ── Auth Ekranları ──
 import WelcomeScreen                 from './screens/WelcomeScreen';
@@ -15,6 +16,7 @@ import StudentRegisterDocumentScreen  from './screens/StudentRegisterDocumentScr
 import FarmerRegisterFormScreen       from './screens/FarmerRegisterFormScreen';
 import FarmerRegisterEmailScreen      from './screens/FarmerRegisterEmailScreen';
 import FarmerRegisterDocumentScreen   from './screens/FarmerRegisterDocumentScreen';
+
 
 // ── Ana Uygulama (Tab Navigator) ──
 import BottomTabNavigator             from './navigation/BottomTabNavigator';
@@ -38,18 +40,13 @@ import ApplyJobScreen                 from './screens/ApplyJobScreen';
 import FarmerMyJobsScreen             from './screens/FarmerMyJobsScreen';
 import FarmerApplicantsScreen         from './screens/FarmerApplicantsScreen';
 import QRCodeScreen                   from './screens/QRCodeScreen';
-import FarmerProfileScreen            from './screens/FarmerProfileScreen';
-import FarmerLeaveReviewScreen        from './screens/FarmerLeaveReviewScreen';
-import QRScannerScreen                from './screens/QRScannerScreen';
-import StudentLeaveReviewScreen       from './screens/StudentLeaveReviewScreen';
-import FarmerDiscoverScreen           from './screens/FarmerDiscoverScreen';
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
     <SafeAreaProvider>
-    <NavigationContainer ref={navigationRef}>
+    <NavigationContainer>
       <Stack.Navigator
         initialRouteName="Welcome"
         screenOptions={{ headerShown: false, animation: 'slide_from_right' }}
@@ -65,7 +62,7 @@ export default function App() {
         <Stack.Screen name="FarmerRegisterEmail"        component={FarmerRegisterEmailScreen} />
         <Stack.Screen name="FarmerRegisterDocument"     component={FarmerRegisterDocumentScreen} />
         <Stack.Screen name="SignupSuccess"              component={SignupSuccessScreen} />
-
+        
         {/* ── Ana Uygulama ── */}
         <Stack.Screen name="MainTabs"                   component={BottomTabNavigator} />
         <Stack.Screen name="FarmerTabs"                 component={FarmerBottomTabNavigator} />
@@ -85,14 +82,11 @@ export default function App() {
         <Stack.Screen name="PaymentDetail"      component={PaymentDetailScreen} />
         <Stack.Screen name="Filter"              component={FilterScreen} />
         <Stack.Screen name="ApplyJob"            component={ApplyJobScreen} />
-        <Stack.Screen name="FarmerMyJobs"          component={FarmerMyJobsScreen} />
-        <Stack.Screen name="FarmerApplicants"      component={FarmerApplicantsScreen} />
-        <Stack.Screen name="QRCode"                component={QRCodeScreen} />
-        <Stack.Screen name="QRScanner"             component={QRScannerScreen} />
-        <Stack.Screen name="FarmerProfile"         component={FarmerProfileScreen} />
-        <Stack.Screen name="FarmerLeaveReview"     component={FarmerLeaveReviewScreen} />
-        <Stack.Screen name="FarmerDiscover"        component={FarmerDiscoverScreen} />
-        <Stack.Screen name="StudentLeaveReview"    component={StudentLeaveReviewScreen} />
+        <Stack.Screen name="FarmerMyJobs"        component={FarmerMyJobsScreen} />
+        <Stack.Screen name="FarmerApplicants"    component={FarmerApplicantsScreen} />
+        <Stack.Screen name="QRCode"              component={QRCodeScreen} />
+        <Stack.Screen name="JobsScreen"                 component={JobsScreen} />
+
       </Stack.Navigator>
     </NavigationContainer>
     </SafeAreaProvider>

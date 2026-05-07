@@ -27,7 +27,9 @@ export default function WelcomeScreen({ navigation }) {
             <View style={styles.logoCircle}>
               <Ionicons name="leaf-outline" size={18} color={COLORS.lime} />
             </View>
-            <Text style={styles.brandName}>tarımeşleş</Text>
+            <Text style={styles.brandName}>EKİNYA
+              
+            </Text>
           </View>
         </View>
 
@@ -95,7 +97,7 @@ export default function WelcomeScreen({ navigation }) {
           {/* Misafir butonu */}
           <Pressable
             style={styles.ghostBtn}
-            onPress={() => navigation.navigate('Jobs')}
+            onPress={() => navigation.navigate('JobsScreen')}
           >
             <Text style={styles.ghostBtnText}>İlanları misafir olarak keşfet</Text>
             <Ionicons name="chevron-forward" size={16} color={COLORS.lime} />
