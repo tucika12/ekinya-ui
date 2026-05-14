@@ -3,11 +3,20 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
 import { navigationRef } from './navigationService';
 
-// Android Emulator kullanıyorsanız genelde 10.0.2.2'dir. iOS Simulator ise localhost.
-// Kendi fiziksel cihazınızda deniyorsanız bilgisayarınızın ağdaki IP adresini yazmanız gerekir (Örn: 192.168.1.X).
-const BASE_URL = Platform.OS === 'android' 
-  ? 'http://10.0.2.2:5290/api' 
-  : 'http://localhost:5290/api';
+function normalizeApiBase(url) {
+  const u = String(url || '').trim().replace(/\/$/, '');
+  if (!u) return null;
+  return u.endsWith('/api') ? u : `${u}/api`;
+}
+
+// Fiziksel cihaz / ortak API: app kökünde .env → EXPO_PUBLIC_API_URL=http://192.168.x.x:5290
+const fromEnv = typeof process !== 'undefined' && process.env?.EXPO_PUBLIC_API_URL;
+const resolved = normalizeApiBase(fromEnv);
+
+// Android Emulator: 10.0.2.2 = bilgisayarın localhost'u. iOS Simulator: localhost.
+const BASE_URL =
+  resolved ||
+  (Platform.OS === 'android' ? 'http://10.0.2.2:5290/api' : 'http://localhost:5290/api');
 
 const api = axios.create({
   baseURL: BASE_URL,
