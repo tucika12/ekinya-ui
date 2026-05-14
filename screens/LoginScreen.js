@@ -35,7 +35,7 @@ export default function LoginScreen({ navigation }) {
 
     try {
       setLoading(true);
-      const data = await login(email, password);
+      const data = await login(email.trim(), password);
       
       // Navigate based on userType
       if (data.userType === 'Farmer') {
