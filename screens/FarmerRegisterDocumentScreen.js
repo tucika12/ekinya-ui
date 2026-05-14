@@ -84,7 +84,7 @@ export default function FarmerRegisterDocumentScreen({ navigation, route }) {
         farmerLocation: `${formData.sehir}/${formData.ilce}`,
         farmerDoc: docUrl,
       });
-      navigation.navigate('SignupSuccess', { role: 'farmer' });
+      navigation.navigate('SignupSuccess');
     } catch (error) {
       const message = error.response?.data?.message || 'Kayıt sırasında bir hata oluştu.';
       Alert.alert('Kayıt Hatası', message);
@@ -107,7 +107,7 @@ export default function FarmerRegisterDocumentScreen({ navigation, route }) {
         farmerDoc: '',
       });
 
-      navigation.navigate('SignupSuccess', { role: 'farmer' });
+      navigation.navigate('SignupSuccess');
     } catch (error) {
       const message =
         error.response?.data?.message || 'Kayıt sırasında bir hata oluştu.';

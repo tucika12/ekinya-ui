@@ -81,7 +81,7 @@ export default function StudentRegisterDocumentScreen({ navigation, route }) {
         universityDoc: docUrl,
         enrollmentYear: 2024,
       });
-      navigation.navigate('SignupSuccess', { role: 'student' });
+      navigation.navigate('SignupSuccess');
     } catch (error) {
       const message = error.response?.data?.message || 'Kayıt sırasında bir hata oluştu.';
       Alert.alert('Kayıt Hatası', message);
@@ -103,7 +103,7 @@ export default function StudentRegisterDocumentScreen({ navigation, route }) {
         enrollmentYear: 2024
       });
 
-      navigation.navigate('SignupSuccess', { role: 'student' });
+      navigation.navigate('SignupSuccess');
     } catch (error) {
       const message =
         error.response?.data?.message || 'Kayıt sırasında bir hata oluştu.';

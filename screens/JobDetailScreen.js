@@ -25,6 +25,7 @@ export default function JobDetailScreen({ navigation, route }) {
   // Diğer ekranlar   → { job: { id, title, ... } }
   const routeJob  = route?.params?.job ?? {};
   const routeJobId = route?.params?.jobId ?? routeJob.id;
+  const isGuest = route?.params?.guest === true;
 
   const [job, setJob] = useState(routeJob);
   const [loading, setLoading] = useState(!!routeJobId);
@@ -165,15 +166,26 @@ export default function JobDetailScreen({ navigation, route }) {
 
       {/* ── ALT BAR ── */}
       <View style={styles.bottomBar}>
-        <Pressable style={styles.chatBtn}>
-          <Ionicons name="chatbubble-outline" size={22} color={COLORS.dark} />
-        </Pressable>
-        <Pressable
-          style={styles.applyBtn}
-          onPress={() => navigation?.navigate('ApplyJob', { job })}
-        >
-          <Text style={styles.applyText}>Başvur</Text>
-        </Pressable>
+        {!isGuest ? (
+          <>
+            <Pressable style={styles.chatBtn}>
+              <Ionicons name="chatbubble-outline" size={22} color={COLORS.dark} />
+            </Pressable>
+            <Pressable
+              style={styles.applyBtn}
+              onPress={() => navigation?.navigate('ApplyJob', { job })}
+            >
+              <Text style={styles.applyText}>Başvur</Text>
+            </Pressable>
+          </>
+        ) : (
+          <Pressable
+            style={styles.applyBtn}
+            onPress={() => navigation.navigate('Login')}
+          >
+            <Text style={styles.applyText}>Başvurmak için giriş yap</Text>
+          </Pressable>
+        )}
       </View>
     </SafeAreaView>
   );

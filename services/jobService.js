@@ -18,9 +18,12 @@ export async function getApplicantsForJob(jobId) {
   return response.data;
 }
 
-// Tüm açık ilanları getir (Student için)
+// Tüm açık ilanları getir (anonim de çağrılabilir — keşfet akışı)
 export async function getOpenJobs(params = {}) {
-  const response = await api.get('/JobPosts/open', { params });
+  const response = await api.get('/JobPosts/open', {
+    params,
+    headers: { Authorization: false },
+  });
   return response.data;
 }
 
@@ -42,9 +45,11 @@ export async function applyForJob(jobPostId, message = "") {
   return response.data;
 }
 
-// Tek ilan getir
+// Tek ilan getir (anonim de çağrılabilir)
 export async function getJobById(id) {
-  const response = await api.get(`/JobPosts/${id}`);
+  const response = await api.get(`/JobPosts/${id}`, {
+    headers: { Authorization: false },
+  });
   return response.data;
 }
 

@@ -10,6 +10,7 @@ import WelcomeScreen                 from './screens/WelcomeScreen';
 import LoginScreen                   from './screens/LoginScreen';
 import SignupRoleScreen               from './screens/SignupRoleScreen';
 import SignupSuccessScreen            from './screens/SignupSuccessScreen';
+import GuestExploreScreen             from './screens/GuestExploreScreen';
 import StudentRegisterFormScreen      from './screens/StudentRegisterFormScreen';
 import StudentRegisterEmailScreen     from './screens/StudentRegisterEmailScreen';
 import StudentRegisterDocumentScreen  from './screens/StudentRegisterDocumentScreen';
@@ -62,6 +63,7 @@ export default function App() {
         <Stack.Screen name="FarmerRegisterEmail"        component={FarmerRegisterEmailScreen} />
         <Stack.Screen name="FarmerRegisterDocument"     component={FarmerRegisterDocumentScreen} />
         <Stack.Screen name="SignupSuccess"              component={SignupSuccessScreen} />
+        <Stack.Screen name="GuestExplore"               component={GuestExploreScreen} />
         
         {/* ── Ana Uygulama ── */}
         <Stack.Screen name="MainTabs"                   component={BottomTabNavigator} />
