@@ -25,8 +25,9 @@ async function uploadDoc(doc) {
     name: doc.name,
     type: doc.mimeType ?? 'application/octet-stream',
   });
+  // api.js varsayılanı application/json; FormData için Content-Type'ı kaldır (RN boundary).
   const res = await api.post('/upload', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
+    headers: { 'Content-Type': false },
   });
   return res.data.url;
 }
