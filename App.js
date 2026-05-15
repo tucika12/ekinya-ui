@@ -41,6 +41,9 @@ import ApplyJobScreen                 from './screens/ApplyJobScreen';
 import FarmerMyJobsScreen             from './screens/FarmerMyJobsScreen';
 import FarmerApplicantsScreen         from './screens/FarmerApplicantsScreen';
 import QRCodeScreen                   from './screens/QRCodeScreen';
+import QRScannerScreen                from './screens/QRScannerScreen';
+import StudentLeaveReviewScreen       from './screens/StudentLeaveReviewScreen';
+import FarmerDiscoverScreen           from './screens/FarmerDiscoverScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -87,6 +90,9 @@ export default function App() {
         <Stack.Screen name="FarmerMyJobs"        component={FarmerMyJobsScreen} />
         <Stack.Screen name="FarmerApplicants"    component={FarmerApplicantsScreen} />
         <Stack.Screen name="QRCode"              component={QRCodeScreen} />
+        <Stack.Screen name="QRScanner"           component={QRScannerScreen} />
+        <Stack.Screen name="StudentLeaveReview"  component={StudentLeaveReviewScreen} />
+        <Stack.Screen name="FarmerDiscover"      component={FarmerDiscoverScreen} />
         <Stack.Screen name="JobsScreen"                 component={JobsScreen} />
 
       </Stack.Navigator>

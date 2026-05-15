@@ -29,10 +29,10 @@ export default function HomeStudentScreen({ navigation }) {
         const formattedJobs = openJobs.map(j => ({
           id: j.id,
           title: j.title,
-          farm: 'Çiftçi', // Backend JobPostDto'da çiftlik adı şu an dönmüyor
+          farm: j.farmerName || 'Çiftçi',
           location: j.location,
           distance: 'Yakın', // Konum servisi entegre edilene kadar
-          rating: 'Yeni', // Puanlama servisi eklenecek
+          rating: 'Yeni',    // Puanlama servisi eklenecek
           wage: `₺${j.hourlyRate}/saat`
         }));
         setJobs(formattedJobs);
