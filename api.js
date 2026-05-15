@@ -10,10 +10,21 @@ function normalizeApiBase(url) {
 }
 
 // Fiziksel cihaz / ortak API: app kökünde .env → EXPO_PUBLIC_API_URL=http://192.168.x.x:5290
+// ÖNEMLİ: Fiziksel cihazlardan erişim için .env dosyasında bilgisayarın yerel ağ IP'si
+// tanımlanmalıdır. "ipconfig" (Windows) veya "ifconfig" (Mac/Linux) ile öğrenebilirsin.
 const fromEnv = typeof process !== 'undefined' && process.env?.EXPO_PUBLIC_API_URL;
 const resolved = normalizeApiBase(fromEnv);
 
+if (!resolved && __DEV__) {
+  console.warn(
+    '[api.js] EXPO_PUBLIC_API_URL tanımlı değil! ' +
+    'Fiziksel cihazlardan erişim için .env dosyasına ' +
+    'EXPO_PUBLIC_API_URL=http://<bilgisayar-ip>:5290 ekleyin.'
+  );
+}
+
 // Android Emulator: 10.0.2.2 = bilgisayarın localhost'u. iOS Simulator: localhost.
+// Fiziksel cihazlar için .env'de EXPO_PUBLIC_API_URL tanımlanmalı!
 const BASE_URL =
   resolved ||
   (Platform.OS === 'android' ? 'http://10.0.2.2:5290/api' : 'http://localhost:5290/api');
