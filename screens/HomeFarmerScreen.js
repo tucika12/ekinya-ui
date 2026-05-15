@@ -110,7 +110,7 @@ export default function HomeFarmerScreen({ navigation }) {
           <View>
             <Text style={styles.greet}>Merhaba 👋</Text>
             <Text style={styles.name}>{user?.name || 'Çiftçi'}</Text>
-            <Text style={styles.farmName}>Çiftliğim</Text>
+            <Text style={styles.farmName}>{user?.farmerName || user?.name || 'Çiftliğim'}</Text>
           </View>
         </View>
         <Pressable style={styles.bellWrap} onPress={() => navigation?.navigate?.('Notifications')}>
@@ -137,9 +137,9 @@ export default function HomeFarmerScreen({ navigation }) {
       {/* ── İSTATİSTİK BARI ── */}
       <View style={styles.statsBar}>
         {[
-          { value: '0', label: 'Tamamlanan' },
-          { value: '₺0', label: 'Ödenen' },
-          { value: '⭐ 0.0', label: 'Ortalama' },
+          { value: String(listings.filter(j => j.status === 'completed').length), label: 'Tamamlanan' },
+          { value: '—', label: 'Ödenen' },
+          { value: '—', label: 'Ortalama' },
         ].map((s, i) => (
           <View key={i} style={[styles.statCol, i < 2 && styles.statDivider]}>
             <Text style={styles.statValue}>{s.value}</Text>

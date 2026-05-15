@@ -9,24 +9,17 @@ import { COLORS } from '../constants/colors';
 import { SPACING, RADIUS } from '../constants/spacing';
 import { FS, FW } from '../constants/typography';
 
-const MOCK_MESSAGES = [
-  { id: '1', text: 'Merhaba, şeftali hasadı ilanına başvurdum. Müsait tarihlerim 15-30 Temmuz.', isMine: false, time: '09:14' },
-  { id: '2', text: 'Merhaba! Başvurunuzu gördük, teşekkürler.', isMine: true, time: '09:20', read: true },
-  { id: '3', text: 'Daha önce hasat deneyiminiz var mı?', isMine: true, time: '09:21', read: true },
-  { id: '4', text: 'Evet, geçen yıl aynı bölgede kiraz hasadında çalıştım. Deneyimliyim.', isMine: false, time: '09:35' },
-  { id: '5', text: 'Harika! Başlangıç saatiniz sabah 07:00. Servis saat 06:30\'da kalkıyor.', isMine: true, time: '10:02', read: true },
-  { id: '6', text: 'Tamam, anladım. Servis nerede kalkıyor?', isMine: false, time: '10:15' },
-  { id: 'sep1', isSeparator: true, label: 'Bugün' },
-  { id: '7', text: 'Bursa Organize Sanayi bölgesi girişinden. Size konum pinini gönderebilirim.', isMine: true, time: '08:05', read: true },
-  { id: '8', text: 'Harika, bekliyorum!', isMine: false, time: '08:10' },
-];
+// Mesajlaşma sistemi henüz backend'de uygulanmadı.
+// Ekran şimdilik boş mesaj listesiyle açılıyor;
+// kullanıcı mesaj yazabilir ama gönderme sadece local state'e ekleniyor.
 
 export default function ChatDetailScreen({ navigation, route }) {
   const thread = route?.params?.thread;
-  const name = thread?.name ?? 'Mehmet Kaya';
-  const initials = thread?.initials ?? 'MK';
+  const name = thread?.name ?? 'Kullanıcı';
+  const initials = thread?.initials
+    ?? (name.trim().split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase() || '?');
 
-  const [messages, setMessages] = useState(MOCK_MESSAGES);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const flatRef = useRef(null);
 
@@ -43,15 +36,6 @@ export default function ChatDetailScreen({ navigation, route }) {
   };
 
   const renderItem = ({ item }) => {
-    if (item.isSeparator) {
-      return (
-        <View style={styles.separatorWrap}>
-          <View style={styles.separatorLine} />
-          <Text style={styles.separatorText}>{item.label}</Text>
-          <View style={styles.separatorLine} />
-        </View>
-      );
-    }
     if (item.isMine) {
       return (
         <View style={styles.myRow}>
@@ -77,7 +61,6 @@ export default function ChatDetailScreen({ navigation, route }) {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
-
       {/* ── ÜST BAR ── */}
       <View style={styles.topBar}>
         <Pressable style={styles.backBtn} onPress={() => navigation?.goBack()}>
@@ -89,16 +72,7 @@ export default function ChatDetailScreen({ navigation, route }) {
           </View>
           <View>
             <Text style={styles.contactName}>{name}</Text>
-            <Text style={styles.onlineText}>çevrimiçi</Text>
           </View>
-        </View>
-        <View style={styles.topActions}>
-          <Pressable style={styles.iconBtn}>
-            <Ionicons name="call-outline" size={20} color={COLORS.text} />
-          </Pressable>
-          <Pressable style={styles.iconBtn}>
-            <Ionicons name="ellipsis-vertical" size={20} color={COLORS.text} />
-          </Pressable>
         </View>
       </View>
 
@@ -114,16 +88,23 @@ export default function ChatDetailScreen({ navigation, route }) {
           keyExtractor={item => item.id}
           renderItem={renderItem}
           inverted
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={[
+            styles.listContent,
+            messages.length === 0 && styles.emptyListContent
+          ]}
           showsVerticalScrollIndicator={false}
           style={styles.messageList}
+          ListEmptyComponent={
+            <View style={styles.emptyWrap}>
+              <Ionicons name="chatbubble-outline" size={36} color={COLORS.textMuted} />
+              <Text style={styles.emptyText}>Henüz mesaj yok</Text>
+              <Text style={styles.emptySubText}>Mesajlaşma özelliği yakında aktif olacak</Text>
+            </View>
+          }
         />
 
         {/* ── ALT INPUT ── */}
         <View style={styles.inputBar}>
-          <Pressable style={styles.attachBtn}>
-            <Ionicons name="attach" size={22} color={COLORS.textSub} />
-          </Pressable>
           <TextInput
             style={styles.textInput}
             value={input}
@@ -147,88 +128,52 @@ export default function ChatDetailScreen({ navigation, route }) {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: COLORS.surface },
-
   topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: 10,
-    gap: SPACING.sm,
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: COLORS.surface, borderBottomWidth: 1, borderBottomColor: COLORS.border,
+    paddingHorizontal: SPACING.md, paddingVertical: 10, gap: SPACING.sm,
   },
-  backBtn: {
-    width: 36, height: 36, borderRadius: 18,
-    alignItems: 'center', justifyContent: 'center',
-  },
+  backBtn: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
   contactInfo: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: SPACING.sm },
   avatar: {
-    width: 38, height: 38, borderRadius: 19,
-    backgroundColor: COLORS.lime,
+    width: 38, height: 38, borderRadius: 19, backgroundColor: COLORS.lime,
     alignItems: 'center', justifyContent: 'center',
   },
   avatarText: { fontSize: FS.xs, fontWeight: FW.bold, color: COLORS.dark },
   contactName: { fontSize: FS.md, fontWeight: FW.bold, color: COLORS.text },
-  onlineText: { fontSize: FS.xs, fontWeight: FW.medium, color: COLORS.success },
-  topActions: { flexDirection: 'row', gap: 4 },
-  iconBtn: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-
   messageList: { backgroundColor: COLORS.bg },
   listContent: { paddingHorizontal: SPACING.md, paddingVertical: SPACING.md, gap: SPACING.sm },
-
+  emptyListContent: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  emptyWrap: { alignItems: 'center', gap: SPACING.sm, paddingVertical: SPACING.xl },
+  emptyText: { fontSize: FS.md, fontWeight: FW.semibold, color: COLORS.textSub },
+  emptySubText: { fontSize: FS.sm, color: COLORS.textMuted, textAlign: 'center' },
   myRow: { alignItems: 'flex-end', marginVertical: 2 },
   myBubble: {
-    backgroundColor: COLORS.lime,
-    borderRadius: 18, borderBottomRightRadius: 4,
-    paddingHorizontal: 14, paddingVertical: 10,
-    maxWidth: '75%',
+    backgroundColor: COLORS.lime, borderRadius: 18, borderBottomRightRadius: 4,
+    paddingHorizontal: 14, paddingVertical: 10, maxWidth: '75%',
   },
   myText: { fontSize: FS.md, color: COLORS.dark, lineHeight: 20 },
   timeRow: { flexDirection: 'row', alignItems: 'center', gap: 3, marginTop: 4, justifyContent: 'flex-end' },
   myTime: { fontSize: 11, color: COLORS.dark, opacity: 0.6 },
-
   theirRow: { alignItems: 'flex-start', marginVertical: 2 },
   theirBubble: {
-    backgroundColor: COLORS.surface,
-    borderRadius: 18, borderBottomLeftRadius: 4,
-    borderWidth: 1, borderColor: COLORS.border,
-    paddingHorizontal: 14, paddingVertical: 10,
-    maxWidth: '75%',
+    backgroundColor: COLORS.surface, borderRadius: 18, borderBottomLeftRadius: 4,
+    borderWidth: 1, borderColor: COLORS.border, paddingHorizontal: 14, paddingVertical: 10, maxWidth: '75%',
   },
   theirText: { fontSize: FS.md, color: COLORS.text, lineHeight: 20 },
   theirTime: { fontSize: 11, color: COLORS.textMuted, marginTop: 4, textAlign: 'right' },
-
-  separatorWrap: { flexDirection: 'row', alignItems: 'center', gap: SPACING.sm, marginVertical: SPACING.sm },
-  separatorLine: { flex: 1, height: 1, backgroundColor: COLORS.border },
-  separatorText: { fontSize: FS.xs, color: COLORS.textMuted, fontWeight: FW.medium, paddingHorizontal: SPACING.sm },
-
   inputBar: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    backgroundColor: COLORS.surface,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.border,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: 10,
-    gap: SPACING.sm,
+    flexDirection: 'row', alignItems: 'flex-end',
+    backgroundColor: COLORS.surface, borderTopWidth: 1, borderTopColor: COLORS.border,
+    paddingHorizontal: SPACING.md, paddingVertical: 10, gap: SPACING.sm,
   },
-  attachBtn: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   textInput: {
-    flex: 1,
-    backgroundColor: COLORS.bg,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: RADIUS.pill,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: 10,
-    fontSize: FS.md,
-    color: COLORS.text,
-    maxHeight: 100,
+    flex: 1, backgroundColor: COLORS.bg, borderWidth: 1, borderColor: COLORS.border,
+    borderRadius: RADIUS.pill, paddingHorizontal: SPACING.md, paddingVertical: 10,
+    fontSize: FS.md, color: COLORS.text, maxHeight: 100,
   },
   sendBtn: {
-    width: 40, height: 40, borderRadius: 20,
-    backgroundColor: COLORS.lime,
+    width: 40, height: 40, borderRadius: 20, backgroundColor: COLORS.lime,
     alignItems: 'center', justifyContent: 'center',
   },
   sendBtnDisabled: { opacity: 0.4 },

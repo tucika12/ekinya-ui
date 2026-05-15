@@ -7,26 +7,21 @@ import { FS, FW } from '../constants/typography';
 import { getStoredUser, logout } from '../services/authService';
 import { getFarmerById } from '../services/farmerService';
 
-const stats = [
-  { value: '24', label: 'İlan' },
-  { value: '187', label: 'İşçi' },
-  { value: '4.8 ⭐', label: 'Puan' },
-  { value: '₺98K', label: 'Ödenen' },
-];
-
-const badges = [
-  { label: '✓ Kimlik', color: COLORS.success },
-  { label: '✓ ÇKS Belgesi', color: COLORS.success },
-  { label: '⭐ Güvenilir Çiftçi', color: '#F57C00' },
-];
-
-const crops = ['🫒 Zeytin', '🍅 Domates', '🌱 Fidan', '🍓 Çilek', '🍇 Üzüm'];
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator, Alert } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { COLORS } from '../constants/colors';
+import { SPACING, RADIUS } from '../constants/spacing';
+import { FS, FW } from '../constants/typography';
+import { getStoredUser, logout } from '../services/authService';
+import { getFarmerById } from '../services/farmerService';
+import { getReviewsByUser } from '../services/reviewService';
 
 const menuItems = [
   { label: 'Çiftlik bilgileri',   icon: 'home-outline',          screen: null },
   { label: 'İlanlarım',           icon: 'list-outline',           screen: 'FarmerMyJobs' },
   { label: 'Ödeme geçmişi',       icon: 'wallet-outline',         screen: 'Wallet' },
-  { label: 'Değerlendirmelerim',  icon: 'star-outline',           screen: null },
+  { label: 'Değerlendirmelerim',  icon: 'star-outline',           screen: 'ReviewsList' },
   { label: 'Bildirimler',         icon: 'notifications-outline',  screen: 'Notifications' },
   { label: 'Ayarlar',             icon: 'settings-outline',       screen: 'Settings' },
   { label: 'Yardım & Destek',     icon: 'help-circle-outline',    screen: null },
@@ -34,6 +29,8 @@ const menuItems = [
 
 export default function FarmerProfileScreen({ navigation }) {
   const [profile, setProfile] = useState(null);
+  const [avgRating, setAvgRating] = useState(null);
+  const [reviewCount, setReviewCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -44,8 +41,16 @@ export default function FarmerProfileScreen({ navigation }) {
     try {
       const user = await getStoredUser();
       if (!user) return;
-      const data = await getFarmerById(user.id);
+      const [data, reviews] = await Promise.all([
+        getFarmerById(user.id),
+        getReviewsByUser(user.id).catch(() => []),
+      ]);
       setProfile(data);
+      setReviewCount(reviews.length);
+      if (reviews.length > 0) {
+        const avg = reviews.reduce((s, r) => s + r.rating, 0) / reviews.length;
+        setAvgRating(avg.toFixed(1));
+      }
     } catch (e) {
       Alert.alert('Hata', 'Profil yüklenemedi.');
     } finally {
@@ -65,6 +70,19 @@ export default function FarmerProfileScreen({ navigation }) {
       </View>
     );
   }
+
+  // Doğrulama rozetleri — backend'den gelen gerçek veriye göre
+  const badges = [
+    profile?.farmerDoc ? { label: '✓ Belge Yüklendi', color: COLORS.success } : null,
+    { label: '✓ Kayıtlı Çiftçi', color: COLORS.success },
+  ].filter(Boolean);
+
+  const stats = [
+    { value: String(profile?.totalJobPosts ?? 0), label: 'İlan' },
+    { value: String(profile?.totalAcceptedWorkers ?? 0), label: 'İşçi' },
+    { value: avgRating ? `${avgRating} ⭐` : '—', label: 'Puan' },
+    { value: String(reviewCount), label: 'Yorum' },
+  ];
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -86,18 +104,20 @@ export default function FarmerProfileScreen({ navigation }) {
           </View>
         </View>
         <Text style={styles.heroName}>{profile?.name || 'Çiftçi'}</Text>
-        <Text style={styles.heroFarm}>{profile?.farmerName || 'Çiftlik'}</Text>
-        <Text style={styles.heroMeta}>📍 {profile?.farmerLocation || 'Bilinmiyor'} · Üye: 2024</Text>
+        <Text style={styles.heroFarm}>{profile?.farmerName || ''}</Text>
+        <Text style={styles.heroMeta}>📍 {profile?.farmerLocation || 'Bilinmiyor'}</Text>
       </View>
 
       {/* ── ROZETLER ── */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.badgesRow}>
-        {badges.map(b => (
-          <View key={b.label} style={styles.badge}>
-            <Text style={[styles.badgeText, { color: b.color }]}>{b.label}</Text>
-          </View>
-        ))}
-      </ScrollView>
+      {badges.length > 0 && (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.badgesRow}>
+          {badges.map(b => (
+            <View key={b.label} style={styles.badge}>
+              <Text style={[styles.badgeText, { color: b.color }]}>{b.label}</Text>
+            </View>
+          ))}
+        </ScrollView>
+      )}
 
       {/* ── STATS GRID ── */}
       <View style={styles.statsGrid}>
@@ -107,18 +127,6 @@ export default function FarmerProfileScreen({ navigation }) {
             <Text style={styles.statLabel}>{s.label}</Text>
           </View>
         ))}
-      </View>
-
-      {/* ── ÜRÜNLER ── */}
-      <View style={styles.cropsCard}>
-        <Text style={styles.cropsTitle}>YETİŞTİRİLEN ÜRÜNLER</Text>
-        <View style={styles.cropsRow}>
-          {crops.map(c => (
-            <View key={c} style={styles.cropPill}>
-              <Text style={styles.cropText}>{c}</Text>
-            </View>
-          ))}
-        </View>
       </View>
 
       {/* ── MENU ── */}
@@ -166,11 +174,6 @@ const styles = StyleSheet.create({
   statCard: { width: '47%', backgroundColor: COLORS.surface, borderRadius: RADIUS.xl, borderWidth: 1, borderColor: COLORS.border, padding: SPACING.md, alignItems: 'center' },
   statValue: { fontSize: FS.xl, fontWeight: FW.bold, color: COLORS.text },
   statLabel: { fontSize: FS.xs, color: COLORS.textSub, marginTop: 4 },
-  cropsCard: { marginHorizontal: SPACING.md, backgroundColor: COLORS.surface, borderRadius: RADIUS.xl, borderWidth: 1, borderColor: COLORS.border, padding: SPACING.md, marginBottom: SPACING.md },
-  cropsTitle: { fontSize: FS.xs, fontWeight: FW.bold, color: COLORS.textMuted, letterSpacing: 1.2, marginBottom: SPACING.sm },
-  cropsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.sm },
-  cropPill: { backgroundColor: COLORS.limeSoft, borderRadius: RADIUS.pill, paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm },
-  cropText: { fontSize: FS.sm, fontWeight: FW.medium, color: COLORS.dark },
   menuCard: { marginHorizontal: SPACING.md, backgroundColor: COLORS.surface, borderRadius: RADIUS.xl, borderWidth: 1, borderColor: COLORS.border, overflow: 'hidden', marginBottom: SPACING.md },
   menuRow: { flexDirection: 'row', alignItems: 'center', padding: SPACING.md, gap: SPACING.sm },
   menuBorder: { borderBottomWidth: 1, borderBottomColor: COLORS.border },
