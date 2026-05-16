@@ -6,6 +6,7 @@ import { SPACING, RADIUS } from '../constants/spacing';
 import { FS, FW } from '../constants/typography';
 import { getStoredUser } from '../services/authService';
 import { getMyJobs, getApplicantsForJob, acceptApplication, rejectApplication } from '../services/jobService';
+import { getSessionsByApplication } from '../services/workSessionService';
 
 const EMOJIS = { active: '🌱', full: '✅', completed: '🏆', draft: '📝' };
 
@@ -13,6 +14,7 @@ export default function HomeFarmerScreen({ navigation }) {
   const [user, setUser] = useState(null);
   const [listings, setListings] = useState([]);
   const [recentApplicants, setRecentApplicants] = useState([]);
+  const [activeWorkers, setActiveWorkers] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -55,6 +57,17 @@ export default function HomeFarmerScreen({ navigation }) {
           .filter(a => a.applicationStatus === 'pending')
           .slice(0, 3);
         setRecentApplicants(allPending);
+
+        // Kabul edilmiş başvuruların aktif (checked_in) session sayısını hesapla
+        try {
+          const acceptedApps = results.flat().filter(a => a.applicationStatus === 'accepted');
+          const sessionPromises = acceptedApps.map(a =>
+            getSessionsByApplication(a.id).catch(() => [])
+          );
+          const allSessions = (await Promise.all(sessionPromises)).flat();
+          const activeCount = allSessions.filter(s => s.sessionStatus === 'checked_in').length;
+          setActiveWorkers(activeCount);
+        } catch (_) { /* session hatası ana akışı bozmasın */ }
       } catch (error) {
         console.error('Home data load error:', error);
       } finally {
@@ -124,8 +137,8 @@ export default function HomeFarmerScreen({ navigation }) {
         <View style={styles.workerCardTop}>
           <View>
             <Text style={styles.workerLabel}>AKTİF İŞÇİ</Text>
-            <Text style={styles.workerCount}>0</Text>
-            <Text style={styles.workerDesc}>Bugün çalışan yok</Text>
+            <Text style={styles.workerCount}>{activeWorkers}</Text>
+            <Text style={styles.workerDesc}>{activeWorkers > 0 ? `${activeWorkers} işçi aktif` : 'Bugün çalışan yok'}</Text>
           </View>
           <Pressable style={styles.newJobBtn} onPress={() => navigation?.navigate?.('CreateJob')}>
             <Ionicons name="add" size={16} color={COLORS.dark} />

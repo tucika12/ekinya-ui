@@ -14,7 +14,7 @@ const quickLinks = [
   { label: 'Cüzdan', icon: 'wallet-outline', screen: 'Wallet' },
 ];
 
-export default function HomeStudentScreen({ navigation }) {
+export default function HomeStudentScreen({ navigation, tabNavigation }) {
   const [user, setUser] = useState(null);
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -92,7 +92,7 @@ export default function HomeStudentScreen({ navigation }) {
         <Text style={styles.earningLabel}>AKTİF KAZANÇ</Text>
         <Text style={styles.earningAmount}>₺0</Text>
         <Text style={styles.earningDesc}>Henüz aktif iş yok. İlk ilanına başvur.</Text>
-        <Pressable style={styles.findJobBtn} onPress={() => navigation?.navigate?.('İlanlar')}>
+        <Pressable style={styles.findJobBtn} onPress={() => tabNavigation?.setActiveTab ? tabNavigation.setActiveTab('jobs') : navigation?.navigate?.('MainTabs')}>
           <Text style={styles.findJobText}>İş bul →</Text>
         </Pressable>
       </View>

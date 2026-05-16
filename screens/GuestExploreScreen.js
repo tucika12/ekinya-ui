@@ -31,7 +31,7 @@ export default function GuestExploreScreen({ navigation }) {
         const mapped = (data || []).map((j) => ({
           id: j.id,
           title: j.title,
-          farm: 'Çiftlik',
+          farm: j.farmerName || 'Çiftlik',
           location: j.location ?? '',
           distance: '',
           rating: '—',

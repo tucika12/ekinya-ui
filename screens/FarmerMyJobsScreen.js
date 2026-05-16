@@ -6,7 +6,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { COLORS } from '../constants/colors';
 import { SPACING, RADIUS } from '../constants/spacing';
 import { FS, FW } from '../constants/typography';
-import { getMyJobs } from '../services/jobService';
+import { getMyJobs, getApplicantsForJob } from '../services/jobService';
 
 const FILTERS = ['Tümü', 'Aktif', 'Dolu', 'Tamamlanan', 'Taslak'];
 
@@ -34,12 +34,22 @@ export default function FarmerMyJobsScreen({ navigation }) {
   const loadJobs = async () => {
     try {
       const data = await getMyJobs();
+
+      // Her ilanın başvuru sayısını paralel çek
+      const countPromises = data.map(j =>
+        getApplicantsForJob(j.id)
+          .then(list => ({ id: j.id, count: list.length }))
+          .catch(() => ({ id: j.id, count: 0 }))
+      );
+      const counts = await Promise.all(countPromises);
+      const countMap = Object.fromEntries(counts.map(x => [x.id, x.count]));
+
       const mapped = data.map(j => ({
         id: j.id,
         title: j.title,
         dates: `${new Date(j.startDate).toLocaleDateString()} - ${new Date(j.endDate).toLocaleDateString()}`,
         wage: `₺${j.hourlyRate}/saat`,
-        applications: 0,
+        applications: countMap[j.id] ?? 0,
         status: j.jobStatus === 'open' ? 'active' : j.jobStatus,
         workers: j.requiredWorkers,
         raw: j

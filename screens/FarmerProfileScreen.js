@@ -6,15 +6,6 @@ import { SPACING, RADIUS } from '../constants/spacing';
 import { FS, FW } from '../constants/typography';
 import { getStoredUser, logout } from '../services/authService';
 import { getFarmerById } from '../services/farmerService';
-
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, ActivityIndicator, Alert } from 'react-native';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { COLORS } from '../constants/colors';
-import { SPACING, RADIUS } from '../constants/spacing';
-import { FS, FW } from '../constants/typography';
-import { getStoredUser, logout } from '../services/authService';
-import { getFarmerById } from '../services/farmerService';
 import { getReviewsByUser } from '../services/reviewService';
 
 const menuItems = [

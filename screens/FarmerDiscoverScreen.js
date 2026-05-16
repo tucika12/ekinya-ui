@@ -45,11 +45,11 @@ export default function FarmerDiscoverScreen({ navigation }) {
         initials: getInitials(s.name),
         name: s.name || 'Öğrenci',
         uni: s.universityName || 'Üniversite Belirtilmemiş',
-        skills: ['Tarım'], // Şimdilik backend'den beceriler gelmiyor
+        skills: [], // Backend'de henüz skills alanı yok; gelecekte doldurulacak
         rating: s.reliabilityScore != null ? s.reliabilityScore.toFixed(1) : '0.0',
-        jobs: 0,
-        dist: 'Yakın',
-        available: true
+        jobs: 0,     // Tamamlanan iş sayısı backend'e eklenecek
+        dist: '—',   // Konum servisi eklenecek
+        available: true // Müsaitlik durumu backend'e eklenecek
       }));
       setStudents(mapped);
     } catch (e) {
