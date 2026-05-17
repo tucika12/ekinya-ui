@@ -17,6 +17,8 @@ import { FS, FW } from '../constants/typography';
 import { registerFarmer } from '../services/authService';
 import api from '../api';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 // Dosyayı önce upload endpoint'ine gönder, dönen URL'i döndür
 async function uploadDoc(doc) {
   const formData = new FormData();
@@ -25,13 +27,26 @@ async function uploadDoc(doc) {
     name: doc.name,
     type: doc.mimeType ?? 'application/octet-stream',
   });
-  // transformRequest: Axios'un default application/json header'ının üstesinden gelir.
-  // Content-Type'ı undefined bırakınca React Native native FormData boundary'yi atar.
-  const res = await api.post('/upload', formData, {
-    headers: { 'Content-Type': undefined },
-    transformRequest: [(data) => data],
+  
+  const token = await AsyncStorage.getItem('token');
+  const url = `${api.defaults.baseURL}/upload`;
+  
+  // React Native'de Axios FormData bug'larından kaçınmak için native fetch kullanıyoruz
+  const response = await fetch(url, {
+    method: 'POST',
+    body: formData,
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
   });
-  return res.data.url;
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(errText || 'Dosya yükleme başarısız oldu');
+  }
+
+  const data = await response.json();
+  return data.url;
 }
 
 export default function FarmerRegisterDocumentScreen({ navigation, route }) {
@@ -88,7 +103,15 @@ export default function FarmerRegisterDocumentScreen({ navigation, route }) {
       });
       navigation.navigate('SignupSuccess');
     } catch (error) {
-      const message = error.response?.data?.message || 'Kayıt sırasında bir hata oluştu.';
+      console.error('Register Submit Error:', error?.response?.data || error.message);
+      let message = 'Kayıt sırasında bir hata oluştu.';
+      if (error.response?.data?.message) {
+        message = error.response.data.message;
+      } else if (error.response?.data?.errors) {
+        message = Object.values(error.response.data.errors).flat().join('\n');
+      } else if (error.message) {
+        message = error.message;
+      }
       Alert.alert('Kayıt Hatası', message);
     } finally {
       setLoading(false);
@@ -111,8 +134,15 @@ export default function FarmerRegisterDocumentScreen({ navigation, route }) {
 
       navigation.navigate('SignupSuccess');
     } catch (error) {
-      const message =
-        error.response?.data?.message || 'Kayıt sırasında bir hata oluştu.';
+      console.error('Register Skip Error:', error?.response?.data || error.message);
+      let message = 'Kayıt sırasında bir hata oluştu.';
+      if (error.response?.data?.message) {
+        message = error.response.data.message;
+      } else if (error.response?.data?.errors) {
+        message = Object.values(error.response.data.errors).flat().join('\n');
+      } else if (error.message) {
+        message = error.message;
+      }
       Alert.alert('Kayıt Hatası', message);
     } finally {
       setLoading(false);
