@@ -3,7 +3,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { navigationRef } from './navigationService';
-import JobsScreen from "./screens/JobsScreen";
 
 
 // ── Auth Ekranları ──
@@ -94,7 +93,7 @@ export default function App() {
         <Stack.Screen name="QRScanner"           component={QRScannerScreen} />
         <Stack.Screen name="StudentLeaveReview"  component={StudentLeaveReviewScreen} />
         <Stack.Screen name="FarmerDiscover"      component={FarmerDiscoverScreen} />
-        <Stack.Screen name="JobsScreen"                 component={JobsScreen} />
+        {/* JobsScreen tab içinde render ediliyor, Stack'te ayrıca kayıt gereksiz */}
 
       </Stack.Navigator>
     </NavigationContainer>

@@ -17,7 +17,7 @@ const STATUS_META = {
   draft:     { label: 'Taslak',     bg: COLORS.surface,   color: COLORS.textSub },
 };
 
-export default function FarmerMyJobsScreen({ navigation }) {
+export default function FarmerMyJobsScreen({ navigation, tabNavigation }) {
   const insets = useSafeAreaInsets();
   const isFocused = useIsFocused();
   const [jobs, setJobs] = useState([]);
@@ -82,7 +82,14 @@ export default function FarmerMyJobsScreen({ navigation }) {
     <View style={styles.screen}>
       {/* ── ÜST BAR ── */}
       <View style={[styles.topBar, { paddingTop: insets.top + 10 }]}>
-        <Pressable style={styles.backBtn} onPress={() => navigation?.goBack?.()}>
+        <Pressable style={styles.backBtn} onPress={() => {
+          // Tab içinde açıldıysa home'a dön, Stack'ten açıldıysa goBack
+          if (tabNavigation?.setActiveTab) {
+            tabNavigation.setActiveTab('home');
+          } else {
+            navigation?.goBack?.();
+          }
+        }}>
           <Ionicons name="chevron-back" size={22} color={COLORS.text} />
         </Pressable>
         <Text style={styles.pageTitle}>İlanlarım</Text>

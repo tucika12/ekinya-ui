@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, Pressable, StyleSheet, BackHandler } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import HomeFarmerScreen    from '../screens/HomeFarmerScreen';
@@ -27,6 +28,21 @@ const SCREENS = {
 
 export default function FarmerBottomTabNavigator({ navigation }) {
   const [activeTab, setActiveTab] = useState('home');
+
+  // Android back button: tab'dayken home'a dön, home'dayken uygulamadan çık
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        if (activeTab !== 'home') {
+          setActiveTab('home');
+          return true;
+        }
+        return false;
+      };
+      const sub = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      return () => sub.remove();
+    }, [activeTab])
+  );
 
   const ActiveScreen = SCREENS[activeTab];
 

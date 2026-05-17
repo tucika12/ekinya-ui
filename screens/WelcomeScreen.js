@@ -97,7 +97,7 @@ export default function WelcomeScreen({ navigation }) {
           {/* Misafir butonu */}
           <Pressable
             style={styles.ghostBtn}
-            onPress={() => navigation.navigate('JobsScreen')}
+            onPress={() => navigation.navigate('GuestExplore')}
           >
             <Text style={styles.ghostBtnText}>İlanları misafir olarak keşfet</Text>
             <Ionicons name="chevron-forward" size={16} color={COLORS.lime} />

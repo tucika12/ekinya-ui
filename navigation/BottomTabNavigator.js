@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, Pressable, StyleSheet, BackHandler } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import HomeStudentScreen from '../screens/HomeStudentScreen';
@@ -10,11 +11,11 @@ import ChatListScreen    from '../screens/ChatListScreen';
 import ProfileScreen     from '../screens/ProfileScreen';
 
 const TABS = [
-  { key: 'home',    label: 'Ana Sayfa', icon: 'home-outline',        iconActive: 'home' },
-  { key: 'jobs',    label: 'İlanlar',   icon: 'list-outline',         iconActive: 'list' },
-  { key: 'qr',      label: '',          icon: 'qr-code',              iconActive: 'qr-code',  isQR: true },
-  { key: 'chat',    label: 'Sohbet',    icon: 'chatbubble-outline',   iconActive: 'chatbubble' },
-  { key: 'profile', label: 'Profil',    icon: 'person-outline',       iconActive: 'person' },
+  { key: 'home',    label: 'Ana Sayfa', icon: 'home-outline',      iconActive: 'home' },
+  { key: 'jobs',    label: 'İlanlar',   icon: 'list-outline',       iconActive: 'list' },
+  { key: 'qr',      label: '',          icon: 'qr-code',            iconActive: 'qr-code', isQR: true },
+  { key: 'chat',    label: 'Sohbet',    icon: 'chatbubble-outline', iconActive: 'chatbubble' },
+  { key: 'profile', label: 'Profil',    icon: 'person-outline',     iconActive: 'person' },
 ];
 
 const SCREENS = {
@@ -27,6 +28,21 @@ const SCREENS = {
 
 export default function BottomTabNavigator({ navigation }) {
   const [activeTab, setActiveTab] = useState('home');
+
+  // Android back button: tab'dayken home'a dön, home'dayken uygulamadan çık
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        if (activeTab !== 'home') {
+          setActiveTab('home');
+          return true; // back event'i tüket, root Stack'e gitme
+        }
+        return false; // home'daysa normal davranış (uygulama kapanır)
+      };
+      const sub = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      return () => sub.remove();
+    }, [activeTab])
+  );
 
   const ActiveScreen = SCREENS[activeTab];
 
