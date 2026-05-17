@@ -25,9 +25,11 @@ async function uploadDoc(doc) {
     name: doc.name,
     type: doc.mimeType ?? 'application/octet-stream',
   });
-  // api.js varsayılanı application/json; FormData için Content-Type'ı kaldır (RN boundary).
+  // transformRequest: Axios'un default application/json header'ının üstesinden gelir.
+  // Content-Type'ı undefined bırakınca React Native native FormData boundary'yi atar.
   const res = await api.post('/upload', formData, {
-    headers: { 'Content-Type': false },
+    headers: { 'Content-Type': undefined },
+    transformRequest: [(data) => data],
   });
   return res.data.url;
 }

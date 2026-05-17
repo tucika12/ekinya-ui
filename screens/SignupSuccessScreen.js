@@ -41,8 +41,8 @@ export default function SignupSuccessScreen({ navigation }) {
             </View>
           </View>
           <Text style={styles.headerDesc}>
-            Hesabın yönetici tarafından doğrulandığında bildirim alacaksın. Onaylanana kadar uygulamayı
-            giriş yapmadan keşfedebilir, açık ilanlara göz atabilirsin.
+            Başvurun yetkili ekip tarafından incelenecek. Hesabın onaylandığında
+            giriş yaparak tüm özelliklere erişebileceksin.
           </Text>
         </View>
 
@@ -53,8 +53,8 @@ export default function SignupSuccessScreen({ navigation }) {
           <View style={styles.infoBody}>
             <Text style={styles.infoTitle}>Doğrulama sonrası</Text>
             <Text style={styles.infoText}>
-              E-posta veya bildirim ile haber vereceğiz. Ardından giriş yaparak başvuru ve diğer
-              özelliklere erişebilirsin.
+              Onay süreci tamamlandığında hesabın aktif hale gelecek. Ardından
+              kayıtlı e-posta ve şifrenle giriş yapabilirsin.
             </Text>
           </View>
         </View>
