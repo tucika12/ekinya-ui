@@ -27,7 +27,7 @@ async function uploadDoc(doc) {
     name: doc.name,
     type: doc.mimeType ?? 'application/octet-stream',
   });
-  
+
   const token = await AsyncStorage.getItem('token');
   const url = `${api.defaults.baseURL}/upload`;
 

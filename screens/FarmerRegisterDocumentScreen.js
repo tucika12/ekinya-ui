@@ -27,10 +27,10 @@ async function uploadDoc(doc) {
     name: doc.name,
     type: doc.mimeType ?? 'application/octet-stream',
   });
-  
+
   const token = await AsyncStorage.getItem('token');
   const url = `${api.defaults.baseURL}/upload`;
-  
+
   // React Native'de Axios FormData bug'larından kaçınmak için native fetch kullanıyoruz
   const response = await fetch(url, {
     method: 'POST',
